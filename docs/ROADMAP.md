@@ -545,7 +545,7 @@ Note: `glab ci lint` requires:
 | ├─ Include → YAML | 1B | [ ] | Core Types |
 | ├─ Variables → YAML | 1B | [ ] | Core Types |
 | ├─ Dataclass → dict via dataclasses.asdict | 1B | [ ] | Core Types |
-| ├─ snake_case/kebab-case conversion | 1B | [ ] | — |
+| ├─ Field name case conversion (per schema spec) | 1B | [ ] | — |
 | └─ None value omission | 1B | [ ] | — |
 | **CLI Framework** | | | |
 | ├─ main.py + typer setup | 1C | [ ] | — |
@@ -578,7 +578,7 @@ Note: `glab ci lint` requires:
 | └─ Intermediate representation | 2A | [ ] | Schema Fetching |
 | **Component Codegen** | | | |
 | ├─ Generator templates (Jinja2) | 2B | [ ] | Schema Parsing |
-| ├─ Code formatting (black) | 2B | [ ] | — |
+| ├─ Code formatting (ruff) | 2B | [ ] | — |
 | ├─ components/sast wrapper | 2B | [ ] | Schema Parsing |
 | ├─ components/secret_detection wrapper | 2B | [ ] | Schema Parsing |
 | ├─ components/dependency_scanning wrapper | 2B | [ ] | Schema Parsing |

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Validate Command** (`cli/`) - Pipeline validation using glab CLI integration with --include-jobs support (#44)
 - **Lint Command** (`cli/`) - Python code quality rules with text/JSON output and exit codes (#45)
 - **Import Command** (`cli/`) - Convert .gitlab-ci.yml to Python code with code generation, scaffold support, and --single-file/--no-scaffold flags (#46)
+- **List Command** (`cli/`) - Display discovered jobs and pipelines with table/JSON output formats (#47)
 
 #### Phase 2: Core Capabilities
 

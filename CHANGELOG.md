@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Command** (`cli/`) - Stub for persona-based evaluation requiring wetwire-core integration (#48)
 - **Graph Command** (`cli/`) - DAG visualization with Mermaid and DOT format output (#48)
 
+#### Phase 4: Polish & Integration
+
+- **Reference Example Testing** (`tests/`) - Comprehensive tests for YAML parsing, code generation quality, round-trip conversion, and real-world patterns (#49)
+
 #### Phase 2: Core Capabilities
 
 - **Template Builder** (`template/`) - Topological sort using Kahn's algorithm, cycle detection, and dependency ordering for YAML generation (#42)

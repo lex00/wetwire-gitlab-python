@@ -555,7 +555,7 @@ def run_init(args: argparse.Namespace) -> int:
     return 1
 
 
-def run_design(args: argparse.Namespace) -> int:
+def run_design(args: argparse.Namespace) -> int:  # noqa: ARG001
     """Execute the design command.
 
     Args:
@@ -564,11 +564,13 @@ def run_design(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    print(f"Design command not yet implemented. Path: {args.path}")
+    print("Design command requires wetwire-core integration.", file=sys.stderr)
+    print("Install wetwire-core for AI-assisted pipeline design.", file=sys.stderr)
+    print("See: https://github.com/lex00/wetwire-core", file=sys.stderr)
     return 1
 
 
-def run_test(args: argparse.Namespace) -> int:
+def run_test(args: argparse.Namespace) -> int:  # noqa: ARG001
     """Execute the test command.
 
     Args:
@@ -577,7 +579,9 @@ def run_test(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    print(f"Test command not yet implemented. Path: {args.path}")
+    print("Test command requires wetwire-core integration.", file=sys.stderr)
+    print("Install wetwire-core for persona-based evaluation.", file=sys.stderr)
+    print("See: https://github.com/lex00/wetwire-core", file=sys.stderr)
     return 1
 
 
@@ -590,8 +594,63 @@ def run_graph(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    print(f"Graph command not yet implemented. Path: {args.path}")
-    return 1
+    from wetwire_gitlab.discover import discover_in_directory
+
+    path = Path(args.path)
+
+    if not path.exists():
+        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+        return 1
+
+    # Find source directory
+    if path.is_file():
+        scan_dir = path.parent
+    else:
+        src_dir = path / "src"
+        if src_dir.exists():
+            scan_dir = src_dir
+        else:
+            scan_dir = path
+
+    # Discover jobs
+    result = discover_in_directory(scan_dir)
+
+    if not result.jobs:
+        print("No jobs found.", file=sys.stderr)
+        return 1
+
+    # Build dependency graph
+    graph_lines = []
+
+    if args.format == "dot":
+        graph_lines.append("digraph pipeline {")
+        graph_lines.append("  rankdir=LR;")
+        graph_lines.append("  node [shape=box];")
+        for job in result.jobs:
+            graph_lines.append(f'  "{job.name}";')
+            if job.dependencies:
+                for dep in job.dependencies:
+                    graph_lines.append(f'  "{dep}" -> "{job.name}";')
+        graph_lines.append("}")
+    else:
+        # Mermaid format (default)
+        graph_lines.append("graph LR")
+        for job in result.jobs:
+            graph_lines.append(f"  {job.name}")
+            if job.dependencies:
+                for dep in job.dependencies:
+                    graph_lines.append(f"  {dep} --> {job.name}")
+
+    output = "\n".join(graph_lines)
+
+    if args.output:
+        output_path = Path(args.output)
+        output_path.write_text(output)
+        print(f"Generated {output_path}")
+    else:
+        print(output)
+
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -548,7 +548,7 @@ Note: `glab ci lint` requires:
 | ├─ Field name case conversion (per schema spec) | 1B | [ ] | — |
 | └─ None value omission | 1B | [ ] | — |
 | **CLI Framework** | | | |
-| ├─ main.py + typer setup | 1C | [ ] | — |
+| ├─ main.py + argparse setup | 1C | [ ] | — |
 | ├─ `init` command | 1C | [ ] | — |
 | ├─ `build` command (stub) | 1C | [ ] | — |
 | ├─ `validate` command (stub) | 1C | [ ] | — |
@@ -595,10 +595,10 @@ Note: `glab ci lint` requires:
 | ├─ Recursive directory traversal | 2C | [ ] | — |
 | └─ __pycache__/hidden directory exclusion | 2C | [ ] | — |
 | **Runner (Value Extraction)** | | | |
-| ├─ Dynamic module import | 2G | [ ] | AST Discovery |
+| ├─ importlib.import_module() | 2G | [ ] | AST Discovery |
 | ├─ pyproject.toml parsing | 2G | [ ] | — |
 | ├─ Module path resolution | 2G | [ ] | — |
-| └─ Dict value extraction | 2G | [ ] | — |
+| └─ Variable value extraction | 2G | [ ] | — |
 | **Template Builder** | | | |
 | ├─ Topological sort (Kahn's algorithm) | 2H | [ ] | AST Discovery |
 | ├─ Cycle detection | 2H | [ ] | AST Discovery |

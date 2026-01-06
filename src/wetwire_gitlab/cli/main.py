@@ -365,8 +365,47 @@ def run_lint(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=no issues, 1=issues found, 2=error).
     """
-    print(f"Lint command not yet implemented. Path: {args.path}")
-    return 1
+    from wetwire_gitlab.linter import lint_directory, lint_file
+
+    path = Path(args.path)
+
+    if not path.exists():
+        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+        return 2
+
+    # Lint the path
+    if path.is_file():
+        result = lint_file(path)
+    else:
+        result = lint_directory(path)
+
+    # Output results
+    if args.format == "json":
+        import json
+
+        output = {
+            "success": result.success,
+            "files_checked": result.files_checked,
+            "issues": [
+                {
+                    "code": issue.code,
+                    "message": issue.message,
+                    "file": issue.file_path,
+                    "line": issue.line_number,
+                }
+                for issue in result.issues
+            ],
+        }
+        print(json.dumps(output, indent=2))
+    else:
+        if result.issues:
+            for issue in result.issues:
+                print(f"{issue.file_path}:{issue.line_number}: {issue.code} {issue.message}")
+            print(f"\nFound {len(result.issues)} issue(s) in {result.files_checked} file(s)")
+        else:
+            print(f"No issues found in {result.files_checked} file(s)")
+
+    return 0 if result.success else 1
 
 
 def run_import(args: argparse.Namespace) -> int:

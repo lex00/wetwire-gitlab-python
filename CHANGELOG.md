@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Lint Command** (`cli/`) - Python code quality rules with text/JSON output and exit codes (#45)
 - **Import Command** (`cli/`) - Convert .gitlab-ci.yml to Python code with code generation, scaffold support, and --single-file/--no-scaffold flags (#46)
 - **List Command** (`cli/`) - Display discovered jobs and pipelines with table/JSON output formats (#47)
+- **Design Command** (`cli/`) - Stub for AI-assisted design requiring wetwire-core integration (#48)
+- **Test Command** (`cli/`) - Stub for persona-based evaluation requiring wetwire-core integration (#48)
+- **Graph Command** (`cli/`) - DAG visualization with Mermaid and DOT format output (#48)
 
 #### Phase 2: Core Capabilities
 

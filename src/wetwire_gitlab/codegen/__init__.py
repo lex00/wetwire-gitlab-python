@@ -11,8 +11,22 @@ from .fetch import (
     fetch_url,
     load_manifest,
 )
+from .parse import (
+    ComponentIR,
+    InputIR,
+    ParsedSchemas,
+    PropertyIR,
+    SchemaDefinitionIR,
+    SchemaIR,
+    parse_all_schemas,
+    parse_ci_schema,
+    parse_ci_schema_file,
+    parse_component_spec,
+    parse_component_spec_file,
+)
 
 __all__ = [
+    # fetch
     "CI_SCHEMA_URL",
     "COMPONENT_URLS",
     "FetchError",
@@ -22,4 +36,16 @@ __all__ = [
     "fetch_component_spec",
     "fetch_url",
     "load_manifest",
+    # parse
+    "ComponentIR",
+    "InputIR",
+    "ParsedSchemas",
+    "PropertyIR",
+    "SchemaDefinitionIR",
+    "SchemaIR",
+    "parse_all_schemas",
+    "parse_ci_schema",
+    "parse_ci_schema_file",
+    "parse_component_spec",
+    "parse_component_spec_file",
 ]

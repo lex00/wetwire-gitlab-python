@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Build Command** (`cli/`) - Full build command implementation: discovers jobs/pipelines, extracts values via runner, generates YAML/JSON output with --format and --output flags (#43)
 - **Validate Command** (`cli/`) - Pipeline validation using glab CLI integration with --include-jobs support (#44)
+- **Lint Command** (`cli/`) - Python code quality rules with text/JSON output and exit codes (#45)
 
 #### Phase 2: Core Capabilities
 

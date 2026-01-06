@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 3: Command Integration
+
+- **Build Command** (`cli/`) - Full build command implementation: discovers jobs/pipelines, extracts values via runner, generates YAML/JSON output with --format and --output flags (#43)
+
 #### Phase 2: Core Capabilities
 
 - **Template Builder** (`template/`) - Topological sort using Kahn's algorithm, cycle detection, and dependency ordering for YAML generation (#42)

@@ -11,6 +11,15 @@ from .fetch import (
     fetch_url,
     load_manifest,
 )
+from .generate import (
+    component_to_class_name,
+    component_to_module_name,
+    generate_all_components,
+    generate_component_code,
+    generate_component_module,
+    generate_component_module_file,
+    generate_init_file,
+)
 from .parse import (
     ComponentIR,
     InputIR,
@@ -36,6 +45,14 @@ __all__ = [
     "fetch_component_spec",
     "fetch_url",
     "load_manifest",
+    # generate
+    "component_to_class_name",
+    "component_to_module_name",
+    "generate_all_components",
+    "generate_component_code",
+    "generate_component_module",
+    "generate_component_module_file",
+    "generate_init_file",
     # parse
     "ComponentIR",
     "InputIR",

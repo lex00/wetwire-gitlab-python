@@ -1,6 +1,6 @@
 """Linter module for wetwire-gitlab."""
 
-from .linter import lint_directory, lint_file
+from .linter import fix_code, fix_file, lint_code, lint_directory, lint_file
 from .rules import (
     ALL_RULES,
     RULE_REGISTRY,
@@ -25,6 +25,9 @@ __all__ = [
     "WGL006UseTypedStageConstants",
     "WGL007DuplicateJobNames",
     "WGL008FileTooLarge",
+    "fix_code",
+    "fix_file",
+    "lint_code",
     "lint_directory",
     "lint_file",
 ]

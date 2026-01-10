@@ -330,14 +330,21 @@ class WGL010UseTypedWhenConstants:
                     for kw in node.keywords:
                         if kw.arg == "when" and isinstance(kw.value, ast.Constant):
                             if isinstance(kw.value.value, str):
-                                if kw.value.value in self.WHEN_VALUES:
+                                value = kw.value.value
+                                if value in self.WHEN_VALUES:
+                                    # Generate fix information
+                                    original = f'when="{value}"'
+                                    suggestion = f"when=When.{value.upper()}"
                                     issues.append(
                                         LintIssue(
                                             code=self.code,
-                                            message=f"{self.message}: use When.{kw.value.value.upper()} instead of '{kw.value.value}'",
+                                            message=f"{self.message}: use When.{value.upper()} instead of '{value}'",
                                             file_path=str(file_path),
                                             line_number=kw.value.lineno,
                                             column=kw.value.col_offset,
+                                            original=original,
+                                            suggestion=suggestion,
+                                            fix_imports=["from wetwire_gitlab.intrinsics import When"],
                                         )
                                     )
 

@@ -1,0 +1,21 @@
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script:
+    - make build
+  artifacts:
+    paths:
+      - dist/
+      - build/
+    expire_in: 1 week
+
+test:
+  stage: test
+  script:
+    - make test
+  artifacts:
+    reports:
+      junit: test-results.xml

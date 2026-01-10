@@ -1,0 +1,19 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - make build
+  tags:
+    - docker
+    - linux
+
+deploy:
+  stage: deploy
+  script:
+    - kubectl apply -f deployment.yml
+  tags:
+    - kubernetes
+    - production

@@ -1,0 +1,19 @@
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+    - pytest
+  retry: 2
+
+deploy:
+  stage: deploy
+  script:
+    - deploy.sh
+  retry:
+    max: 3
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure

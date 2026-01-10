@@ -1,0 +1,13 @@
+variables:
+  BUILD_DIR: dist
+  NODE_ENV: production
+  DEBUG: "false"
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - echo "Building to $BUILD_DIR"
+    - npm run build

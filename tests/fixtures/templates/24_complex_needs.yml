@@ -1,0 +1,48 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build-app:
+  stage: build
+  script:
+    - make build-app
+  artifacts:
+    paths:
+      - app/
+
+build-assets:
+  stage: build
+  script:
+    - make build-assets
+  artifacts:
+    paths:
+      - assets/
+
+test-unit:
+  stage: test
+  script:
+    - make test-unit
+  needs:
+    - job: build-app
+      artifacts: true
+
+test-integration:
+  stage: test
+  script:
+    - make test-integration
+  needs:
+    - job: build-app
+      artifacts: true
+    - job: build-assets
+      artifacts: false
+
+deploy:
+  stage: deploy
+  script:
+    - make deploy
+  needs:
+    - build-app
+    - build-assets
+    - test-unit
+    - test-integration

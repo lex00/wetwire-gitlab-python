@@ -1,0 +1,14 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - make build
+
+trigger-child:
+  stage: deploy
+  trigger:
+    include: .child-ci.yml
+    strategy: depend

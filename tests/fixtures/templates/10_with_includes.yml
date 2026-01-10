@@ -1,0 +1,14 @@
+include:
+  - local: /ci/build.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - remote: https://example.com/ci/common.yml
+
+stages:
+  - build
+  - test
+  - security
+
+build:
+  stage: build
+  script:
+    - make build

@@ -69,6 +69,11 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Watch for file changes and auto-rebuild (requires watchdog)",
     )
+    build_parser.add_argument(
+        "--schema-validate",
+        action="store_true",
+        help="Validate generated YAML against GitLab CI JSON schema (requires jsonschema)",
+    )
 
     # diff command
     diff_parser = subparsers.add_parser(

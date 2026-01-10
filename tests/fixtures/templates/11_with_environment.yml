@@ -1,0 +1,21 @@
+stages:
+  - deploy
+
+deploy-staging:
+  stage: deploy
+  script:
+    - deploy.sh staging
+  environment:
+    name: staging
+    url: https://staging.example.com
+
+deploy-production:
+  stage: deploy
+  script:
+    - deploy.sh production
+  environment:
+    name: production
+    url: https://example.com
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual

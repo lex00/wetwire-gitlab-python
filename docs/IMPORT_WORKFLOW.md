@@ -225,6 +225,93 @@ wetwire-gitlab build -o .gitlab-ci.new.yml
 diff .gitlab-ci.yml .gitlab-ci.new.yml
 ```
 
+## Testing Methodology
+
+### Import Testing
+
+The import functionality is tested against a comprehensive corpus of GitLab CI templates located in `tests/fixtures/templates/`. These templates cover a wide range of GitLab CI features and patterns.
+
+### Test Coverage
+
+The test corpus includes templates for:
+
+**Basic Patterns (01-07)**
+- Single job pipelines
+- Multi-stage pipelines
+- Variables and environment configuration
+- Artifacts and caching
+
+**Advanced Features (08-20)**
+- Docker images and services
+- Include statements (local, template, remote)
+- Environment deployments
+- Parallel and matrix jobs
+- Job tags and runner configuration
+- Retry and timeout settings
+- Coverage reports
+- Before/after scripts
+- Trigger jobs and child pipelines
+
+**Real-World Projects (21+)**
+- Python projects with testing and deployment
+- Node.js projects with build pipelines
+- Docker-based build and release workflows
+- Complex DAG dependencies
+
+### Round-Trip Testing
+
+Every template undergoes round-trip testing:
+
+1. **Parse**: YAML → Internal Representation (IR)
+2. **Generate**: IR → Python code (validated for syntax)
+3. **Convert**: IR → Typed objects (Job, Pipeline, etc.)
+4. **Serialize**: Typed objects → YAML
+5. **Compare**: Original YAML ≈ Generated YAML (semantic equivalence)
+
+The semantic comparison verifies that:
+- All configuration keys are preserved
+- Values are equivalent (ignoring formatting)
+- List orders are maintained
+- Nested structures are correct
+
+### Success Rate Metrics
+
+The test suite tracks and reports:
+
+- **Import success rate**: Percentage of templates that parse successfully (target: ≥95%)
+- **Code generation success rate**: Percentage that generate valid Python (target: ≥95%)
+- **Round-trip success rate**: Percentage with semantic equivalence (target: ≥90%)
+- **Feature coverage**: Which GitLab CI features are tested (target: ≥80% of essential features)
+
+### Running the Test Suite
+
+```bash
+# Run the full template corpus tests
+uv run pytest tests/integration/test_template_corpus.py -v
+
+# Run with coverage reports
+uv run pytest tests/integration/test_template_corpus.py -v -s
+
+# Run specific test categories
+uv run pytest tests/integration/test_template_corpus.py::TestFeatureCoverage -v
+uv run pytest tests/integration/test_template_corpus.py::TestSuccessRate -v
+```
+
+The `-s` flag displays detailed reports including:
+- Feature coverage breakdown
+- Success rate statistics
+- Any failures with diffs
+
+### Contributing Templates
+
+When adding new GitLab CI features to the importer:
+
+1. Add a representative template to `tests/fixtures/templates/`
+2. Follow the naming convention: `NN_feature_name.yml`
+3. Ensure the template tests a single feature clearly
+4. Run the test suite to verify round-trip equivalence
+5. Update feature coverage expectations if adding essential features
+
 ## Troubleshooting
 
 ### Unsupported Features

@@ -1,0 +1,16 @@
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - pytest tests/
+  parallel: 5
+
+matrix-test:
+  stage: test
+  script:
+    - pytest
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.9", "3.10", "3.11"]

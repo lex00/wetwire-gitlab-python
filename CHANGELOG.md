@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 7D: Kiro Provider Support
+
+- **Kiro Provider** (`kiro/`) - Alternative AI provider for design and test commands (#67)
+  - `check_kiro_installed()`: Check if kiro-cli is available
+  - `install_kiro_configs()`: Install agent and MCP configurations
+  - `launch_kiro()`: Launch interactive Kiro session with wetwire-runner agent
+  - `run_kiro_scenario()`: Run non-interactive Kiro scenario for testing
+  - Agent config with GitLab-specific prompt and MCP server integration
+  - `--provider` flag for design/test commands (anthropic/kiro, default: anthropic)
+  - `--timeout` flag for test command with Kiro provider
+  - Optional `kiro` dependency in pyproject.toml
+
 #### Phase 8: Advanced Features
 
 - **Linter Auto-Fix** (`linter/`) - Automatic fixing of lint issues (#73)

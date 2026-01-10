@@ -1253,6 +1253,9 @@ dev = [
     { name = "ruff" },
     { name = "ty" },
 ]
+kiro = [
+    { name = "mcp" },
+]
 mcp = [
     { name = "mcp" },
 ]
@@ -1270,6 +1273,7 @@ dev = [
 requires-dist = [
     { name = "dataclass-dsl", specifier = ">=1.0.1" },
     { name = "jinja2", specifier = ">=3.0" },
+    { name = "mcp", marker = "extra == 'kiro'", specifier = ">=1.0.0" },
     { name = "mcp", marker = "extra == 'mcp'", specifier = ">=1.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
@@ -1279,7 +1283,7 @@ requires-dist = [
     { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.1a0" },
     { name = "wetwire-core" },
 ]
-provides-extras = ["dev", "mcp"]
+provides-extras = ["dev", "mcp", "kiro"]
 
 [package.metadata.requires-dev]
 dev = [

@@ -23,7 +23,7 @@ This document tracks feature implementation status and planned enhancements for 
 |---------|--------|---------|-------|
 | `build` | ✅ Complete | 0.1.0 | Generate .gitlab-ci.yml from Python |
 | `validate` | ✅ Complete | 0.1.0 | glab CLI integration |
-| `lint` | ✅ Complete | 0.1.0 | 19 lint rules (WGL001-WGL019) |
+| `lint` | ✅ Complete | 0.1.0 | 23 lint rules (WGL001-WGL023) |
 | `list` | ✅ Complete | 0.1.0 | Display discovered jobs/pipelines |
 | `import` | ✅ Complete | 0.1.0 | Convert YAML to Python |
 | `init` | ✅ Complete | 0.1.0 | Package scaffolding |
@@ -55,6 +55,10 @@ This document tracks feature implementation status and planned enhancements for 
 | WGL017 | Empty rules list | ❌ | ✅ Complete |
 | WGL018 | Needs without stage | ❌ | ✅ Complete |
 | WGL019 | Manual without allow_failure | ❌ | ✅ Complete |
+| WGL020 | Avoid nested Job constructors | ❌ | ✅ Complete |
+| WGL021 | Use typed Service constants | ❌ | ✅ Complete |
+| WGL022 | Avoid duplicate needs | ❌ | ✅ Complete |
+| WGL023 | Missing image for script jobs | ❌ | ✅ Complete |
 
 ### Templates and Components
 
@@ -114,7 +118,7 @@ This document tracks feature implementation status and planned enhancements for 
 
 | Feature | Status | Version | Coverage | Notes |
 |---------|--------|---------|----------|-------|
-| **Unit Tests** | ✅ Complete | 0.1.0 | 78% | 814 tests total |
+| **Unit Tests** | ✅ Complete | 0.1.0 | 78% | 1016 tests total |
 | **CLI Tests** | ✅ Complete | 0.1.0 | High | 12 test files |
 | **Linter Tests** | ✅ Complete | 0.1.0 | 93% | All rules covered |
 | **Pipeline Tests** | ✅ Complete | 0.1.0 | High | Core type tests |
@@ -148,6 +152,16 @@ This document tracks feature implementation status and planned enhancements for 
 | Diff Command | ✅ Complete | #106 | Medium |
 | Watch Mode | ✅ Complete | #107 | Medium |
 
+### Phase 13: Advanced Features (Complete)
+
+| Feature | Status | Issue | Priority |
+|---------|--------|-------|----------|
+| Auto-Fix Documentation | ✅ Complete | #113 | Medium |
+| Additional Lint Rules (WGL020-WGL023) | ✅ Complete | #114 | Medium |
+| GitLab CI Schema Validation | ✅ Complete | #115 | Medium |
+| Typed Image/Service Constants | ✅ Complete | #116 | Medium |
+| Comprehensive Import Testing | ✅ Complete | #117 | Medium |
+
 ---
 
 ## Future Enhancements (Under Consideration)
@@ -156,11 +170,9 @@ These features are not yet scheduled but may be added based on community feedbac
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| **Schema Validation** | Medium | Validate against GitLab CI JSON schema |
 | **VS Code Extension** | Low | IDE support for syntax highlighting |
 | **Interactive Mode** | Low | CLI wizard for job creation |
 | **GitLab 17.x Features** | Medium | Support latest GitLab features |
-| **Additional Lint Rules** | Medium | Expand beyond WGL001-WGL019 |
 | **Performance Optimization** | Low | Faster discovery for large codebases |
 
 ---

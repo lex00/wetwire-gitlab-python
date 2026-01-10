@@ -1,0 +1,12 @@
+[project]
+name = "docker-build-example"
+version = "0.1.0"
+description = "Example Docker build pipeline using wetwire-gitlab"
+requires-python = ">=3.11"
+
+[tool.wetwire-gitlab]
+package = "ci"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

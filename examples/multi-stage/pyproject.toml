@@ -1,0 +1,12 @@
+[project]
+name = "multi-stage-example"
+version = "0.1.0"
+description = "Example multi-stage pipeline using wetwire-gitlab"
+requires-python = ">=3.11"
+
+[tool.wetwire-gitlab]
+package = "ci"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

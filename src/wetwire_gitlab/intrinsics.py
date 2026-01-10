@@ -186,6 +186,48 @@ class _CIContext:
         """The URL of the environment for this job."""
         return "$CI_ENVIRONMENT_URL"
 
+    @property
+    def commit_before_sha(self) -> str:
+        """The previous latest commit present on a branch before a push."""
+        return "$CI_COMMIT_BEFORE_SHA"
+
+    # PascalCase aliases for convenience
+    COMMIT_SHA = property(lambda self: self.commit_sha)
+    COMMIT_SHORT_SHA = property(lambda self: self.commit_short_sha)
+    COMMIT_REF_NAME = property(lambda self: self.commit_ref_name)
+    COMMIT_REF_SLUG = property(lambda self: self.commit_ref_slug)
+    COMMIT_BRANCH = property(lambda self: self.commit_branch)
+    COMMIT_TAG = property(lambda self: self.commit_tag)
+    COMMIT_MESSAGE = property(lambda self: self.commit_message)
+    COMMIT_TITLE = property(lambda self: self.commit_title)
+    COMMIT_BEFORE_SHA = property(lambda self: self.commit_before_sha)
+    DEFAULT_BRANCH = property(lambda self: self.default_branch)
+    PIPELINE_ID = property(lambda self: self.pipeline_id)
+    PIPELINE_IID = property(lambda self: self.pipeline_iid)
+    PIPELINE_SOURCE = property(lambda self: self.pipeline_source)
+    PIPELINE_URL = property(lambda self: self.pipeline_url)
+    JOB_ID = property(lambda self: self.job_id)
+    JOB_NAME = property(lambda self: self.job_name)
+    JOB_STAGE = property(lambda self: self.job_stage)
+    JOB_TOKEN = property(lambda self: self.job_token)
+    JOB_URL = property(lambda self: self.job_url)
+    PROJECT_ID = property(lambda self: self.project_id)
+    PROJECT_NAME = property(lambda self: self.project_name)
+    PROJECT_NAMESPACE = property(lambda self: self.project_namespace)
+    PROJECT_PATH = property(lambda self: self.project_path)
+    PROJECT_PATH_SLUG = property(lambda self: self.project_path_slug)
+    PROJECT_URL = property(lambda self: self.project_url)
+    PROJECT_DIR = property(lambda self: self.project_dir)
+    REGISTRY = property(lambda self: self.registry)
+    REGISTRY_IMAGE = property(lambda self: self.registry_image)
+    REGISTRY_USER = property(lambda self: self.registry_user)
+    REGISTRY_PASSWORD = property(lambda self: self.registry_password)
+    SERVER_HOST = property(lambda self: self.server_host)
+    SERVER_URL = property(lambda self: self.server_url)
+    ENVIRONMENT_NAME = property(lambda self: self.environment_name)
+    ENVIRONMENT_SLUG = property(lambda self: self.environment_slug)
+    ENVIRONMENT_URL = property(lambda self: self.environment_url)
+
 
 class _GitLabContext:
     """GitLab predefined variables context.
@@ -368,6 +410,18 @@ never = Rule(
     when="never",
 )
 
+
+class Rules:
+    """Collection of predefined rules for common use cases."""
+
+    ON_DEFAULT_BRANCH = on_default_branch
+    ON_TAG = on_tag
+    ON_MERGE_REQUEST = on_merge_request
+    MANUAL = manual_only
+    ALWAYS = always
+    NEVER = never
+
+
 __all__ = [
     # Context classes
     "CI",
@@ -378,6 +432,7 @@ __all__ = [
     "CachePolicy",
     "ArtifactsWhen",
     "PipelineSource",
+    "Rules",
     # Predefined rules
     "on_default_branch",
     "on_tag",

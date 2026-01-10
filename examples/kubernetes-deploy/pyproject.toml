@@ -1,0 +1,12 @@
+[project]
+name = "kubernetes-deploy-example"
+version = "0.1.0"
+description = "Example Kubernetes deployment pipeline using wetwire-gitlab"
+requires-python = ">=3.11"
+
+[tool.wetwire-gitlab]
+package = "ci"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

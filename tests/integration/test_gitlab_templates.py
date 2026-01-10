@@ -12,7 +12,6 @@ import pytest
 
 from wetwire_gitlab.importer import generate_python_code, parse_gitlab_ci
 
-
 # =============================================================================
 # Auto DevOps Templates
 # =============================================================================

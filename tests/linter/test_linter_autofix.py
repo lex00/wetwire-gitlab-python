@@ -155,6 +155,88 @@ class TestLintIssueFixFields:
         assert "from wetwire_gitlab.intrinsics import When" in issue.fix_imports
 
 
+class TestFixWGL012:
+    """Tests for WGL012 auto-fix functionality."""
+
+    def test_fix_code_fixes_wgl012_cache_policy_pull(self):
+        """fix_code fixes WGL012 cache policy string to CachePolicy constant."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Cache
+
+job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="pull"))
+'''
+        result = fix_code(code)
+        assert 'policy="pull"' not in result
+        assert "CachePolicy.PULL" in result
+        assert "from wetwire_gitlab.intrinsics import CachePolicy" in result
+
+    def test_fix_code_fixes_wgl012_cache_policy_push(self):
+        """fix_code fixes WGL012 cache policy 'push' to CachePolicy.PUSH."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Cache
+
+job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="push"))
+'''
+        result = fix_code(code)
+        assert 'policy="push"' not in result
+        assert "CachePolicy.PUSH" in result
+
+    def test_fix_code_fixes_wgl012_cache_policy_pull_push(self):
+        """fix_code fixes WGL012 cache policy 'pull-push' to CachePolicy.PULL_PUSH."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Cache
+
+job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="pull-push"))
+'''
+        result = fix_code(code)
+        assert 'policy="pull-push"' not in result
+        assert "CachePolicy.PULL_PUSH" in result
+
+
+class TestFixWGL013:
+    """Tests for WGL013 auto-fix functionality."""
+
+    def test_fix_code_fixes_wgl013_artifacts_when_always(self):
+        """fix_code fixes WGL013 artifacts when string to ArtifactsWhen constant."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+
+job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="always"))
+'''
+        result = fix_code(code)
+        assert 'when="always"' not in result
+        assert "ArtifactsWhen.ALWAYS" in result
+        assert "from wetwire_gitlab.intrinsics import ArtifactsWhen" in result
+
+    def test_fix_code_fixes_wgl013_artifacts_when_on_success(self):
+        """fix_code fixes WGL013 artifacts when 'on_success' to ArtifactsWhen.ON_SUCCESS."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+
+job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="on_success"))
+'''
+        result = fix_code(code)
+        assert 'when="on_success"' not in result
+        assert "ArtifactsWhen.ON_SUCCESS" in result
+
+    def test_fix_code_fixes_wgl013_artifacts_when_on_failure(self):
+        """fix_code fixes WGL013 artifacts when 'on_failure' to ArtifactsWhen.ON_FAILURE."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+
+job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="on_failure"))
+'''
+        result = fix_code(code)
+        assert 'when="on_failure"' not in result
+        assert "ArtifactsWhen.ON_FAILURE" in result
+
+
 class TestAutoFixCLI:
     """Tests for auto-fix CLI integration."""
 

@@ -189,6 +189,9 @@ class WGL012UseCachePolicyConstants:
                             if isinstance(kw.value.value, str):
                                 value = kw.value.value
                                 if value in self.POLICY_VALUES:
+                                    # Generate fix information
+                                    original = f'policy="{value}"'
+                                    suggestion = f"policy=CachePolicy.{value.upper().replace('-', '_')}"
                                     issues.append(
                                         LintIssue(
                                             code=self.code,
@@ -196,6 +199,9 @@ class WGL012UseCachePolicyConstants:
                                             file_path=str(file_path),
                                             line_number=kw.value.lineno,
                                             column=kw.value.col_offset,
+                                            original=original,
+                                            suggestion=suggestion,
+                                            fix_imports=["from wetwire_gitlab.intrinsics import CachePolicy"],
                                         )
                                     )
 
@@ -222,6 +228,9 @@ class WGL013UseArtifactsWhenConstants:
                             if isinstance(kw.value.value, str):
                                 value = kw.value.value
                                 if value in self.WHEN_VALUES:
+                                    # Generate fix information
+                                    original = f'when="{value}"'
+                                    suggestion = f"when=ArtifactsWhen.{value.upper()}"
                                     issues.append(
                                         LintIssue(
                                             code=self.code,
@@ -229,6 +238,9 @@ class WGL013UseArtifactsWhenConstants:
                                             file_path=str(file_path),
                                             line_number=kw.value.lineno,
                                             column=kw.value.col_offset,
+                                            original=original,
+                                            suggestion=suggestion,
+                                            fix_imports=["from wetwire_gitlab.intrinsics import ArtifactsWhen"],
                                         )
                                     )
 

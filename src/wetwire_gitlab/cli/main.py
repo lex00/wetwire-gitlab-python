@@ -63,6 +63,12 @@ def create_parser() -> argparse.ArgumentParser:
         default="yaml",
         help="Output format (default: yaml)",
     )
+    build_parser.add_argument(
+        "-w",
+        "--watch",
+        action="store_true",
+        help="Watch for file changes and auto-rebuild (requires watchdog)",
+    )
 
     # diff command
     diff_parser = subparsers.add_parser(

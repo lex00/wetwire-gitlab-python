@@ -74,6 +74,11 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Validate generated YAML against GitLab CI JSON schema (requires jsonschema)",
     )
+    build_parser.add_argument(
+        "--manifest",
+        action="store_true",
+        help="Generate manifest.json tracking build pipeline stages",
+    )
 
     # diff command
     diff_parser = subparsers.add_parser(

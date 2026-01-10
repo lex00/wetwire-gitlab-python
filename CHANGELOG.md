@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9E: CLI Documentation
+
+- **CLI.md Expansion** (`docs/CLI.md`) - Comprehensive CLI reference (#83)
+  - Quick reference table for all 9 commands
+  - Detailed command documentation with examples
+  - Provider documentation (anthropic/kiro)
+  - Typical workflow section (dev, CI/CD, migration, team)
+  - Dependencies and troubleshooting sections
+  - Expanded from ~253 to ~950 lines
+
 #### Phase 9D: Test Reorganization
 
 - **Test Directory Structure** (`tests/`) - Reorganized tests into subdirectories (#82)

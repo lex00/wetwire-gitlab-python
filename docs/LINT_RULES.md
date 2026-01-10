@@ -80,6 +80,8 @@ job = Job(
 
 Use typed variable references from intrinsics instead of string variables.
 
+**Auto-fix:** ✅ This rule supports auto-fix
+
 **Bad:**
 
 ```python
@@ -96,9 +98,11 @@ from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="deploy",
-    rules=[Rule(if_=f"{CI.COMMIT_BRANCH} == {CI.DEFAULT_BRANCH}")],
+    rules=[Rule(if_=CI.COMMIT_BRANCH + " == " + CI.DEFAULT_BRANCH)],
 )
 ```
+
+**Note:** For simple patterns like `$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH`, consider using WGL009 which offers a more concise predefined rule constant.
 
 ### WGL004: Use Cache dataclass
 
@@ -212,6 +216,8 @@ ci/
 
 Use predefined rule constants for common patterns like default branch deployment.
 
+**Auto-fix:** ✅ This rule supports auto-fix
+
 **Bad:**
 
 ```python
@@ -237,9 +243,13 @@ Available predefined rules:
 - `Rules.ON_TAG` - Run on tags only
 - `Rules.ON_MERGE_REQUEST` - Run on merge request pipelines
 
+**Note:** WGL009 takes precedence over WGL003 for patterns that have predefined rule constants.
+
 ### WGL010: Use typed When constants
 
 Use typed `When` constants instead of string literals for the `when` attribute.
+
+**Auto-fix:** ✅ This rule supports auto-fix
 
 **Bad:**
 
@@ -297,6 +307,8 @@ job = Job(
 
 Use typed `CachePolicy` constants instead of string literals.
 
+**Auto-fix:** ✅ This rule supports auto-fix
+
 **Bad:**
 
 ```python
@@ -319,6 +331,8 @@ Available constants:
 ### WGL013: Use ArtifactsWhen constants
 
 Use typed `ArtifactsWhen` constants for artifact upload conditions.
+
+**Auto-fix:** ✅ This rule supports auto-fix
 
 **Bad:**
 
@@ -482,17 +496,17 @@ wetwire-gitlab lint --fix src/ci/jobs.py
 |------|--------------|-----------------|
 | WGL001 | No | - |
 | WGL002 | No | - |
-| WGL003 | No | - |
+| WGL003 | **Yes** | Converts `"$CI_COMMIT_SHA"` to `CI.COMMIT_SHA` and adds import |
 | WGL004 | No | - |
 | WGL005 | No | - |
 | WGL006 | No | - |
 | WGL007 | No | - |
 | WGL008 | No | - |
-| WGL009 | No | - |
+| WGL009 | **Yes** | Converts `Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")` to `Rules.ON_DEFAULT_BRANCH` and adds import |
 | WGL010 | **Yes** | Converts `when="manual"` to `when=When.MANUAL` and adds import |
 | WGL011 | No | - |
-| WGL012 | No | - |
-| WGL013 | No | - |
+| WGL012 | **Yes** | Converts `policy="pull"` to `policy=CachePolicy.PULL` and adds import |
+| WGL013 | **Yes** | Converts `when="always"` to `when=ArtifactsWhen.ALWAYS` and adds import |
 | WGL014 | No | - |
 | WGL015 | No | - |
 | WGL016 | No | - |

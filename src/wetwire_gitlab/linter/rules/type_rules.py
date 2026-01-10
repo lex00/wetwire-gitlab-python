@@ -77,6 +77,52 @@ class WGL003UsePredefinedVariables:
 
     CI_VARIABLE_PATTERN = re.compile(r"\$CI_[A-Z_]+")
 
+    # Patterns that should be handled by WGL009 instead
+    WGL009_PATTERNS = [
+        r'^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$',
+        r'^\$CI_COMMIT_TAG$',
+        r'^\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']$',
+    ]
+
+    # Map of CI variable strings to their intrinsic equivalents
+    CI_VAR_MAP = {
+        "$CI_COMMIT_SHA": "CI.COMMIT_SHA",
+        "$CI_COMMIT_SHORT_SHA": "CI.COMMIT_SHORT_SHA",
+        "$CI_COMMIT_REF_NAME": "CI.COMMIT_REF_NAME",
+        "$CI_COMMIT_REF_SLUG": "CI.COMMIT_REF_SLUG",
+        "$CI_COMMIT_BRANCH": "CI.COMMIT_BRANCH",
+        "$CI_COMMIT_TAG": "CI.COMMIT_TAG",
+        "$CI_COMMIT_MESSAGE": "CI.COMMIT_MESSAGE",
+        "$CI_COMMIT_TITLE": "CI.COMMIT_TITLE",
+        "$CI_COMMIT_BEFORE_SHA": "CI.COMMIT_BEFORE_SHA",
+        "$CI_DEFAULT_BRANCH": "CI.DEFAULT_BRANCH",
+        "$CI_PIPELINE_ID": "CI.PIPELINE_ID",
+        "$CI_PIPELINE_IID": "CI.PIPELINE_IID",
+        "$CI_PIPELINE_SOURCE": "CI.PIPELINE_SOURCE",
+        "$CI_PIPELINE_URL": "CI.PIPELINE_URL",
+        "$CI_JOB_ID": "CI.JOB_ID",
+        "$CI_JOB_NAME": "CI.JOB_NAME",
+        "$CI_JOB_STAGE": "CI.JOB_STAGE",
+        "$CI_JOB_TOKEN": "CI.JOB_TOKEN",
+        "$CI_JOB_URL": "CI.JOB_URL",
+        "$CI_PROJECT_ID": "CI.PROJECT_ID",
+        "$CI_PROJECT_NAME": "CI.PROJECT_NAME",
+        "$CI_PROJECT_NAMESPACE": "CI.PROJECT_NAMESPACE",
+        "$CI_PROJECT_PATH": "CI.PROJECT_PATH",
+        "$CI_PROJECT_PATH_SLUG": "CI.PROJECT_PATH_SLUG",
+        "$CI_PROJECT_URL": "CI.PROJECT_URL",
+        "$CI_PROJECT_DIR": "CI.PROJECT_DIR",
+        "$CI_REGISTRY": "CI.REGISTRY",
+        "$CI_REGISTRY_IMAGE": "CI.REGISTRY_IMAGE",
+        "$CI_REGISTRY_USER": "CI.REGISTRY_USER",
+        "$CI_REGISTRY_PASSWORD": "CI.REGISTRY_PASSWORD",
+        "$CI_SERVER_HOST": "CI.SERVER_HOST",
+        "$CI_SERVER_URL": "CI.SERVER_URL",
+        "$CI_ENVIRONMENT_NAME": "CI.ENVIRONMENT_NAME",
+        "$CI_ENVIRONMENT_SLUG": "CI.ENVIRONMENT_SLUG",
+        "$CI_ENVIRONMENT_URL": "CI.ENVIRONMENT_URL",
+    }
+
     def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
         """Check for raw CI variable strings."""
         issues: list[LintIssue] = []
@@ -87,14 +133,82 @@ class WGL003UsePredefinedVariables:
                     for kw in node.keywords:
                         if kw.arg == "if_" and isinstance(kw.value, ast.Constant):
                             if isinstance(kw.value.value, str):
-                                if self.CI_VARIABLE_PATTERN.search(kw.value.value):
+                                original_value = kw.value.value
+
+                                # Skip if this pattern should be handled by WGL009
+                                skip_for_wgl009 = False
+                                for pattern in self.WGL009_PATTERNS:
+                                    if re.search(pattern, original_value):
+                                        skip_for_wgl009 = True
+                                        break
+
+                                if skip_for_wgl009:
+                                    continue
+
+                                if self.CI_VARIABLE_PATTERN.search(original_value):
+                                    # Handle simple cases where entire value is just a variable
+                                    if original_value in self.CI_VAR_MAP:
+                                        suggestion_value = self.CI_VAR_MAP[original_value]
+                                    else:
+                                        # Build complex expression with string concatenation
+                                        # Replace CI variables with Python expressions
+                                        suggestion_parts = []
+                                        remaining = original_value
+
+                                        while remaining:
+                                            # Find the next CI variable
+                                            match = self.CI_VARIABLE_PATTERN.search(remaining)
+                                            if match:
+                                                # Add the part before the variable as a string literal
+                                                before = remaining[:match.start()]
+                                                if before:
+                                                    suggestion_parts.append(f'"{before}"')
+
+                                                # Add the CI variable as a Python expression
+                                                ci_var = match.group()
+                                                if ci_var in self.CI_VAR_MAP:
+                                                    suggestion_parts.append(self.CI_VAR_MAP[ci_var])
+                                                else:
+                                                    # Unknown variable, keep as is
+                                                    suggestion_parts.append(f'"{ci_var}"')
+
+                                                # Continue with the rest
+                                                remaining = remaining[match.end():]
+                                            else:
+                                                # No more variables, add the rest as a string literal
+                                                if remaining:
+                                                    suggestion_parts.append(f'"{remaining}"')
+                                                break
+
+                                        # Join parts with +
+                                        suggestion_value = " + ".join(suggestion_parts)
+
+                                    # Build the original and suggestion strings
+                                    # For complex strings with nested quotes, we need to handle both quote styles
+                                    # If the value contains double quotes, it's likely single-quoted in source
+                                    # If the value contains single quotes, it's likely double-quoted in source
+                                    if '"' in original_value and "'" not in original_value:
+                                        # Value has double quotes, use single quotes for outer
+                                        original = f"if_='{original_value}'"
+                                    elif "'" in original_value and '"' not in original_value:
+                                        # Value has single quotes, use double quotes for outer
+                                        original = f'if_="{original_value}"'
+                                    else:
+                                        # Either has both or neither, try double quotes first
+                                        original = f'if_="{original_value}"'
+
+                                    suggestion = f"if_={suggestion_value}"
+
                                     issues.append(
                                         LintIssue(
                                             code=self.code,
-                                            message=self.message,
+                                            message=f"{self.message}: replace with intrinsics",
                                             file_path=str(file_path),
                                             line_number=kw.value.lineno,
                                             column=kw.value.col_offset,
+                                            original=original,
+                                            suggestion=suggestion,
+                                            fix_imports=["from wetwire_gitlab.intrinsics import CI"],
                                         )
                                     )
 

@@ -17,11 +17,11 @@ class WGL009UsePredefinedRules:
     code = "WGL009"
     message = "Use predefined Rules constants instead of Rule with common patterns"
 
-    # Patterns that match common rule conditions
-    COMMON_PATTERNS = [
-        r'\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH',  # ON_DEFAULT_BRANCH
-        r'\$CI_COMMIT_TAG',  # ON_TAG
-        r'\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']',  # ON_MERGE_REQUEST
+    # Patterns that match common rule conditions with their replacements
+    PATTERN_MAP = [
+        (r'^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$', 'Rules.ON_DEFAULT_BRANCH', 'ON_DEFAULT_BRANCH'),
+        (r'^\$CI_COMMIT_TAG$', 'Rules.ON_TAG', 'ON_TAG'),
+        (r'^\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']$', 'Rules.ON_MERGE_REQUEST', 'ON_MERGE_REQUEST'),
     ]
 
     def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
@@ -35,15 +35,30 @@ class WGL009UsePredefinedRules:
                         if kw.arg == "if_" and isinstance(kw.value, ast.Constant):
                             if isinstance(kw.value.value, str):
                                 value = kw.value.value
-                                for pattern in self.COMMON_PATTERNS:
+                                for pattern, replacement, rule_name in self.PATTERN_MAP:
                                     if re.search(pattern, value):
+                                        # Generate fix information
+                                        # Handle quote styles - if value contains double quotes, use single quotes
+                                        if '"' in value and "'" not in value:
+                                            original = f"Rule(if_='{value}')"
+                                        elif "'" in value and '"' not in value:
+                                            original = f'Rule(if_="{value}")'
+                                        else:
+                                            # Default to double quotes
+                                            original = f'Rule(if_="{value}")'
+
+                                        suggestion = replacement
+
                                         issues.append(
                                             LintIssue(
                                                 code=self.code,
-                                                message=self.message,
+                                                message=f"{self.message}: use {replacement}",
                                                 file_path=str(file_path),
                                                 line_number=node.lineno,
                                                 column=node.col_offset,
+                                                original=original,
+                                                suggestion=suggestion,
+                                                fix_imports=["from wetwire_gitlab.intrinsics import Rules"],
                                             )
                                         )
                                         break

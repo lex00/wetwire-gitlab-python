@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 10C: Loader and Codegen Coverage
+
+- **Loader and Codegen Coverage** (`tests/`) - Improved test coverage (#90)
+  - runner/loader.py: 76% → 91% (+15%)
+  - importer/codegen.py: 75% → 100% (+25%)
+  - Added 52 new tests (719 total)
+  - Overall project coverage: 76% → 77%
+  - Test module extraction, path resolution, TOML parsing
+  - Test all code generation edge cases
+
 #### Phase 10B: Runner Config Coverage
 
 - **Runner Config Module Coverage** (`tests/components/`) - Improved test coverage (#90)

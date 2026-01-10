@@ -555,7 +555,7 @@ def run_init(args: argparse.Namespace) -> int:
     return 1
 
 
-def run_design(args: argparse.Namespace) -> int:  # noqa: ARG001
+def run_design(args: argparse.Namespace) -> int:
     """Execute the design command.
 
     Args:
@@ -564,13 +564,174 @@ def run_design(args: argparse.Namespace) -> int:  # noqa: ARG001
     Returns:
         Exit code (0=success, 1=error).
     """
-    print("Design command requires wetwire-core integration.", file=sys.stderr)
-    print("Install wetwire-core for AI-assisted pipeline design.", file=sys.stderr)
-    print("See: https://github.com/lex00/wetwire-core", file=sys.stderr)
-    return 1
+    from wetwire_core.agents import InteractiveConversationHandler
+
+    from wetwire_gitlab.agent import GitLabRunnerAgent, detect_existing_package
+
+    path = Path(args.path)
+
+    # Determine output directory
+    if path.is_dir():
+        output_dir = path
+    else:
+        output_dir = Path.cwd()
+
+    # Check for existing package
+    existing_package, existing_files = detect_existing_package(output_dir)
+
+    if existing_package:
+        print(f"\033[33mFound existing package: {existing_package}\033[0m")
+        print(f"\033[90mFiles: {', '.join(existing_files) if existing_files else '(none)'}\033[0m")
+        print()
+
+    # Create a custom handler that uses GitLabRunnerAgent
+    class GitLabInteractiveHandler(InteractiveConversationHandler):
+        """Interactive handler using GitLab-specific runner."""
+
+        def __init__(self, output_dir: Path, existing_package: str | None = None,
+                     existing_files: list[str] | None = None, max_turns: int = 20):
+            self.output_dir = output_dir
+            self.existing_package = existing_package
+            self.existing_files = existing_files or []
+            self.max_turns = max_turns
+
+        def run(self, initial_prompt: str):
+            """Run interactive design session."""
+            from wetwire_core.runner import Message
+
+            runner = GitLabRunnerAgent(
+                output_dir=self.output_dir,
+                existing_package=self.existing_package,
+            )
+            messages: list[Message] = []
+
+            lint_passed = False
+            build_succeeded = False
+
+            # Prefix prompt with context if existing package
+            if self.existing_package:
+                context = f"[EXISTING PACKAGE: {self.existing_package}]\n"
+                context += f"[FILES: {', '.join(self.existing_files)}]\n\n"
+                current_message = context + initial_prompt
+            else:
+                current_message = initial_prompt
+
+            messages.append(Message(role="developer", content=initial_prompt))
+
+            print("\n\033[1mRunner:\033[0m ", end="", flush=True)
+
+            for _turn in range(self.max_turns):
+                response_text, tool_results = runner.run_turn(current_message)
+
+                # Display response
+                if response_text:
+                    print(response_text, flush=True)
+                    messages.append(Message(role="runner", content=response_text))
+
+                # Display tool results
+                for result in tool_results:
+                    if result.tool_name == "run_lint":
+                        lint_passed = "passed" in result.content.lower() or "no issues" in result.content.lower()
+                        status = "\033[32mPASS\033[0m" if lint_passed else "\033[31mFAIL\033[0m"
+                        print(f"\033[90m[lint] {status}: {result.content}\033[0m", flush=True)
+                    elif result.tool_name == "run_build":
+                        build_succeeded = not result.is_error
+                        status = "\033[32mOK\033[0m" if build_succeeded else "\033[31mFAIL\033[0m"
+                        content = result.content[:300] + "..." if len(result.content) > 300 else result.content
+                        print(f"\033[90m[build] {status}: {content}\033[0m", flush=True)
+                    elif result.tool_name in ("init_package", "write_file"):
+                        print(f"\033[90m[{result.tool_name}] {result.content}\033[0m", flush=True)
+                    elif result.tool_name == "read_file":
+                        content = result.content[:200] + "..." if len(result.content) > 200 else result.content
+                        print(f"\033[90m[read_file] {content}\033[0m", flush=True)
+
+                # Check for questions
+                question = None
+                for result in tool_results:
+                    if result.content.startswith("QUESTION:"):
+                        question = result.content[9:].strip()
+                        break
+
+                if question:
+                    print(f"\n\n\033[1mRunner asks:\033[0m {question}")
+                    print("\033[1mYour answer:\033[0m ", end="")
+                    developer_response = input()
+
+                    if developer_response.lower() in ("quit", "exit", "q"):
+                        print("\n\033[33mSession ended.\033[0m")
+                        break
+
+                    messages.append(Message(role="developer", content=developer_response))
+                    current_message = developer_response
+                    print("\n\033[1mRunner:\033[0m ", end="", flush=True)
+                else:
+                    # Check if build succeeded
+                    just_built = any(
+                        getattr(r, 'tool_name', '') == 'run_build' and not r.is_error
+                        for r in tool_results
+                    )
+
+                    if just_built and build_succeeded:
+                        print("\n\n\033[1mWhat's next?\033[0m (type 'done' to exit): ", end="")
+                        developer_response = input()
+
+                        if developer_response.lower() in ("quit", "exit", "q", "done", ""):
+                            print("\n\033[33mSession ended.\033[0m")
+                            break
+
+                        messages.append(Message(role="developer", content=developer_response))
+                        current_message = developer_response
+                        print("\n\033[1mRunner:\033[0m ", end="", flush=True)
+                    elif tool_results:
+                        current_message = None
+                        print("\n\033[1mRunner:\033[0m ", end="", flush=True)
+                    else:
+                        print("\n\n\033[1mYour input:\033[0m ", end="")
+                        developer_response = input()
+
+                        if developer_response.lower() in ("quit", "exit", "q", "done", ""):
+                            print("\n\033[33mSession ended.\033[0m")
+                            break
+
+                        messages.append(Message(role="developer", content=developer_response))
+                        current_message = developer_response
+                        print("\n\033[1mRunner:\033[0m ", end="", flush=True)
+
+            package_path = None
+            if runner.package_dir and build_succeeded:
+                package_path = runner.package_dir
+
+            return package_path, messages
+
+    # Get initial prompt
+    if existing_package:
+        print("\033[1mWhat would you like to add or change?\033[0m")
+    else:
+        print("\033[1mDescribe what pipeline you need:\033[0m")
+    print("\033[1mYour request:\033[0m ", end="")
+    initial_prompt = input()
+
+    if not initial_prompt.strip():
+        print("No input provided.", file=sys.stderr)
+        return 1
+
+    handler = GitLabInteractiveHandler(
+        output_dir=output_dir,
+        existing_package=existing_package,
+        existing_files=existing_files if existing_package else [],
+    )
+
+    package_path, messages = handler.run(initial_prompt)
+
+    if package_path:
+        print(f"\n\033[32mPackage created at: {package_path}\033[0m")
+        return 0
+    else:
+        print("\n\033[33mNo package was created.\033[0m")
+        return 1
 
 
-def run_test(args: argparse.Namespace) -> int:  # noqa: ARG001
+def run_test(args: argparse.Namespace) -> int:
     """Execute the test command.
 
     Args:
@@ -579,10 +740,199 @@ def run_test(args: argparse.Namespace) -> int:  # noqa: ARG001
     Returns:
         Exit code (0=success, 1=error).
     """
-    print("Test command requires wetwire-core integration.", file=sys.stderr)
-    print("Install wetwire-core for persona-based evaluation.", file=sys.stderr)
-    print("See: https://github.com/lex00/wetwire-core", file=sys.stderr)
-    return 1
+    import tempfile
+
+    from wetwire_core.agent.personas import PERSONAS, load_persona
+    from wetwire_core.agent.results import ResultsWriter, SessionResults
+    from wetwire_core.agent.scoring import Rating, Score
+    from wetwire_core.agents import AIConversationHandler, DeveloperAgent
+    from wetwire_core.runner import Message
+
+    from wetwire_gitlab.agent import GitLabRunnerAgent
+
+    path = Path(args.path)
+
+    # Determine output directory
+    if path.is_dir():
+        output_dir = path
+    else:
+        output_dir = Path.cwd()
+
+    # Get persona
+    persona_name = args.persona
+    if not persona_name:
+        print("Available personas: " + ", ".join(PERSONAS.keys()))
+        print("Select persona (default: intermediate): ", end="")
+        persona_name = input().strip() or "intermediate"
+
+    try:
+        persona = load_persona(persona_name)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    print(f"\n\033[1mRunning test with persona: {persona.name}\033[0m")
+    print(f"\033[90m{persona.description}\033[0m\n")
+
+    # Get test prompt
+    print("\033[1mTest prompt:\033[0m ", end="")
+    test_prompt = input()
+
+    if not test_prompt.strip():
+        print("No prompt provided.", file=sys.stderr)
+        return 1
+
+    # Create temporary directory for output
+    with tempfile.TemporaryDirectory(prefix="wetwire-test-") as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        # Create custom AI conversation handler for GitLab
+        class GitLabAIHandler(AIConversationHandler):
+            """AI conversation handler using GitLab runner."""
+
+            def __init__(self, prompt: str, persona_name: str, persona_instructions: str,
+                         output_dir: Path, max_turns: int = 10):
+                self.prompt = prompt
+                self.persona_name = persona_name
+                self.persona_instructions = persona_instructions
+                self.output_dir = output_dir
+                self.max_turns = max_turns
+                self.messages: list[Message] = []
+
+            def run(self):
+                """Run AI conversation."""
+                developer = DeveloperAgent(
+                    persona_name=self.persona_name,
+                    persona_instructions=self.persona_instructions,
+                )
+                runner = GitLabRunnerAgent(output_dir=self.output_dir)
+
+                self.messages.append(Message(role="developer", content=self.prompt))
+                current_message = self.prompt
+
+                lint_called = False
+                lint_passed = False
+                pending_lint = False
+
+                for turn in range(self.max_turns):
+                    print(f"\033[90m[Turn {turn + 1}]\033[0m")
+                    response_text, tool_results = runner.run_turn(current_message)
+
+                    wrote_file_this_turn = False
+                    ran_lint_this_turn = False
+
+                    for result in tool_results:
+                        print(f"\033[90m  [{result.tool_name}]\033[0m")
+                        if result.tool_name == "run_lint":
+                            lint_called = True
+                            ran_lint_this_turn = True
+                            pending_lint = False
+                            lint_passed = "passed" in result.content.lower() or "no issues" in result.content.lower()
+                        elif result.tool_name == "write_file":
+                            wrote_file_this_turn = True
+                            pending_lint = True
+                            lint_passed = False
+
+                    # Enforcement: require lint after write
+                    if wrote_file_this_turn and not ran_lint_this_turn:
+                        current_message = (
+                            "STOP: You wrote a file but did not call run_lint. "
+                            "Call run_lint now."
+                        )
+                        self.messages.append(Message(role="system", content=current_message))
+                        continue
+
+                    # Check for questions
+                    question = None
+                    for result in tool_results:
+                        if result.content.startswith("QUESTION:"):
+                            question = result.content[9:].strip()
+                            break
+
+                    if question:
+                        self.messages.append(Message(role="runner", content=question))
+                        developer_response = developer.respond(question)
+                        self.messages.append(Message(role="developer", content=developer_response))
+
+                        if "DONE" in developer_response.upper():
+                            break
+
+                        current_message = developer_response
+                    else:
+                        if response_text:
+                            self.messages.append(Message(role="runner", content=response_text))
+
+                        if "completed" in response_text.lower() or "done" in response_text.lower():
+                            if not lint_called or pending_lint:
+                                current_message = "ERROR: Must call run_lint before done."
+                                self.messages.append(Message(role="system", content=current_message))
+                                continue
+                            elif not lint_passed:
+                                current_message = "ERROR: Lint did not pass."
+                                self.messages.append(Message(role="system", content=current_message))
+                                continue
+                            break
+
+                        current_message = None
+
+                    if turn > 5 and not runner.package_name:
+                        self.messages.append(
+                            Message(role="system", content="Warning: No package after multiple turns")
+                        )
+                        break
+
+                package_path = None
+                if runner.package_name and lint_called and lint_passed:
+                    package_path = self.output_dir / runner.package_name
+
+                return package_path, self.messages
+
+        handler = GitLabAIHandler(
+            prompt=test_prompt,
+            persona_name=persona.name,
+            persona_instructions=persona.system_prompt,
+            output_dir=tmp_path,
+        )
+
+        print("\n\033[1mStarting AI conversation...\033[0m\n")
+        package_path, messages = handler.run()
+
+        # Calculate score
+        produced_package = package_path is not None
+        questions = [m for m in messages if m.role == "runner" and "?" in m.content]
+
+        score = Score(
+            completeness=Rating.EXCELLENT if produced_package else Rating.NONE,
+            lint_quality=Rating.EXCELLENT if produced_package else Rating.NONE,
+            code_quality=Rating.GOOD if produced_package else Rating.NONE,
+            output_validity=Rating.GOOD if produced_package else Rating.NONE,
+            question_efficiency=Rating.EXCELLENT if len(questions) <= 2 else Rating.GOOD,
+        )
+
+        # Write results
+        results = SessionResults(
+            prompt=test_prompt,
+            package_name=package_path.name if package_path else "none",
+            domain="gitlab",
+            persona=persona.name,
+            summary=f"Test with {persona.name} persona",
+            score=score,
+        )
+
+        results_path = output_dir / "RESULTS.md"
+        writer = ResultsWriter()
+        writer.write(results, results_path)
+
+        # Display results
+        print("\n" + "=" * 60)
+        print("\033[1mTest Results\033[0m")
+        print("=" * 60)
+        print(f"Persona: {persona.name}")
+        print(f"Package created: {'Yes' if produced_package else 'No'}")
+        print(f"Score: {score.total}/15 ({score.grade})")
+        print(f"Results written to: {results_path}")
+
+        return 0 if score.passed else 1
 
 
 def run_graph(args: argparse.Namespace) -> int:

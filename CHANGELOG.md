@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Phase 6: Production Readiness
 
+- **wetwire-core Integration** (`agent.py`, `cli/main.py`) - Full integration with wetwire-core for AI-assisted pipeline design and persona-based testing (#54)
+  - GitLabRunnerAgent: AI agent with 6 tools (init_package, write_file, read_file, run_lint, run_build, ask_developer)
+  - Design command: Interactive pipeline design session with AI assistance
+  - Test command: Persona-based evaluation with 5 personas (beginner, intermediate, expert, terse, verbose)
+  - Scoring system: 5-dimension evaluation (completeness, lint quality, code quality, output validity, question efficiency)
+  - Session results: RESULTS.md output with scoring breakdown
 - **Examples Directory** (`examples/`) - 5 complete example projects demonstrating wetwire-gitlab usage: python-app, docker-build, multi-stage, kubernetes-deploy, monorepo (#52)
 - **Intrinsics Enhancement** (`intrinsics.py`) - Added PascalCase aliases for CI variables (CI.COMMIT_BRANCH, etc.) and Rules class for predefined rules (#52)
 - **Documentation** (`docs/`) - Added QUICK_START.md, CLI.md, LINT_RULES.md, IMPORT_WORKFLOW.md, INTERNALS.md, DEVELOPERS.md and expanded FAQ.md (#53)

@@ -38,17 +38,17 @@ This document tracks feature implementation status and planned enhancements for 
 |------|-------------|----------|--------|
 | WGL001 | Use typed component wrappers | ❌ | ✅ Complete |
 | WGL002 | Use Rule dataclass | ❌ | ✅ Complete |
-| WGL003 | Use predefined variables | ❌ | ✅ Complete |
+| WGL003 | Use predefined variables | ✅ | ✅ Complete |
 | WGL004 | Use Cache dataclass | ❌ | ✅ Complete |
 | WGL005 | Use Artifacts dataclass | ❌ | ✅ Complete |
 | WGL006 | Use typed stage constants | ❌ | ✅ Complete |
 | WGL007 | Duplicate job names | ❌ | ✅ Complete |
 | WGL008 | File too large | ❌ | ✅ Complete |
-| WGL009 | Use predefined Rules | ❌ | ✅ Complete |
+| WGL009 | Use predefined Rules | ✅ | ✅ Complete |
 | WGL010 | Use typed When constants | ✅ | ✅ Complete |
 | WGL011 | Missing stage in Job | ❌ | ✅ Complete |
-| WGL012 | Use CachePolicy constants | ❌ | ✅ Complete |
-| WGL013 | Use ArtifactsWhen constants | ❌ | ✅ Complete |
+| WGL012 | Use CachePolicy constants | ✅ | ✅ Complete |
+| WGL013 | Use ArtifactsWhen constants | ✅ | ✅ Complete |
 | WGL014 | Missing script in Job | ❌ | ✅ Complete |
 | WGL015 | Missing name in Job | ❌ | ✅ Complete |
 | WGL016 | Use Image dataclass | ❌ | ✅ Complete |

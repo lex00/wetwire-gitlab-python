@@ -190,12 +190,12 @@ While overall coverage is 78%, some modules have lower coverage:
 
 ### Auto-Fix Support
 
-Currently only WGL010 supports auto-fix. Many rules could benefit from automatic fixes:
+Currently 5 rules support auto-fix (WGL003, WGL009, WGL010, WGL012, WGL013). Additional rules could benefit from automatic fixes:
 - WGL001: Component wrapper conversion
 - WGL002: Rule dataclass conversion
-- WGL003: Variable intrinsic conversion
+- WGL016: Image dataclass conversion
 
-**Strategy**: Expand incrementally through Phase 11D.
+**Strategy**: Expand incrementally based on community feedback and usage patterns.
 
 ### GitLab Feature Coverage
 

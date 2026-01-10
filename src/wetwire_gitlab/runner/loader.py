@@ -130,9 +130,7 @@ def extract_pipelines_from_module(
     return pipelines
 
 
-def resolve_module_path(
-    file_path: Path, project_root: Path, src_dir: Path
-) -> str:
+def resolve_module_path(file_path: Path, project_root: Path, src_dir: Path) -> str:
     """Resolve a file path to a Python module path.
 
     Args:
@@ -228,10 +226,7 @@ def extract_all_jobs(
 
     for py_file in directory.rglob("*.py"):
         # Skip __pycache__ and hidden directories
-        if any(
-            part.startswith(".") or part == "__pycache__"
-            for part in py_file.parts
-        ):
+        if any(part.startswith(".") or part == "__pycache__" for part in py_file.parts):
             continue
 
         module = import_module_from_path(py_file)
@@ -259,10 +254,7 @@ def extract_all_pipelines(
 
     for py_file in directory.rglob("*.py"):
         # Skip __pycache__ and hidden directories
-        if any(
-            part.startswith(".") or part == "__pycache__"
-            for part in py_file.parts
-        ):
+        if any(part.startswith(".") or part == "__pycache__" for part in py_file.parts):
             continue
 
         module = import_module_from_path(py_file)

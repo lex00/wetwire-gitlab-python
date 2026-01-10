@@ -248,10 +248,18 @@ class TestExtractStages:
 
         # Simulate ordered jobs (already sorted)
         jobs = [
-            DiscoveredJob(name="build", variable_name="build", file_path="", line_number=1),
-            DiscoveredJob(name="test1", variable_name="test1", file_path="", line_number=2),
-            DiscoveredJob(name="test2", variable_name="test2", file_path="", line_number=3),
-            DiscoveredJob(name="deploy", variable_name="deploy", file_path="", line_number=4),
+            DiscoveredJob(
+                name="build", variable_name="build", file_path="", line_number=1
+            ),
+            DiscoveredJob(
+                name="test1", variable_name="test1", file_path="", line_number=2
+            ),
+            DiscoveredJob(
+                name="test2", variable_name="test2", file_path="", line_number=3
+            ),
+            DiscoveredJob(
+                name="deploy", variable_name="deploy", file_path="", line_number=4
+            ),
         ]
 
         # Provide a mapping of job names to stages

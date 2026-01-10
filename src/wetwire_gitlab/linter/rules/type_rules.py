@@ -79,8 +79,8 @@ class WGL003UsePredefinedVariables:
 
     # Patterns that should be handled by WGL009 instead
     WGL009_PATTERNS = [
-        r'^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$',
-        r'^\$CI_COMMIT_TAG$',
+        r"^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$",
+        r"^\$CI_COMMIT_TAG$",
         r'^\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']$',
     ]
 
@@ -148,7 +148,9 @@ class WGL003UsePredefinedVariables:
                                 if self.CI_VARIABLE_PATTERN.search(original_value):
                                     # Handle simple cases where entire value is just a variable
                                     if original_value in self.CI_VAR_MAP:
-                                        suggestion_value = self.CI_VAR_MAP[original_value]
+                                        suggestion_value = self.CI_VAR_MAP[
+                                            original_value
+                                        ]
                                     else:
                                         # Build complex expression with string concatenation
                                         # Replace CI variables with Python expressions
@@ -157,27 +159,37 @@ class WGL003UsePredefinedVariables:
 
                                         while remaining:
                                             # Find the next CI variable
-                                            match = self.CI_VARIABLE_PATTERN.search(remaining)
+                                            match = self.CI_VARIABLE_PATTERN.search(
+                                                remaining
+                                            )
                                             if match:
                                                 # Add the part before the variable as a string literal
-                                                before = remaining[:match.start()]
+                                                before = remaining[: match.start()]
                                                 if before:
-                                                    suggestion_parts.append(f'"{before}"')
+                                                    suggestion_parts.append(
+                                                        f'"{before}"'
+                                                    )
 
                                                 # Add the CI variable as a Python expression
                                                 ci_var = match.group()
                                                 if ci_var in self.CI_VAR_MAP:
-                                                    suggestion_parts.append(self.CI_VAR_MAP[ci_var])
+                                                    suggestion_parts.append(
+                                                        self.CI_VAR_MAP[ci_var]
+                                                    )
                                                 else:
                                                     # Unknown variable, keep as is
-                                                    suggestion_parts.append(f'"{ci_var}"')
+                                                    suggestion_parts.append(
+                                                        f'"{ci_var}"'
+                                                    )
 
                                                 # Continue with the rest
-                                                remaining = remaining[match.end():]
+                                                remaining = remaining[match.end() :]
                                             else:
                                                 # No more variables, add the rest as a string literal
                                                 if remaining:
-                                                    suggestion_parts.append(f'"{remaining}"')
+                                                    suggestion_parts.append(
+                                                        f'"{remaining}"'
+                                                    )
                                                 break
 
                                         # Join parts with +
@@ -187,10 +199,16 @@ class WGL003UsePredefinedVariables:
                                     # For complex strings with nested quotes, we need to handle both quote styles
                                     # If the value contains double quotes, it's likely single-quoted in source
                                     # If the value contains single quotes, it's likely double-quoted in source
-                                    if '"' in original_value and "'" not in original_value:
+                                    if (
+                                        '"' in original_value
+                                        and "'" not in original_value
+                                    ):
                                         # Value has double quotes, use single quotes for outer
                                         original = f"if_='{original_value}'"
-                                    elif "'" in original_value and '"' not in original_value:
+                                    elif (
+                                        "'" in original_value
+                                        and '"' not in original_value
+                                    ):
                                         # Value has single quotes, use double quotes for outer
                                         original = f'if_="{original_value}"'
                                     else:
@@ -208,7 +226,9 @@ class WGL003UsePredefinedVariables:
                                             column=kw.value.col_offset,
                                             original=original,
                                             suggestion=suggestion,
-                                            fix_imports=["from wetwire_gitlab.intrinsics import CI"],
+                                            fix_imports=[
+                                                "from wetwire_gitlab.intrinsics import CI"
+                                            ],
                                         )
                                     )
 
@@ -315,7 +335,9 @@ class WGL012UseCachePolicyConstants:
                                             column=kw.value.col_offset,
                                             original=original,
                                             suggestion=suggestion,
-                                            fix_imports=["from wetwire_gitlab.intrinsics import CachePolicy"],
+                                            fix_imports=[
+                                                "from wetwire_gitlab.intrinsics import CachePolicy"
+                                            ],
                                         )
                                     )
 
@@ -354,7 +376,9 @@ class WGL013UseArtifactsWhenConstants:
                                             column=kw.value.col_offset,
                                             original=original,
                                             suggestion=suggestion,
-                                            fix_imports=["from wetwire_gitlab.intrinsics import ArtifactsWhen"],
+                                            fix_imports=[
+                                                "from wetwire_gitlab.intrinsics import ArtifactsWhen"
+                                            ],
                                         )
                                     )
 
@@ -380,7 +404,7 @@ class WGL016UseImageDataclass:
                                 issues.append(
                                     LintIssue(
                                         code=self.code,
-                                        message=f"{self.message}: use Image(name=\"{kw.value.value}\")",
+                                        message=f'{self.message}: use Image(name="{kw.value.value}")',
                                         file_path=str(file_path),
                                         line_number=kw.value.lineno,
                                         column=kw.value.col_offset,
@@ -407,11 +431,13 @@ class WGL021UseTypedServiceConstants:
                         if kw.arg == "services" and isinstance(kw.value, ast.List):
                             # Check each element in the services list
                             for elt in kw.value.elts:
-                                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                if isinstance(elt, ast.Constant) and isinstance(
+                                    elt.value, str
+                                ):
                                     issues.append(
                                         LintIssue(
                                             code=self.code,
-                                            message=f"{self.message}: use Service(name=\"{elt.value}\")",
+                                            message=f'{self.message}: use Service(name="{elt.value}")',
                                             file_path=str(file_path),
                                             line_number=elt.lineno,
                                             column=elt.col_offset,

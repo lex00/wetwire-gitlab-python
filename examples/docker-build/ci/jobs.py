@@ -60,7 +60,7 @@ push = Job(
         "docker load < image.tar",
         "docker push $IMAGE_TAG",
         # Tag as latest on default branch
-        f"if [ \"{CI.COMMIT_BRANCH}\" = \"{CI.DEFAULT_BRANCH}\" ]; then "
+        f'if [ "{CI.COMMIT_BRANCH}" = "{CI.DEFAULT_BRANCH}" ]; then '
         f"docker tag $IMAGE_TAG {CI.REGISTRY_IMAGE}:latest && "
         f"docker push {CI.REGISTRY_IMAGE}:latest; fi",
     ],

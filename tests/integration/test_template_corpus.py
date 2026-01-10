@@ -35,6 +35,7 @@ def extract_features(yaml_content: str) -> set[str]:
 
     # Parse as dict to check for top-level keys
     import yaml
+
     try:
         data = yaml.safe_load(yaml_content)
         if not data:
@@ -101,6 +102,7 @@ def extract_features(yaml_content: str) -> set[str]:
     return features
 
 
+@pytest.mark.slow
 class TestTemplateImport:
     """Test basic import functionality for all templates."""
 
@@ -140,6 +142,7 @@ class TestTemplateImport:
 
         # If YAML has stages, pipeline should have them
         import yaml
+
         data = yaml.safe_load(yaml_content)
         if data and "stages" in data:
             assert len(pipeline.stages) > 0
@@ -147,12 +150,16 @@ class TestTemplateImport:
         # If YAML has jobs, pipeline should have them
         # Note: Jobs can have either 'script' or 'trigger' (but not necessarily both)
         if data:
-            job_count = sum(1 for k, v in data.items()
-                          if isinstance(v, dict) and ("script" in v or "trigger" in v))
+            job_count = sum(
+                1
+                for k, v in data.items()
+                if isinstance(v, dict) and ("script" in v or "trigger" in v)
+            )
             if job_count > 0:
                 assert len(pipeline.jobs) == job_count
 
 
+@pytest.mark.slow
 class TestTemplateRoundTrip:
     """Test round-trip conversion: YAML -> parse -> build -> YAML."""
 
@@ -183,11 +190,12 @@ class TestTemplateRoundTrip:
             print(f"\nOriginal YAML:\n{original_yaml}")
             print(f"\nRebuilt YAML:\n{rebuilt_yaml}")
 
-        assert is_eq is True, (
-            f"Round-trip failed for {template_path.name} with differences: {diffs}"
-        )
+        assert (
+            is_eq is True
+        ), f"Round-trip failed for {template_path.name} with differences: {diffs}"
 
 
+@pytest.mark.slow
 class TestFeatureCoverage:
     """Test and track coverage of GitLab CI features."""
 
@@ -236,7 +244,9 @@ class TestFeatureCoverage:
         covered_essential = all_features & essential_features
         coverage_percentage = (len(covered_essential) / len(essential_features)) * 100
 
-        print(f"\nEssential feature coverage: {len(covered_essential)}/{len(essential_features)} ({coverage_percentage:.1f}%)")
+        print(
+            f"\nEssential feature coverage: {len(covered_essential)}/{len(essential_features)} ({coverage_percentage:.1f}%)"
+        )
         print(f"Covered: {sorted(covered_essential)}")
 
         missing = essential_features - covered_essential
@@ -244,18 +254,19 @@ class TestFeatureCoverage:
             print(f"Missing: {sorted(missing)}")
 
         # We should cover at least 80% of essential features
-        assert coverage_percentage >= 80.0, (
-            f"Essential feature coverage too low: {coverage_percentage:.1f}%"
-        )
+        assert (
+            coverage_percentage >= 80.0
+        ), f"Essential feature coverage too low: {coverage_percentage:.1f}%"
 
     def test_minimum_template_count(self):
         """Ensure we have a minimum number of test templates."""
         templates = get_all_templates()
-        assert len(templates) >= 20, (
-            f"Expected at least 20 templates, found {len(templates)}"
-        )
+        assert (
+            len(templates) >= 20
+        ), f"Expected at least 20 templates, found {len(templates)}"
 
 
+@pytest.mark.slow
 class TestSuccessRate:
     """Test and report success rates for import operations."""
 
@@ -295,9 +306,7 @@ class TestSuccessRate:
         print("=" * 70)
 
         # We should have at least 95% success rate
-        assert success_rate >= 95.0, (
-            f"Import success rate too low: {success_rate:.1f}%"
-        )
+        assert success_rate >= 95.0, f"Import success rate too low: {success_rate:.1f}%"
 
     def test_code_generation_success_rate(self):
         """Calculate and report Python code generation success rate."""
@@ -335,9 +344,9 @@ class TestSuccessRate:
         print("=" * 70)
 
         # We should have at least 95% success rate
-        assert success_rate >= 95.0, (
-            f"Code generation success rate too low: {success_rate:.1f}%"
-        )
+        assert (
+            success_rate >= 95.0
+        ), f"Code generation success rate too low: {success_rate:.1f}%"
 
     def test_round_trip_success_rate(self):
         """Calculate and report round-trip success rate."""
@@ -381,11 +390,12 @@ class TestSuccessRate:
 
         # We should have at least 90% success rate for round-trips
         # (slightly lower than import since semantic equivalence is stricter)
-        assert success_rate >= 90.0, (
-            f"Round-trip success rate too low: {success_rate:.1f}%"
-        )
+        assert (
+            success_rate >= 90.0
+        ), f"Round-trip success rate too low: {success_rate:.1f}%"
 
 
+@pytest.mark.slow
 class TestSpecificPatterns:
     """Test specific GitLab CI patterns that are common or complex."""
 
@@ -483,13 +493,17 @@ test:
         assert is_eq is True, f"Matrix parallel pattern failed: {diffs}"
 
 
+@pytest.mark.slow
 class TestTemplateCategories:
     """Test templates organized by category."""
 
     def test_basic_templates(self):
         """Test basic template patterns (01-07)."""
-        basic_templates = [p for p in get_all_templates()
-                          if p.name.startswith(("01_", "02_", "03_", "04_", "05_", "06_", "07_"))]
+        basic_templates = [
+            p
+            for p in get_all_templates()
+            if p.name.startswith(("01_", "02_", "03_", "04_", "05_", "06_", "07_"))
+        ]
 
         assert len(basic_templates) >= 7, "Expected at least 7 basic templates"
 
@@ -500,8 +514,11 @@ class TestTemplateCategories:
 
     def test_advanced_templates(self):
         """Test advanced template patterns (08-20)."""
-        advanced_templates = [p for p in get_all_templates()
-                             if any(p.name.startswith(f"{i:02d}_") for i in range(8, 21))]
+        advanced_templates = [
+            p
+            for p in get_all_templates()
+            if any(p.name.startswith(f"{i:02d}_") for i in range(8, 21))
+        ]
 
         assert len(advanced_templates) >= 10, "Expected at least 10 advanced templates"
 
@@ -512,10 +529,15 @@ class TestTemplateCategories:
 
     def test_real_world_templates(self):
         """Test real-world project templates (21+)."""
-        real_world_templates = [p for p in get_all_templates()
-                               if any(p.name.startswith(f"{i:02d}_") for i in range(21, 30))]
+        real_world_templates = [
+            p
+            for p in get_all_templates()
+            if any(p.name.startswith(f"{i:02d}_") for i in range(21, 30))
+        ]
 
-        assert len(real_world_templates) >= 3, "Expected at least 3 real-world templates"
+        assert (
+            len(real_world_templates) >= 3
+        ), "Expected at least 3 real-world templates"
 
         for template_path in real_world_templates:
             yaml_content = template_path.read_text()

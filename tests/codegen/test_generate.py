@@ -16,7 +16,11 @@ class TestGenerateComponent:
             name="sast",
             inputs=[
                 InputIR(name="stage", default="test", description="The stage to run"),
-                InputIR(name="SAST_EXCLUDED_PATHS", default="", description="Paths to exclude"),
+                InputIR(
+                    name="SAST_EXCLUDED_PATHS",
+                    default="",
+                    description="Paths to exclude",
+                ),
             ],
         )
 
@@ -36,7 +40,11 @@ class TestGenerateComponent:
             name="custom",
             inputs=[
                 InputIR(name="required_param", default=None, description="Required"),
-                InputIR(name="optional_param", default="default_value", description="Optional"),
+                InputIR(
+                    name="optional_param",
+                    default="default_value",
+                    description="Optional",
+                ),
             ],
         )
 
@@ -45,7 +53,10 @@ class TestGenerateComponent:
         # Required param should not have default
         assert "required_param: str" in code
         # Optional param should have default
-        assert 'optional_param: str = "default_value"' in code or "optional_param: str | None" in code
+        assert (
+            'optional_param: str = "default_value"' in code
+            or "optional_param: str | None" in code
+        )
 
     def test_generate_component_valid_python(self):
         """Generated code is valid Python."""

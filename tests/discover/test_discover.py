@@ -11,11 +11,11 @@ class TestDiscoverJobs:
         """Discover a simple Job declaration."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 build_job = Job(name="build", stage="build", script=["make build"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -30,13 +30,13 @@ build_job = Job(name="build", stage="build", script=["make build"])
         """Discover multiple Job declarations in a file."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 build = Job(name="build", stage="build", script=["make"])
 test = Job(name="test", stage="test", script=["pytest"])
 deploy = Job(name="deploy", stage="deploy", script=["deploy"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -50,12 +50,12 @@ deploy = Job(name="deploy", stage="deploy", script=["deploy"])
         """Discover a Job with needs dependencies."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 build = Job(name="build", stage="build", script=["make"])
 test = Job(name="test", stage="test", script=["pytest"], needs=["build"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -69,11 +69,11 @@ test = Job(name="test", stage="test", script=["pytest"], needs=["build"])
         """Job without explicit name uses variable name."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 my_job = Job(stage="build", script=["make"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -91,11 +91,11 @@ class TestDiscoverPipelines:
         """Discover a simple Pipeline declaration."""
         from wetwire_gitlab.discover import discover_pipelines
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Pipeline
 
 ci_pipeline = Pipeline(stages=["build", "test", "deploy"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -108,13 +108,13 @@ ci_pipeline = Pipeline(stages=["build", "test", "deploy"])
         """Discover Pipeline with associated jobs."""
         from wetwire_gitlab.discover import discover_pipelines
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Pipeline, Job
 
 build = Job(name="build", stage="build", script=["make"])
 test = Job(name="test", stage="test", script=["pytest"])
 pipeline = Pipeline(stages=["build", "test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -135,16 +135,16 @@ class TestDiscoverDirectory:
             path = Path(tmpdir)
 
             # Create first file
-            (path / "jobs.py").write_text('''
+            (path / "jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 build = Job(name="build", stage="build", script=["make"])
-''')
+""")
 
             # Create second file
-            (path / "tests.py").write_text('''
+            (path / "tests.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 test = Job(name="test", stage="test", script=["pytest"])
-''')
+""")
 
             result = discover_in_directory(path)
 
@@ -160,18 +160,18 @@ test = Job(name="test", stage="test", script=["pytest"])
             path = Path(tmpdir)
 
             # Create valid file
-            (path / "jobs.py").write_text('''
+            (path / "jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 build = Job(name="build", stage="build", script=["make"])
-''')
+""")
 
             # Create __pycache__ directory with file
             pycache = path / "__pycache__"
             pycache.mkdir()
-            (pycache / "cached.py").write_text('''
+            (pycache / "cached.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 cached_job = Job(name="cached", stage="test", script=["echo cached"])
-''')
+""")
 
             result = discover_in_directory(path)
 
@@ -186,18 +186,18 @@ cached_job = Job(name="cached", stage="test", script=["echo cached"])
             path = Path(tmpdir)
 
             # Create valid file
-            (path / "jobs.py").write_text('''
+            (path / "jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 build = Job(name="build", stage="build", script=["make"])
-''')
+""")
 
             # Create .hidden directory with file
             hidden = path / ".hidden"
             hidden.mkdir()
-            (hidden / "hidden.py").write_text('''
+            (hidden / "hidden.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 hidden_job = Job(name="hidden", stage="test", script=["echo"])
-''')
+""")
 
             result = discover_in_directory(path)
 
@@ -212,18 +212,18 @@ hidden_job = Job(name="hidden", stage="test", script=["echo"])
             path = Path(tmpdir)
 
             # Create file in root
-            (path / "root_jobs.py").write_text('''
+            (path / "root_jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 root = Job(name="root", stage="build", script=["make"])
-''')
+""")
 
             # Create subdirectory with file
             subdir = path / "subdir"
             subdir.mkdir()
-            (subdir / "sub_jobs.py").write_text('''
+            (subdir / "sub_jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 sub = Job(name="sub", stage="test", script=["pytest"])
-''')
+""")
 
             result = discover_in_directory(path)
 
@@ -322,13 +322,13 @@ class TestDiscoverSingleFile:
         """Discover both jobs and pipelines from a single file."""
         from wetwire_gitlab.discover import discover_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job, Pipeline
 
 build = Job(name="build", stage="build", script=["make"])
 test = Job(name="test", stage="test", script=["pytest"])
 pipeline = Pipeline(stages=["build", "test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -369,11 +369,11 @@ class TestDiscoverEdgeCases:
         """Discover Job call using module prefix (module.Job)."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 import wetwire_gitlab.pipeline as pipeline
 
 job = pipeline.Job(name="build", stage="build", script=["make"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -386,11 +386,11 @@ job = pipeline.Job(name="build", stage="build", script=["make"])
         """Discover Pipeline call using module prefix (module.Pipeline)."""
         from wetwire_gitlab.discover import discover_pipelines
 
-        code = '''
+        code = """
 import wetwire_gitlab.pipeline as p
 
 pipe = p.Pipeline(stages=["build", "test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -403,12 +403,12 @@ pipe = p.Pipeline(stages=["build", "test"])
         """Discover Job with When.MANUAL enum value."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 from wetwire_gitlab.intrinsics import When
 
 deploy = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -421,11 +421,11 @@ deploy = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
         """Discover Job with when string value."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 deploy = Job(name="deploy", stage="deploy", script=["deploy"], when="always")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -438,11 +438,11 @@ deploy = Job(name="deploy", stage="deploy", script=["deploy"], when="always")
         """Discover Job with variables dict."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 deploy = Job(name="deploy", stage="deploy", script=["deploy"], variables={"KEY": "value"})
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -456,11 +456,11 @@ deploy = Job(name="deploy", stage="deploy", script=["deploy"], variables={"KEY":
         """Discover Job with Variables() call."""
         from wetwire_gitlab.discover import discover_jobs
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job, Variables
 
 deploy = Job(name="deploy", stage="deploy", script=["deploy"], variables=Variables({"ENV": "prod"}))
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -525,7 +525,7 @@ class TestScannerHelpers:
         from wetwire_gitlab.discover.scanner import _get_keyword_value
 
         # Parse a call with a function call as keyword value
-        call = ast.parse('Job(name=func())').body[0].value
+        call = ast.parse("Job(name=func())").body[0].value
         node, value = _get_keyword_value(call, "name")
         assert node is not None
         assert value is None

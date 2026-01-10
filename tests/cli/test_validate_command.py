@@ -59,7 +59,13 @@ build:
     def test_validate_nonexistent_file(self):
         """Validate handles nonexistent file."""
         result = subprocess.run(
-            [sys.executable, "-m", "wetwire_gitlab.cli", "validate", "/nonexistent/file.yml"],
+            [
+                sys.executable,
+                "-m",
+                "wetwire_gitlab.cli",
+                "validate",
+                "/nonexistent/file.yml",
+            ],
             capture_output=True,
             text=True,
         )

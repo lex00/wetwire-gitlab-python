@@ -62,10 +62,10 @@ pipeline = Pipeline(
 
         # Create minimal pyproject.toml
         pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('''[project]
+        pyproject.write_text("""[project]
 name = "sample"
 version = "0.1.0"
-''')
+""")
 
         return tmp_path
 
@@ -177,12 +177,12 @@ class TestBuildLogic:
 
         # Create a simple module with jobs
         test_file = tmp_path / "test_jobs.py"
-        test_file.write_text('''
+        test_file.write_text("""
 from wetwire_gitlab.pipeline import Job
 
 job1 = Job(name="job1", script=["echo test"])
 job2 = Job(name="job2", script=["echo test2"])
-''')
+""")
 
         module = import_module_from_path(test_file)
         assert module is not None
@@ -198,11 +198,11 @@ job2 = Job(name="job2", script=["echo test2"])
         )
 
         test_file = tmp_path / "test_pipeline.py"
-        test_file.write_text('''
+        test_file.write_text("""
 from wetwire_gitlab.pipeline import Pipeline
 
 main_pipeline = Pipeline(stages=["build", "test"])
-''')
+""")
 
         module = import_module_from_path(test_file)
         assert module is not None
@@ -314,15 +314,15 @@ class TestBuildMultiPipeline:
         src_dir = tmp_path / "src"
         src_dir.mkdir()
 
-        (src_dir / "main.py").write_text('''
+        (src_dir / "main.py").write_text("""
 from wetwire_gitlab.pipeline import Pipeline
 main = Pipeline(stages=["build"])
-''')
+""")
 
-        (src_dir / "mr.py").write_text('''
+        (src_dir / "mr.py").write_text("""
 from wetwire_gitlab.pipeline import Pipeline
 mr_pipeline = Pipeline(stages=["test"])
-''')
+""")
 
         pipelines = extract_all_pipelines(src_dir)
         # Should find both pipelines
@@ -403,8 +403,9 @@ class TestBuildWatchMode:
             original_sleep(0.01)  # Small sleep to not busy-loop
 
         # Mock watchdog Observer to avoid actual watching
-        with patch("watchdog.observers.Observer") as mock_observer, patch(
-            "time.sleep", side_effect=mock_sleep
+        with (
+            patch("watchdog.observers.Observer") as mock_observer,
+            patch("time.sleep", side_effect=mock_sleep),
         ):
             mock_instance = MagicMock()
             mock_observer.return_value = mock_instance
@@ -444,8 +445,9 @@ class TestBuildWatchMode:
             original_sleep(0.01)
 
         # Mock the file observer
-        with patch("watchdog.observers.Observer") as mock_observer, patch(
-            "time.sleep", side_effect=mock_sleep
+        with (
+            patch("watchdog.observers.Observer") as mock_observer,
+            patch("time.sleep", side_effect=mock_sleep),
         ):
             mock_instance = MagicMock()
             mock_observer.return_value = mock_instance
@@ -477,8 +479,9 @@ class TestBuildWatchMode:
         def mock_sleep(seconds):
             raise KeyboardInterrupt
 
-        with patch("watchdog.observers.Observer") as mock_observer, patch(
-            "time.sleep", side_effect=mock_sleep
+        with (
+            patch("watchdog.observers.Observer") as mock_observer,
+            patch("time.sleep", side_effect=mock_sleep),
         ):
             mock_instance = MagicMock()
             mock_observer.return_value = mock_instance
@@ -513,8 +516,9 @@ class TestBuildWatchMode:
         def mock_sleep(seconds):
             raise KeyboardInterrupt
 
-        with patch("watchdog.observers.Observer") as mock_observer, patch(
-            "time.sleep", side_effect=mock_sleep
+        with (
+            patch("watchdog.observers.Observer") as mock_observer,
+            patch("time.sleep", side_effect=mock_sleep),
         ):
             mock_instance = MagicMock()
             mock_observer.return_value = mock_instance
@@ -575,9 +579,9 @@ pipeline = Pipeline(
 
         # Create minimal pyproject.toml
         pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('''[project]
+        pyproject.write_text("""[project]
 name = "sample"
 version = "0.1.0"
-''')
+""")
 
         return tmp_path

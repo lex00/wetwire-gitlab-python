@@ -1,7 +1,6 @@
 """Tests for intrinsics module."""
 
 
-
 class TestCIContext:
     """Tests for CI predefined variables context."""
 

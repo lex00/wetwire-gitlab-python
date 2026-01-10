@@ -14,11 +14,11 @@ class TestWGL012UseCachePolicyConstants:
         """WGL012 detects string literals for cache policy."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Cache
+        code = """from wetwire_gitlab.pipeline import Job, Cache
 
 cache = Cache(key="npm", paths=["node_modules/"], policy="pull")
 job = Job(name="build", stage="build", script=["npm install"], cache=cache)
-'''
+"""
         issues = lint_code(code, rules=["WGL012"])
         assert len(issues) == 1
         assert issues[0].code == "WGL012"
@@ -28,12 +28,12 @@ job = Job(name="build", stage="build", script=["npm install"], cache=cache)
         """WGL012 allows CachePolicy constants."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Cache
+        code = """from wetwire_gitlab.pipeline import Job, Cache
 from wetwire_gitlab.intrinsics import CachePolicy
 
 cache = Cache(key="npm", paths=["node_modules/"], policy=CachePolicy.PULL)
 job = Job(name="build", stage="build", script=["npm install"], cache=cache)
-'''
+"""
         issues = lint_code(code, rules=["WGL012"])
         assert len(issues) == 0
 
@@ -51,11 +51,11 @@ class TestWGL013UseArtifactsWhenConstants:
         """WGL013 detects string literals for artifacts when."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+        code = """from wetwire_gitlab.pipeline import Job, Artifacts
 
 artifacts = Artifacts(paths=["dist/"], when="always")
 job = Job(name="build", stage="build", script=["make"], artifacts=artifacts)
-'''
+"""
         issues = lint_code(code, rules=["WGL013"])
         assert len(issues) == 1
         assert issues[0].code == "WGL013"
@@ -65,12 +65,12 @@ job = Job(name="build", stage="build", script=["make"], artifacts=artifacts)
         """WGL013 allows ArtifactsWhen constants."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+        code = """from wetwire_gitlab.pipeline import Job, Artifacts
 from wetwire_gitlab.intrinsics import ArtifactsWhen
 
 artifacts = Artifacts(paths=["dist/"], when=ArtifactsWhen.ALWAYS)
 job = Job(name="build", stage="build", script=["make"], artifacts=artifacts)
-'''
+"""
         issues = lint_code(code, rules=["WGL013"])
         assert len(issues) == 0
 
@@ -88,10 +88,10 @@ class TestWGL014MissingScript:
         """WGL014 detects jobs without script."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="empty", stage="test")
-'''
+"""
         issues = lint_code(code, rules=["WGL014"])
         assert len(issues) == 1
         assert issues[0].code == "WGL014"
@@ -101,10 +101,10 @@ job = Job(name="empty", stage="test")
         """WGL014 allows jobs with script."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"])
-'''
+"""
         issues = lint_code(code, rules=["WGL014"])
         assert len(issues) == 0
 
@@ -112,10 +112,10 @@ job = Job(name="test", stage="test", script=["pytest"])
         """WGL014 allows jobs with trigger (child pipelines)."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Trigger
+        code = """from wetwire_gitlab.pipeline import Job, Trigger
 
 job = Job(name="trigger", stage="deploy", trigger=Trigger(include="child.yml"))
-'''
+"""
         issues = lint_code(code, rules=["WGL014"])
         assert len(issues) == 0
 
@@ -133,10 +133,10 @@ class TestWGL015MissingName:
         """WGL015 detects jobs without name."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(stage="test", script=["pytest"])
-'''
+"""
         issues = lint_code(code, rules=["WGL015"])
         assert len(issues) == 1
         assert issues[0].code == "WGL015"
@@ -146,10 +146,10 @@ job = Job(stage="test", script=["pytest"])
         """WGL015 allows jobs with explicit name."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"])
-'''
+"""
         issues = lint_code(code, rules=["WGL015"])
         assert len(issues) == 0
 
@@ -167,10 +167,10 @@ class TestWGL016UseImageDataclass:
         """WGL016 detects string image specification."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
-'''
+"""
         issues = lint_code(code, rules=["WGL016"])
         assert len(issues) == 1
         assert issues[0].code == "WGL016"
@@ -180,10 +180,10 @@ job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
         """WGL016 allows Image dataclass."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Image
+        code = """from wetwire_gitlab.pipeline import Job, Image
 
 job = Job(name="test", stage="test", script=["pytest"], image=Image(name="python:3.11"))
-'''
+"""
         issues = lint_code(code, rules=["WGL016"])
         assert len(issues) == 0
 
@@ -201,10 +201,10 @@ class TestWGL017EmptyRulesList:
         """WGL017 detects empty rules list."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"], rules=[])
-'''
+"""
         issues = lint_code(code, rules=["WGL017"])
         assert len(issues) == 1
         assert issues[0].code == "WGL017"
@@ -214,10 +214,10 @@ job = Job(name="test", stage="test", script=["pytest"], rules=[])
         """WGL017 allows non-empty rules list."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(name="test", stage="test", script=["pytest"], rules=[Rule(if_="$CI_COMMIT_BRANCH")])
-'''
+"""
         issues = lint_code(code, rules=["WGL017"])
         assert len(issues) == 0
 
@@ -235,10 +235,10 @@ class TestWGL018NeedsWithoutStage:
         """WGL018 detects needs keyword without stage."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", script=["deploy"], needs=["build"])
-'''
+"""
         issues = lint_code(code, rules=["WGL018"])
         assert len(issues) == 1
         assert issues[0].code == "WGL018"
@@ -247,10 +247,10 @@ job = Job(name="deploy", script=["deploy"], needs=["build"])
         """WGL018 allows needs with explicit stage."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], needs=["build"])
-'''
+"""
         issues = lint_code(code, rules=["WGL018"])
         assert len(issues) == 0
 
@@ -268,11 +268,11 @@ class TestWGL019ManualWithoutAllowFailure:
         """WGL019 detects manual jobs without allow_failure."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 from wetwire_gitlab.intrinsics import When
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
-'''
+"""
         issues = lint_code(code, rules=["WGL019"])
         assert len(issues) == 1
         assert issues[0].code == "WGL019"
@@ -282,11 +282,11 @@ job = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
         """WGL019 allows manual jobs with allow_failure."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 from wetwire_gitlab.intrinsics import When
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL, allow_failure=True)
-'''
+"""
         issues = lint_code(code, rules=["WGL019"])
         assert len(issues) == 0
 
@@ -294,10 +294,10 @@ job = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL, al
         """WGL019 also detects string 'manual' without allow_failure."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
-'''
+"""
         issues = lint_code(code, rules=["WGL019"])
         # Should have WGL019 (may also have WGL010 for string when)
         wgl019_issues = [i for i in issues if i.code == "WGL019"]
@@ -317,7 +317,7 @@ class TestWGL020AvoidNestedJobConstructors:
         """WGL020 detects inline Job() in needs list."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 build = Job(name="build", stage="build", script=["make build"])
 test = Job(
@@ -326,21 +326,24 @@ test = Job(
     script=["make test"],
     needs=[Job(name="build", stage="build", script=["make build"])]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL020"])
         assert len(issues) == 1
         assert issues[0].code == "WGL020"
-        assert "nested" in issues[0].message.lower() or "inline" in issues[0].message.lower()
+        assert (
+            "nested" in issues[0].message.lower()
+            or "inline" in issues[0].message.lower()
+        )
 
     def test_no_issue_for_job_reference_in_needs(self):
         """WGL020 allows Job references in needs."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 build = Job(name="build", stage="build", script=["make build"])
 test = Job(name="test", stage="test", script=["make test"], needs=[build])
-'''
+"""
         issues = lint_code(code, rules=["WGL020"])
         assert len(issues) == 0
 
@@ -348,10 +351,10 @@ test = Job(name="test", stage="test", script=["make test"], needs=[build])
         """WGL020 allows string needs."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 test = Job(name="test", stage="test", script=["make test"], needs=["build"])
-'''
+"""
         issues = lint_code(code, rules=["WGL020"])
         assert len(issues) == 0
 
@@ -369,10 +372,10 @@ class TestWGL021UseTypedServiceConstants:
         """WGL021 detects string service specification."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"], services=["postgres:14"])
-'''
+"""
         issues = lint_code(code, rules=["WGL021"])
         assert len(issues) == 1
         assert issues[0].code == "WGL021"
@@ -382,7 +385,7 @@ job = Job(name="test", stage="test", script=["pytest"], services=["postgres:14"]
         """WGL021 detects multiple string services."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(
     name="test",
@@ -390,7 +393,7 @@ job = Job(
     script=["pytest"],
     services=["postgres:14", "redis:latest"]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL021"])
         assert len(issues) == 2
         assert all(i.code == "WGL021" for i in issues)
@@ -399,7 +402,7 @@ job = Job(
         """WGL021 allows Service dataclass."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Service
+        code = """from wetwire_gitlab.pipeline import Job, Service
 
 job = Job(
     name="test",
@@ -407,7 +410,7 @@ job = Job(
     script=["pytest"],
     services=[Service(name="postgres:14")]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL021"])
         assert len(issues) == 0
 
@@ -425,7 +428,7 @@ class TestWGL022AvoidDuplicateNeeds:
         """WGL022 detects duplicate entries in needs list."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(
     name="deploy",
@@ -433,7 +436,7 @@ job = Job(
     script=["deploy"],
     needs=["build", "test", "build"]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL022"])
         assert len(issues) == 1
         assert issues[0].code == "WGL022"
@@ -443,7 +446,7 @@ job = Job(
         """WGL022 detects duplicate entries in dependencies list."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(
     name="deploy",
@@ -451,7 +454,7 @@ job = Job(
     script=["deploy"],
     dependencies=["build", "test", "build"]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL022"])
         assert len(issues) == 1
         assert issues[0].code == "WGL022"
@@ -461,7 +464,7 @@ job = Job(
         """WGL022 allows unique needs entries."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(
     name="deploy",
@@ -469,7 +472,7 @@ job = Job(
     script=["deploy"],
     needs=["build", "test", "lint"]
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL022"])
         assert len(issues) == 0
 
@@ -487,10 +490,10 @@ class TestWGL023MissingImageForScriptJobs:
         """WGL023 detects jobs with script but no image."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"])
-'''
+"""
         issues = lint_code(code, rules=["WGL023"])
         assert len(issues) == 1
         assert issues[0].code == "WGL023"
@@ -501,7 +504,7 @@ job = Job(name="test", stage="test", script=["pytest"])
         """WGL023 allows jobs with script and image."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Image
+        code = """from wetwire_gitlab.pipeline import Job, Image
 
 job = Job(
     name="test",
@@ -509,7 +512,7 @@ job = Job(
     script=["pytest"],
     image=Image(name="python:3.11")
 )
-'''
+"""
         issues = lint_code(code, rules=["WGL023"])
         assert len(issues) == 0
 
@@ -517,10 +520,10 @@ job = Job(
         """WGL023 allows trigger jobs without image."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Trigger
+        code = """from wetwire_gitlab.pipeline import Job, Trigger
 
 job = Job(name="trigger", stage="deploy", trigger=Trigger(include="child.yml"))
-'''
+"""
         issues = lint_code(code, rules=["WGL023"])
         assert len(issues) == 0
 
@@ -528,9 +531,9 @@ job = Job(name="trigger", stage="deploy", trigger=Trigger(include="child.yml"))
         """WGL023 allows jobs with script and string image."""
         from wetwire_gitlab.linter import lint_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
-'''
+"""
         issues = lint_code(code, rules=["WGL023"])
         assert len(issues) == 0

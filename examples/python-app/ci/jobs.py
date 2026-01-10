@@ -21,7 +21,9 @@ test_py311 = Job(
     cache=pip_cache,
     artifacts=Artifacts(
         paths=["coverage.xml"],
-        reports={"coverage_report": {"coverage_format": "cobertura", "path": "coverage.xml"}},
+        reports={
+            "coverage_report": {"coverage_format": "cobertura", "path": "coverage.xml"}
+        },
     ),
 )
 

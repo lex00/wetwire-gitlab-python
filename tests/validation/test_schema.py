@@ -183,7 +183,7 @@ build:
 
             # May pass or fail depending on schema - we're testing the mechanism
             assert result.valid in (True, False)
-            assert isinstance(result.errors, (list, type(None)))
+            assert isinstance(result.errors, list | type(None))
 
 
 class TestSchemaValidationIntegration:

@@ -70,7 +70,9 @@ class TestSecretDetectionComponent:
         """Secret Detection with excluded paths."""
         from wetwire_gitlab.components import SecretDetectionComponent
 
-        sd = SecretDetectionComponent(secret_detection_excluded_paths=["test/fixtures/"])
+        sd = SecretDetectionComponent(
+            secret_detection_excluded_paths=["test/fixtures/"]
+        )
         include = sd.to_include()
 
         assert include["inputs"]["SECRET_DETECTION_EXCLUDED_PATHS"] == "test/fixtures/"
@@ -86,7 +88,9 @@ class TestDependencyScanningComponent:
         ds = DependencyScanningComponent()
         include = ds.to_include()
 
-        assert include["component"] == "gitlab.com/components/dependency-scanning@~latest"
+        assert (
+            include["component"] == "gitlab.com/components/dependency-scanning@~latest"
+        )
 
     def test_dependency_scanning_with_excluded_paths(self):
         """Dependency Scanning with excluded paths."""
@@ -108,7 +112,9 @@ class TestContainerScanningComponent:
         cs = ContainerScanningComponent()
         include = cs.to_include()
 
-        assert include["component"] == "gitlab.com/components/container-scanning@~latest"
+        assert (
+            include["component"] == "gitlab.com/components/container-scanning@~latest"
+        )
 
     def test_container_scanning_with_image(self):
         """Container Scanning with custom image."""
@@ -216,7 +222,9 @@ class TestDASTComponent:
         """DAST with full scan mode."""
         from wetwire_gitlab.components import DASTComponent
 
-        dast = DASTComponent(dast_website="https://example.com", dast_full_scan_enabled=True)
+        dast = DASTComponent(
+            dast_website="https://example.com", dast_full_scan_enabled=True
+        )
         include = dast.to_include()
 
         assert include["inputs"]["DAST_FULL_SCAN_ENABLED"] == "true"
@@ -240,7 +248,9 @@ class TestComponentInPipeline:
 
         assert len(pipeline.include) == 2
         assert pipeline.include[0]["component"].startswith("gitlab.com/components/sast")
-        assert pipeline.include[1]["component"].startswith("gitlab.com/components/secret-detection")
+        assert pipeline.include[1]["component"].startswith(
+            "gitlab.com/components/secret-detection"
+        )
 
 
 class TestComponentExports:

@@ -35,7 +35,9 @@ def run_lint(args: argparse.Namespace) -> int:
         else:
             for py_file in path.rglob("*.py"):
                 # Skip __pycache__ and hidden directories
-                if "__pycache__" in str(py_file) or any(p.startswith(".") for p in py_file.parts):
+                if "__pycache__" in str(py_file) or any(
+                    p.startswith(".") for p in py_file.parts
+                ):
                     continue
                 original = py_file.read_text()
                 fixed = fix_file(str(py_file), write=True)
@@ -70,8 +72,12 @@ def run_lint(args: argparse.Namespace) -> int:
     else:
         if result.issues:
             for issue in result.issues:
-                print(f"{issue.file_path}:{issue.line_number}: {issue.code} {issue.message}")
-            print(f"\nFound {len(result.issues)} issue(s) in {result.files_checked} file(s)")
+                print(
+                    f"{issue.file_path}:{issue.line_number}: {issue.code} {issue.message}"
+                )
+            print(
+                f"\nFound {len(result.issues)} issue(s) in {result.files_checked} file(s)"
+            )
         else:
             print(f"No issues found in {result.files_checked} file(s)")
 

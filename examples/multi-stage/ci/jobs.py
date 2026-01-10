@@ -77,7 +77,12 @@ test_unit = Job(
     ],
     artifacts=Artifacts(
         paths=["coverage/"],
-        reports={"coverage_report": {"coverage_format": "cobertura", "path": "coverage/cobertura.xml"}},
+        reports={
+            "coverage_report": {
+                "coverage_format": "cobertura",
+                "path": "coverage/cobertura.xml",
+            }
+        },
     ),
     needs=["build-frontend", "build-backend"],
 )

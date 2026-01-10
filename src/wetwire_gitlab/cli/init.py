@@ -54,6 +54,7 @@ def create_package(
     # Create or recreate package directory
     if package_dir.exists() and force:
         import shutil
+
         shutil.rmtree(package_dir)
 
     package_dir.mkdir(parents=True, exist_ok=True)
@@ -117,7 +118,7 @@ deploy = Job(
     # Create scaffold files (unless --no-scaffold)
     if not no_scaffold:
         # README.md
-        readme_content = f'''# {name}
+        readme_content = f"""# {name}
 
 GitLab CI/CD pipeline configuration using wetwire-gitlab.
 
@@ -171,12 +172,12 @@ my_job = Job(
 
 - [wetwire-gitlab Documentation](https://github.com/lex00/wetwire-gitlab-python)
 - [GitLab CI/CD Documentation](https://docs.gitlab.com/ee/ci/)
-'''
+"""
         (output_dir / "README.md").write_text(readme_content)
         created_files.append("README.md")
 
         # CLAUDE.md
-        claude_content = f'''# {name}
+        claude_content = f"""# {name}
 
 GitLab CI/CD pipeline configuration using wetwire-gitlab typed Python declarations.
 
@@ -236,12 +237,12 @@ deploy = Job(
 wetwire-gitlab build {name}/
 # Outputs .gitlab-ci.yml
 ```
-'''
+"""
         (output_dir / "CLAUDE.md").write_text(claude_content)
         created_files.append("CLAUDE.md")
 
         # .gitignore
-        gitignore_content = '''# Python
+        gitignore_content = """# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -286,7 +287,7 @@ htmlcov/
 
 # wetwire-gitlab
 .gitlab-ci.yml
-'''
+"""
         (output_dir / ".gitignore").write_text(gitignore_content)
         created_files.append(".gitignore")
 

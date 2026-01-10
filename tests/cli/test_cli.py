@@ -15,7 +15,10 @@ class TestCLIEntry:
             text=True,
         )
         assert result.returncode == 0
-        assert "wetwire-gitlab" in result.stdout.lower() or "usage" in result.stdout.lower()
+        assert (
+            "wetwire-gitlab" in result.stdout.lower()
+            or "usage" in result.stdout.lower()
+        )
 
     def test_cli_version(self):
         """CLI shows version."""

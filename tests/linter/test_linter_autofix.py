@@ -28,10 +28,10 @@ job = Job(name="test", stage="test", script=["echo test"], when=When.MANUAL)
         """fix_code fixes WGL010 when string to When constant."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
-'''
+"""
         result = fix_code(code)
         assert 'when="manual"' not in result
         assert "When.MANUAL" in result
@@ -41,11 +41,11 @@ job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
         """fix_code fixes multiple when string issues."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job1 = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
 job2 = Job(name="cleanup", stage="deploy", script=["cleanup"], when="always")
-'''
+"""
         result = fix_code(code)
         assert 'when="manual"' not in result
         assert 'when="always"' not in result
@@ -56,10 +56,10 @@ job2 = Job(name="cleanup", stage="deploy", script=["cleanup"], when="always")
         """fix_code adds required imports for fixes."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="always")
-'''
+"""
         result = fix_code(code)
         assert "from wetwire_gitlab.intrinsics import When" in result
 
@@ -77,10 +77,10 @@ class TestFixFile:
         """fix_file reads file, applies fixes, and returns fixed code."""
         from wetwire_gitlab.linter import fix_file
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -93,10 +93,10 @@ job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
         """fix_file with write=True writes fixed code to file."""
         from wetwire_gitlab.linter import fix_file
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -162,10 +162,10 @@ class TestFixWGL012:
         """fix_code fixes WGL012 cache policy string to CachePolicy constant."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Cache
+        code = """from wetwire_gitlab.pipeline import Job, Cache
 
 job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="pull"))
-'''
+"""
         result = fix_code(code)
         assert 'policy="pull"' not in result
         assert "CachePolicy.PULL" in result
@@ -175,10 +175,10 @@ job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_m
         """fix_code fixes WGL012 cache policy 'push' to CachePolicy.PUSH."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Cache
+        code = """from wetwire_gitlab.pipeline import Job, Cache
 
 job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="push"))
-'''
+"""
         result = fix_code(code)
         assert 'policy="push"' not in result
         assert "CachePolicy.PUSH" in result
@@ -187,10 +187,10 @@ job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_m
         """fix_code fixes WGL012 cache policy 'pull-push' to CachePolicy.PULL_PUSH."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Cache
+        code = """from wetwire_gitlab.pipeline import Job, Cache
 
 job = Job(name="test", stage="test", script=["test"], cache=Cache(paths=["node_modules/"], policy="pull-push"))
-'''
+"""
         result = fix_code(code)
         assert 'policy="pull-push"' not in result
         assert "CachePolicy.PULL_PUSH" in result
@@ -203,10 +203,10 @@ class TestFixWGL013:
         """fix_code fixes WGL013 artifacts when string to ArtifactsWhen constant."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+        code = """from wetwire_gitlab.pipeline import Job, Artifacts
 
 job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="always"))
-'''
+"""
         result = fix_code(code)
         assert 'when="always"' not in result
         assert "ArtifactsWhen.ALWAYS" in result
@@ -216,10 +216,10 @@ job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=
         """fix_code fixes WGL013 artifacts when 'on_success' to ArtifactsWhen.ON_SUCCESS."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+        code = """from wetwire_gitlab.pipeline import Job, Artifacts
 
 job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="on_success"))
-'''
+"""
         result = fix_code(code)
         assert 'when="on_success"' not in result
         assert "ArtifactsWhen.ON_SUCCESS" in result
@@ -228,10 +228,10 @@ job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=
         """fix_code fixes WGL013 artifacts when 'on_failure' to ArtifactsWhen.ON_FAILURE."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Artifacts
+        code = """from wetwire_gitlab.pipeline import Job, Artifacts
 
 job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=["dist/"], when="on_failure"))
-'''
+"""
         result = fix_code(code)
         assert 'when="on_failure"' not in result
         assert "ArtifactsWhen.ON_FAILURE" in result
@@ -244,7 +244,7 @@ class TestFixWGL003:
         """fix_code fixes WGL003 CI variable string to CI.COMMIT_SHA."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -252,7 +252,7 @@ job = Job(
     script=["echo $CI_COMMIT_SHA"],
     rules=[Rule(if_="$CI_COMMIT_SHA")],
 )
-'''
+"""
         result = fix_code(code)
         assert '"$CI_COMMIT_SHA"' not in result
         assert "CI.COMMIT_SHA" in result
@@ -262,7 +262,7 @@ job = Job(
         """fix_code fixes WGL003 $CI_DEFAULT_BRANCH to CI.DEFAULT_BRANCH."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -270,7 +270,7 @@ job = Job(
     script=["echo test"],
     rules=[Rule(if_="$CI_DEFAULT_BRANCH")],
 )
-'''
+"""
         result = fix_code(code)
         assert '"$CI_DEFAULT_BRANCH"' not in result
         assert "CI.DEFAULT_BRANCH" in result
@@ -280,7 +280,7 @@ job = Job(
         from wetwire_gitlab.linter import fix_code
 
         # Use a pattern that won't trigger WGL009
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -288,7 +288,7 @@ job = Job(
     script=["echo test"],
     rules=[Rule(if_="$CI_COMMIT_SHA && $CI_COMMIT_BRANCH")],
 )
-'''
+"""
         result = fix_code(code)
         assert '"$CI_COMMIT_SHA && $CI_COMMIT_BRANCH"' not in result
         # Should replace with CI.COMMIT_SHA and CI.COMMIT_BRANCH
@@ -300,7 +300,7 @@ job = Job(
         from wetwire_gitlab.linter import fix_code
 
         # Use a pattern that won't trigger WGL009 (tag with additional condition)
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -308,7 +308,7 @@ job = Job(
     script=["echo test"],
     rules=[Rule(if_="$CI_COMMIT_TAG && $CI_COMMIT_BRANCH")],
 )
-'''
+"""
         result = fix_code(code)
         assert '"$CI_COMMIT_TAG' not in result
         assert "CI.COMMIT_TAG" in result
@@ -317,7 +317,7 @@ job = Job(
         """fix_code fixes WGL003 $CI_PIPELINE_SOURCE to CI.PIPELINE_SOURCE."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -325,7 +325,7 @@ job = Job(
     script=["echo test"],
     rules=[Rule(if_='$CI_PIPELINE_SOURCE == "web"')],
 )
-'''
+"""
         result = fix_code(code)
         assert '"$CI_PIPELINE_SOURCE' not in result
         assert "CI.PIPELINE_SOURCE" in result
@@ -338,7 +338,7 @@ class TestFixWGL009:
         """fix_code fixes WGL009 default branch rule to Rules.ON_DEFAULT_BRANCH."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="deploy",
@@ -346,7 +346,7 @@ job = Job(
     script=["deploy"],
     rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")],
 )
-'''
+"""
         result = fix_code(code)
         assert 'Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")' not in result
         assert "Rules.ON_DEFAULT_BRANCH" in result
@@ -356,7 +356,7 @@ job = Job(
         """fix_code fixes WGL009 tag rule to Rules.ON_TAG."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="release",
@@ -364,7 +364,7 @@ job = Job(
     script=["release"],
     rules=[Rule(if_="$CI_COMMIT_TAG")],
 )
-'''
+"""
         result = fix_code(code)
         assert 'Rule(if_="$CI_COMMIT_TAG")' not in result
         assert "Rules.ON_TAG" in result
@@ -373,7 +373,7 @@ job = Job(
         """fix_code fixes WGL009 MR rule to Rules.ON_MERGE_REQUEST."""
         from wetwire_gitlab.linter import fix_code
 
-        code = '''from wetwire_gitlab.pipeline import Job, Rule
+        code = """from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
     name="test",
@@ -381,9 +381,9 @@ job = Job(
     script=["test"],
     rules=[Rule(if_='$CI_PIPELINE_SOURCE == "merge_request_event"')],
 )
-'''
+"""
         result = fix_code(code)
-        assert 'Rule(if_=' not in result
+        assert "Rule(if_=" not in result
         assert "Rules.ON_MERGE_REQUEST" in result
 
 
@@ -408,10 +408,10 @@ class TestAutoFixCLI:
         import subprocess
         import sys
 
-        code = '''from wetwire_gitlab.pipeline import Job
+        code = """from wetwire_gitlab.pipeline import Job
 
 job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()

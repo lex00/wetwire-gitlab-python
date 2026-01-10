@@ -1,7 +1,6 @@
 """Tests for Auto DevOps templates module."""
 
 
-
 class TestAutoDevOps:
     """Tests for AutoDevOps configuration."""
 

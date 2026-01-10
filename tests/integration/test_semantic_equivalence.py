@@ -4,6 +4,7 @@ This module tests that YAML imports and exports maintain semantic equivalence,
 which is critical for the wetwire round-trip requirement.
 """
 
+import pytest
 
 from wetwire_gitlab.importer import generate_python_code, parse_gitlab_ci
 from wetwire_gitlab.pipeline import Job, Pipeline
@@ -11,6 +12,7 @@ from wetwire_gitlab.serialize import build_pipeline_yaml
 from wetwire_gitlab.testing import compare_yaml_semantic
 
 
+@pytest.mark.slow
 class TestSemanticCompareFunction:
     """Tests for the compare_yaml_semantic function."""
 
@@ -243,6 +245,7 @@ build:
         assert any("artifacts.paths[0]" in diff for diff in diffs)
 
 
+@pytest.mark.slow
 class TestRoundTripSemanticEquivalence:
     """Tests for complete round-trip semantic equivalence.
 
@@ -497,6 +500,7 @@ test:
         assert is_eq is True, f"Round-trip failed: {diffs}"
 
 
+@pytest.mark.slow
 class TestComplexTemplateRoundTrip:
     """Tests for complex GitLab templates from test_gitlab_templates.py."""
 
@@ -691,6 +695,7 @@ deploy:
         assert is_eq is True, f"Round-trip failed: {diffs}"
 
 
+@pytest.mark.slow
 class TestDirectPipelineConstruction:
     """Tests for semantic equivalence when constructing pipelines directly."""
 

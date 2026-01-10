@@ -1,7 +1,6 @@
 """Tests for contracts module."""
 
 
-
 class TestJobRef:
     """Tests for JobRef dataclass."""
 

@@ -54,7 +54,7 @@ def run_import(args: argparse.Namespace) -> int:
             (src_dir / "jobs.py").write_text(code)
 
             # Create pyproject.toml if scaffold is enabled
-            pyproject_content = '''[project]
+            pyproject_content = """[project]
 name = "pipeline"
 version = "0.1.0"
 dependencies = ["wetwire-gitlab"]
@@ -62,7 +62,7 @@ dependencies = ["wetwire-gitlab"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-'''
+"""
             (output_dir / "pyproject.toml").write_text(pyproject_content)
             print(f"Generated pipeline package in {output_dir}")
         else:

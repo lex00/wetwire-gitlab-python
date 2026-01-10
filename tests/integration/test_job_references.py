@@ -3,10 +3,13 @@
 Tests for Issue #79: Job Reference Support
 """
 
+import pytest
+
 from wetwire_gitlab.pipeline import Job
 from wetwire_gitlab.serialize import build_pipeline_yaml, to_dict
 
 
+@pytest.mark.slow
 class TestJobReferenceInNeeds:
     """Tests for using Job instances in needs field."""
 
@@ -53,6 +56,7 @@ class TestJobReferenceInNeeds:
         assert result["needs"] == ["build", "lint"]
 
 
+@pytest.mark.slow
 class TestJobReferenceInDependencies:
     """Tests for using Job instances in dependencies field."""
 
@@ -82,6 +86,7 @@ class TestJobReferenceInDependencies:
         assert result["dependencies"] == ["build"]
 
 
+@pytest.mark.slow
 class TestJobReferenceInBuildYaml:
     """Tests for Job references in full YAML build."""
 
@@ -117,6 +122,7 @@ class TestJobReferenceInBuildYaml:
         assert build_pos < test_pos
 
 
+@pytest.mark.slow
 class TestJobReferenceExtractsName:
     """Tests for extracting job name from Job instance."""
 

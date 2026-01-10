@@ -84,7 +84,9 @@ class TestFetchCISchema:
         from wetwire_gitlab.codegen.fetch import fetch_ci_schema
 
         with patch("wetwire_gitlab.codegen.fetch.fetch_url") as mock_fetch:
-            mock_fetch.return_value = '{"$schema": "http://json-schema.org/draft-07/schema#"}'
+            mock_fetch.return_value = (
+                '{"$schema": "http://json-schema.org/draft-07/schema#"}'
+            )
 
             result = fetch_ci_schema()
             assert "$schema" in result
@@ -124,7 +126,9 @@ class TestFetchAllSchemas:
         from wetwire_gitlab.codegen.fetch import fetch_all_schemas
 
         with patch("wetwire_gitlab.codegen.fetch.fetch_ci_schema") as mock_ci:
-            with patch("wetwire_gitlab.codegen.fetch.fetch_component_spec") as mock_comp:
+            with patch(
+                "wetwire_gitlab.codegen.fetch.fetch_component_spec"
+            ) as mock_comp:
                 mock_ci.return_value = {"$schema": "test"}
                 mock_comp.return_value = "spec: test"
 

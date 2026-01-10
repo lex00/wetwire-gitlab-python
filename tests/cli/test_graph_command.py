@@ -202,7 +202,9 @@ test = Job(
         assert result.returncode == 0
         assert "--params" in result.stdout or "-p" in result.stdout
 
-    def test_graph_params_includes_variables_mermaid(self, project_with_variables: Path):
+    def test_graph_params_includes_variables_mermaid(
+        self, project_with_variables: Path
+    ):
         """Graph with --params includes variable nodes in Mermaid format."""
         result = subprocess.run(
             [

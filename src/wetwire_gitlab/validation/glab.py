@@ -54,9 +54,7 @@ def validate_pipeline(
         GlabNotFoundError: If glab CLI is not installed.
     """
     # Write YAML content to a temporary file
-    with tempfile.NamedTemporaryFile(
-        suffix=".yml", delete=False, mode="w"
-    ) as f:
+    with tempfile.NamedTemporaryFile(suffix=".yml", delete=False, mode="w") as f:
         f.write(yaml_content)
         f.flush()
         temp_path = Path(f.name)

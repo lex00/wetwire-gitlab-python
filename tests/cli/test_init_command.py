@@ -50,7 +50,16 @@ class TestInitCommandIntegration:
         """Init command creates a package directory."""
         with tempfile.TemporaryDirectory() as tmp:
             result = subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "test_pipeline", "-o", tmp],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "test_pipeline",
+                    "-o",
+                    tmp,
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -66,7 +75,16 @@ class TestInitCommandIntegration:
         with tempfile.TemporaryDirectory() as tmp:
             # Create package
             subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "build_test", "-o", tmp],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "build_test",
+                    "-o",
+                    tmp,
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -88,7 +106,17 @@ class TestInitCommandIntegration:
             (pkg_dir / "existing.txt").write_text("existing")
 
             result = subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "my_pipeline", "-o", tmp, "--force"],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "my_pipeline",
+                    "-o",
+                    tmp,
+                    "--force",
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -103,7 +131,16 @@ class TestInitCommandIntegration:
             (pkg_dir / "__init__.py").write_text("# existing")
 
             result = subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "my_pipeline", "-o", tmp],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "my_pipeline",
+                    "-o",
+                    tmp,
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -113,7 +150,17 @@ class TestInitCommandIntegration:
         """Init --no-scaffold skips README and CLAUDE.md."""
         with tempfile.TemporaryDirectory() as tmp:
             result = subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "no_scaffold_test", "-o", tmp, "--no-scaffold"],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "no_scaffold_test",
+                    "-o",
+                    tmp,
+                    "--no-scaffold",
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -128,7 +175,17 @@ class TestInitCommandIntegration:
         """Init --verbose lists created files."""
         with tempfile.TemporaryDirectory() as tmp:
             result = subprocess.run(
-                [sys.executable, "-m", "wetwire_gitlab.cli", "init", "--name", "verbose_test", "-o", tmp, "--verbose"],
+                [
+                    sys.executable,
+                    "-m",
+                    "wetwire_gitlab.cli",
+                    "init",
+                    "--name",
+                    "verbose_test",
+                    "-o",
+                    tmp,
+                    "--verbose",
+                ],
                 capture_output=True,
                 text=True,
             )

@@ -3,7 +3,10 @@
 import tempfile
 from pathlib import Path
 
+import pytest
 
+
+@pytest.mark.slow
 class TestGitLabRunnerAgent:
     """Tests for GitLabRunnerAgent class."""
 
@@ -47,7 +50,14 @@ class TestGitLabRunnerAgent:
             agent = GitLabRunnerAgent(output_dir=Path(tmp))
             tools = agent.get_tools()
             tool_names = {t["name"] for t in tools}
-            required = {"init_package", "write_file", "read_file", "run_lint", "run_build", "ask_developer"}
+            required = {
+                "init_package",
+                "write_file",
+                "read_file",
+                "run_lint",
+                "run_build",
+                "ask_developer",
+            }
             assert tool_names == required
 
     def test_gitlab_runner_agent_execute_tool(self):
@@ -115,6 +125,7 @@ class TestGitLabRunnerAgent:
             assert "test content" in result.content
 
 
+@pytest.mark.slow
 class TestGitLabRunnerSystemPrompt:
     """Tests for GitLab-specific system prompt."""
 
@@ -122,7 +133,9 @@ class TestGitLabRunnerSystemPrompt:
         """RUNNER_SYSTEM_PROMPT exists and mentions GitLab."""
         from wetwire_gitlab.agent import RUNNER_SYSTEM_PROMPT
 
-        assert "gitlab" in RUNNER_SYSTEM_PROMPT.lower() or "GitLab" in RUNNER_SYSTEM_PROMPT
+        assert (
+            "gitlab" in RUNNER_SYSTEM_PROMPT.lower() or "GitLab" in RUNNER_SYSTEM_PROMPT
+        )
 
     def test_runner_system_prompt_mentions_pipeline(self):
         """RUNNER_SYSTEM_PROMPT mentions pipeline."""
@@ -137,6 +150,7 @@ class TestGitLabRunnerSystemPrompt:
         assert "Job" in RUNNER_SYSTEM_PROMPT or "job" in RUNNER_SYSTEM_PROMPT.lower()
 
 
+@pytest.mark.slow
 class TestToolResult:
     """Tests for ToolResult dataclass."""
 

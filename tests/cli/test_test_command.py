@@ -203,3 +203,80 @@ class TestAIConversationHandler:
         from wetwire_core.agents import DeveloperAgent
 
         assert DeveloperAgent is not None
+
+
+class TestTestCommandOptionalDependency:
+    """Tests for optional wetwire-core dependency."""
+
+    def test_test_command_shows_error_without_wetwire_core(self):
+        """Test command shows helpful error when wetwire-core is not installed."""
+        from unittest.mock import MagicMock, patch
+
+        # This test simulates missing wetwire-core by patching the import
+        with patch.dict(
+            "sys.modules",
+            {
+                "wetwire_core": None,
+                "wetwire_core.agent": None,
+                "wetwire_core.agent.personas": None,
+                "wetwire_core.agent.results": None,
+                "wetwire_core.agent.scoring": None,
+                "wetwire_core.agents": None,
+                "wetwire_core.runner": None,
+            },
+        ):
+            # Mock argparse namespace
+            args = MagicMock()
+            args.path = Path.cwd()
+            args.provider = "anthropic"  # Default provider that uses wetwire-core
+            args.persona = "intermediate"
+
+            # Import after patching to get the error handling
+            import importlib
+
+            from wetwire_gitlab.cli.commands import test
+
+            importlib.reload(test)
+
+            # Mock input to avoid hanging
+            with patch("builtins.input", return_value="test prompt"):
+                result = test.run_test(args)
+
+            # Should return error code
+            assert result == 1
+
+    def test_test_command_error_message_mentions_installation(self, capsys):
+        """Error message suggests how to install wetwire-core."""
+        from unittest.mock import MagicMock, patch
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "wetwire_core": None,
+                "wetwire_core.agent": None,
+                "wetwire_core.agent.personas": None,
+            },
+        ):
+            args = MagicMock()
+            args.path = Path.cwd()
+            args.provider = "anthropic"
+            args.persona = "intermediate"
+
+            import importlib
+
+            from wetwire_gitlab.cli.commands import test
+
+            importlib.reload(test)
+
+            with patch("builtins.input", return_value="test"):
+                test.run_test(args)
+
+            captured = capsys.readouterr()
+            # Should mention wetwire-core and how to install
+            assert (
+                "wetwire-core" in captured.err.lower()
+                or "wetwire-core" in captured.out.lower()
+            )
+            assert (
+                "install" in captured.err.lower() or "install" in captured.out.lower()
+            )

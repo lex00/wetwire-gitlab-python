@@ -19,7 +19,9 @@ def to_yaml(obj: Any) -> str:
         YAML string representation.
     """
     data = to_dict(obj)
-    return yaml.dump(data, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    return yaml.dump(
+        data, default_flow_style=False, sort_keys=False, allow_unicode=True
+    )
 
 
 def build_pipeline_yaml(pipeline: Pipeline, jobs: list[Job]) -> str:
@@ -74,4 +76,6 @@ def build_pipeline_yaml(pipeline: Pipeline, jobs: list[Job]) -> str:
         job_dict = to_dict(job)
         result[job.name] = job_dict
 
-    return yaml.dump(result, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    return yaml.dump(
+        result, default_flow_style=False, sort_keys=False, allow_unicode=True
+    )

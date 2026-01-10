@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pytest
 
 
+@pytest.mark.slow
 class TestMCPServer:
     """Tests for MCP server creation and tool handling."""
 
@@ -36,6 +37,7 @@ class TestMCPServer:
         assert server.name == "wetwire-gitlab-mcp"
 
 
+@pytest.mark.slow
 class TestInitTool:
     """Tests for wetwire_init tool."""
 
@@ -84,6 +86,7 @@ class TestInitTool:
         assert "already exists" in result["error"]
 
 
+@pytest.mark.slow
 class TestLintTool:
     """Tests for wetwire_lint tool."""
 
@@ -111,7 +114,9 @@ job = Job(
         assert result["success"] is True
         assert "issues" in result
         # Should detect WGL002 (raw dict instead of Rule)
-        assert result["issue_count"] >= 0  # May or may not have issues depending on impl
+        assert (
+            result["issue_count"] >= 0
+        )  # May or may not have issues depending on impl
 
     def test_lint_directory(self, tmp_path: Path):
         """Lint tool scans directory for Python files."""
@@ -138,6 +143,7 @@ job = Job(
         assert "does not exist" in result["error"]
 
 
+@pytest.mark.slow
 class TestBuildTool:
     """Tests for wetwire_build tool."""
 
@@ -228,6 +234,7 @@ build = Job(
         assert "not a Python package" in result["error"]
 
 
+@pytest.mark.slow
 class TestValidateTool:
     """Tests for wetwire_validate tool."""
 
@@ -270,6 +277,7 @@ test:
         assert "does not exist" in result["error"]
 
 
+@pytest.mark.slow
 class TestImportTool:
     """Tests for wetwire_import tool."""
 
@@ -304,6 +312,7 @@ test:
         assert "does not exist" in result["error"]
 
 
+@pytest.mark.slow
 class TestToolCalls:
     """Tests for async tool call handling."""
 

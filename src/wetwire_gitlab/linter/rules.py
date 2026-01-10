@@ -269,6 +269,113 @@ class WGL008FileTooLarge:
         return issues
 
 
+class WGL009UsePredefinedRules:
+    """WGL009: Use predefined Rules constants (Rules.ON_DEFAULT_BRANCH, etc.)."""
+
+    code = "WGL009"
+    message = "Use predefined Rules constants instead of Rule with common patterns"
+
+    # Patterns that match common rule conditions
+    COMMON_PATTERNS = [
+        r'\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH',  # ON_DEFAULT_BRANCH
+        r'\$CI_COMMIT_TAG',  # ON_TAG
+        r'\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']',  # ON_MERGE_REQUEST
+    ]
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for Rule() calls with common patterns that have predefined constants."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Rule(...) call with if_ keyword
+                if isinstance(node.func, ast.Name) and node.func.id == "Rule":
+                    for kw in node.keywords:
+                        if kw.arg == "if_" and isinstance(kw.value, ast.Constant):
+                            if isinstance(kw.value.value, str):
+                                value = kw.value.value
+                                for pattern in self.COMMON_PATTERNS:
+                                    if re.search(pattern, value):
+                                        issues.append(
+                                            LintIssue(
+                                                code=self.code,
+                                                message=self.message,
+                                                file_path=str(file_path),
+                                                line_number=node.lineno,
+                                                column=node.col_offset,
+                                            )
+                                        )
+                                        break
+
+        return issues
+
+
+class WGL010UseTypedWhenConstants:
+    """WGL010: Use typed When constants (When.MANUAL, When.ALWAYS, etc.)."""
+
+    code = "WGL010"
+    message = "Use typed When constants instead of string literals"
+
+    # When values that should use constants
+    WHEN_VALUES = ["manual", "always", "never", "on_success", "on_failure", "delayed"]
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for string when values that should use When constants."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Job(...) or Rule(...) calls with when keyword
+                if isinstance(node.func, ast.Name) and node.func.id in ("Job", "Rule"):
+                    for kw in node.keywords:
+                        if kw.arg == "when" and isinstance(kw.value, ast.Constant):
+                            if isinstance(kw.value.value, str):
+                                if kw.value.value in self.WHEN_VALUES:
+                                    issues.append(
+                                        LintIssue(
+                                            code=self.code,
+                                            message=f"{self.message}: use When.{kw.value.value.upper()} instead of '{kw.value.value}'",
+                                            file_path=str(file_path),
+                                            line_number=kw.value.lineno,
+                                            column=kw.value.col_offset,
+                                        )
+                                    )
+
+        return issues
+
+
+class WGL011MissingStage:
+    """WGL011: Job definitions should have an explicit stage."""
+
+    code = "WGL011"
+    message = "Job should have an explicit stage"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for Job() calls without stage keyword."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    has_stage = False
+                    for kw in node.keywords:
+                        if kw.arg == "stage":
+                            has_stage = True
+                            break
+                    if not has_stage:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=node.lineno,
+                                column=node.col_offset,
+                            )
+                        )
+
+        return issues
+
+
 # All available rules
 ALL_RULES: list[type] = [
     WGL001TypedComponentWrappers,
@@ -279,6 +386,9 @@ ALL_RULES: list[type] = [
     WGL006UseTypedStageConstants,
     WGL007DuplicateJobNames,
     WGL008FileTooLarge,
+    WGL009UsePredefinedRules,
+    WGL010UseTypedWhenConstants,
+    WGL011MissingStage,
 ]
 
 # Rule code to class mapping
@@ -291,4 +401,7 @@ RULE_REGISTRY: dict[str, type] = {
     "WGL006": WGL006UseTypedStageConstants,
     "WGL007": WGL007DuplicateJobNames,
     "WGL008": WGL008FileTooLarge,
+    "WGL009": WGL009UsePredefinedRules,
+    "WGL010": WGL010UseTypedWhenConstants,
+    "WGL011": WGL011MissingStage,
 }

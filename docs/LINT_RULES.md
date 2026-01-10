@@ -1,6 +1,6 @@
 # Lint Rules
 
-wetwire-gitlab includes 8 lint rules to help maintain pipeline code quality.
+wetwire-gitlab includes 11 lint rules to help maintain pipeline code quality.
 
 ## Rule Summary
 
@@ -14,6 +14,9 @@ wetwire-gitlab includes 8 lint rules to help maintain pipeline code quality.
 | WGL006 | Use typed stage constants | Consider using stage constants |
 | WGL007 | Duplicate job names | Multiple jobs have the same name |
 | WGL008 | File too large | File contains too many jobs |
+| WGL009 | Use predefined Rules | Use Rules.ON_DEFAULT_BRANCH etc. |
+| WGL010 | Use typed When constants | Use When.MANUAL instead of strings |
+| WGL011 | Missing stage | Jobs should have explicit stage |
 
 ## Detailed Rules
 
@@ -195,6 +198,91 @@ ci/
 │   ├── test.py       # Test jobs
 │   └── deploy.py     # Deployment jobs
 └── pipeline.py
+```
+
+### WGL009: Use predefined Rules constants
+
+Use predefined rule constants for common patterns like default branch deployment.
+
+**Bad:**
+
+```python
+job = Job(
+    name="deploy",
+    rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")],
+)
+```
+
+**Good:**
+
+```python
+from wetwire_gitlab.intrinsics import Rules
+
+job = Job(
+    name="deploy",
+    rules=[Rules.ON_DEFAULT_BRANCH],
+)
+```
+
+Available predefined rules:
+- `Rules.ON_DEFAULT_BRANCH` - Run on default branch only
+- `Rules.ON_TAG` - Run on tags only
+- `Rules.ON_MERGE_REQUEST` - Run on merge request pipelines
+
+### WGL010: Use typed When constants
+
+Use typed `When` constants instead of string literals for the `when` attribute.
+
+**Bad:**
+
+```python
+job = Job(
+    name="deploy",
+    when="manual",  # String literal
+)
+```
+
+**Good:**
+
+```python
+from wetwire_gitlab.intrinsics import When
+
+job = Job(
+    name="deploy",
+    when=When.MANUAL,
+)
+```
+
+Available constants:
+- `When.MANUAL` - Manual trigger
+- `When.ALWAYS` - Always run
+- `When.NEVER` - Never run
+- `When.ON_SUCCESS` - Run on success (default)
+- `When.ON_FAILURE` - Run on failure
+- `When.DELAYED` - Delayed execution
+
+### WGL011: Missing stage
+
+Jobs should have an explicit `stage` attribute for clarity and maintainability.
+
+**Bad:**
+
+```python
+job = Job(
+    name="build",
+    script=["make build"],
+    # No stage specified - relies on default
+)
+```
+
+**Good:**
+
+```python
+job = Job(
+    name="build",
+    stage="build",
+    script=["make build"],
+)
 ```
 
 ## Running the Linter

@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Phase 7: Feature Completeness
 
+- **Additional Linter Rules** (`linter/rules.py`) - 3 new lint rules for GitLab patterns (#65)
+  - WGL009: Use predefined Rules constants (Rules.ON_DEFAULT_BRANCH, etc.)
+  - WGL010: Use typed When constants (When.MANUAL, etc.)
+  - WGL011: Missing stage in Job definitions
 - **Init Command** (`cli/init.py`) - Full implementation with package scaffolding (#64)
   - Creates package structure (\_\_init\_\_.py, jobs.py, pipeline.py)
   - Generates README.md, CLAUDE.md, .gitignore by default

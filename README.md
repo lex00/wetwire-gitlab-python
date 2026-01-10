@@ -188,6 +188,20 @@ has_cycle, cycle_nodes = detect_cycle(dependency_graph)
 ordered_jobs = order_jobs_for_yaml(discovered_jobs)
 ```
 
+## Examples
+
+The `examples/` directory contains 5 complete example projects:
+
+| Example | Description |
+|---------|-------------|
+| `python-app` | Basic Python CI/CD with multi-version testing |
+| `docker-build` | Docker build & push with registry integration |
+| `multi-stage` | Complex DAG pipeline with environments |
+| `kubernetes-deploy` | Helm-based multi-environment deployment |
+| `monorepo` | Dynamic child pipelines with change detection |
+
+See [docs/EXAMPLES.md](docs/EXAMPLES.md) for detailed documentation.
+
 ## CLI
 
 ```bash

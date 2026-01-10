@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - WGL017: Empty rules list means job never runs
   - WGL018: Jobs with needs should specify stage
   - WGL019: Manual jobs should consider allow_failure
+- **Documentation** (`docs/`) - Added adoption and versioning guides (#73)
+  - ADOPTION.md: Migration strategies, escape hatches, team onboarding
+  - VERSIONING.md: Version types, release workflow, breaking changes policy
 
 #### Phase 3: Command Integration
 

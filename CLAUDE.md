@@ -65,7 +65,7 @@ deploy = Job(
 wetwire_gitlab/
 ├── pipeline/           # Core types: Job, Pipeline, Rule, Artifacts, Cache
 ├── intrinsics/         # CI, GitLab, MR variables; When, Rules constants
-├── linter/             # 8 lint rules (WGL001-WGL008)
+├── linter/             # 19 lint rules (WGL001-WGL019)
 ├── importer/           # YAML to Python conversion
 ├── discover/           # AST-based discovery
 ├── template/           # Dependency ordering
@@ -73,7 +73,7 @@ wetwire_gitlab/
 └── validation/         # glab integration
 ```
 
-## Lint Rules (WGL001-WGL011)
+## Lint Rules (WGL001-WGL019)
 
 - **WGL001**: Use typed component wrappers
 - **WGL002**: Use Rule dataclass instead of raw dict
@@ -86,6 +86,14 @@ wetwire_gitlab/
 - **WGL009**: Use predefined Rules constants
 - **WGL010**: Use typed When constants
 - **WGL011**: Missing stage in Job
+- **WGL012**: Use CachePolicy constants
+- **WGL013**: Use ArtifactsWhen constants
+- **WGL014**: Missing script in Job
+- **WGL015**: Missing name in Job
+- **WGL016**: Use Image dataclass
+- **WGL017**: Empty rules list
+- **WGL018**: Needs without stage
+- **WGL019**: Manual without allow_failure
 
 ## Key Principles
 

@@ -1,6 +1,6 @@
 # Lint Rules
 
-wetwire-gitlab includes 11 lint rules to help maintain pipeline code quality.
+wetwire-gitlab includes 19 lint rules to help maintain pipeline code quality.
 
 ## Rule Summary
 
@@ -17,6 +17,14 @@ wetwire-gitlab includes 11 lint rules to help maintain pipeline code quality.
 | WGL009 | Use predefined Rules | Use Rules.ON_DEFAULT_BRANCH etc. |
 | WGL010 | Use typed When constants | Use When.MANUAL instead of strings |
 | WGL011 | Missing stage | Jobs should have explicit stage |
+| WGL012 | Use CachePolicy constants | Use CachePolicy.PULL instead of strings |
+| WGL013 | Use ArtifactsWhen constants | Use ArtifactsWhen.ALWAYS instead of strings |
+| WGL014 | Missing script | Jobs should have script, trigger, or extends |
+| WGL015 | Missing name | Jobs should have explicit name |
+| WGL016 | Use Image dataclass | Use Image() instead of string literal |
+| WGL017 | Empty rules list | Empty rules list means job never runs |
+| WGL018 | Needs without stage | Jobs with needs should specify stage |
+| WGL019 | Manual without allow_failure | Manual jobs should consider allow_failure |
 
 ## Detailed Rules
 
@@ -285,6 +293,161 @@ job = Job(
 )
 ```
 
+### WGL012: Use CachePolicy constants
+
+Use typed `CachePolicy` constants instead of string literals.
+
+**Bad:**
+
+```python
+cache = Cache(key="npm", paths=["node_modules/"], policy="pull")
+```
+
+**Good:**
+
+```python
+from wetwire_gitlab.intrinsics import CachePolicy
+
+cache = Cache(key="npm", paths=["node_modules/"], policy=CachePolicy.PULL)
+```
+
+Available constants:
+- `CachePolicy.PULL` - Pull cache only
+- `CachePolicy.PUSH` - Push cache only
+- `CachePolicy.PULL_PUSH` - Pull and push cache
+
+### WGL013: Use ArtifactsWhen constants
+
+Use typed `ArtifactsWhen` constants for artifact upload conditions.
+
+**Bad:**
+
+```python
+artifacts = Artifacts(paths=["dist/"], when="always")
+```
+
+**Good:**
+
+```python
+from wetwire_gitlab.intrinsics import ArtifactsWhen
+
+artifacts = Artifacts(paths=["dist/"], when=ArtifactsWhen.ALWAYS)
+```
+
+Available constants:
+- `ArtifactsWhen.ON_SUCCESS` - Upload on success (default)
+- `ArtifactsWhen.ON_FAILURE` - Upload on failure
+- `ArtifactsWhen.ALWAYS` - Always upload
+
+### WGL014: Missing script
+
+Jobs should have `script`, `trigger`, or `extends` to be valid.
+
+**Bad:**
+
+```python
+job = Job(name="empty", stage="test")  # No script!
+```
+
+**Good:**
+
+```python
+job = Job(name="test", stage="test", script=["pytest"])
+# or
+job = Job(name="trigger", stage="deploy", trigger=Trigger(include="child.yml"))
+```
+
+### WGL015: Missing name
+
+Jobs should have an explicit `name` attribute.
+
+**Bad:**
+
+```python
+job = Job(stage="test", script=["pytest"])  # No name!
+```
+
+**Good:**
+
+```python
+job = Job(name="unit-tests", stage="test", script=["pytest"])
+```
+
+### WGL016: Use Image dataclass
+
+Use the `Image` dataclass instead of string literals for complex image specifications.
+
+**Bad:**
+
+```python
+job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
+```
+
+**Good:**
+
+```python
+from wetwire_gitlab.pipeline import Image
+
+job = Job(name="test", stage="test", script=["pytest"], image=Image(name="python:3.11"))
+```
+
+### WGL017: Empty rules list
+
+An empty `rules` list means the job never runs, which is likely a mistake.
+
+**Bad:**
+
+```python
+job = Job(name="test", stage="test", script=["pytest"], rules=[])  # Never runs!
+```
+
+**Good:**
+
+```python
+job = Job(name="test", stage="test", script=["pytest"])  # Uses default rules
+# or
+job = Job(name="test", stage="test", script=["pytest"], rules=[Rules.ON_DEFAULT_BRANCH])
+```
+
+### WGL018: Needs without stage
+
+Jobs using `needs` for dependency management should explicitly specify their stage.
+
+**Bad:**
+
+```python
+job = Job(name="deploy", script=["deploy"], needs=["build"])  # No stage!
+```
+
+**Good:**
+
+```python
+job = Job(name="deploy", stage="deploy", script=["deploy"], needs=["build"])
+```
+
+### WGL019: Manual without allow_failure
+
+Manual jobs should consider using `allow_failure` to avoid blocking pipelines.
+
+**Bad:**
+
+```python
+job = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
+# Pipeline will wait forever for manual trigger
+```
+
+**Good:**
+
+```python
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["deploy"],
+    when=When.MANUAL,
+    allow_failure=True,  # Pipeline continues without manual trigger
+)
+```
+
 ## Running the Linter
 
 ```bash
@@ -328,6 +491,14 @@ wetwire-gitlab lint --fix src/ci/jobs.py
 | WGL009 | No | - |
 | WGL010 | **Yes** | Converts `when="manual"` to `when=When.MANUAL` and adds import |
 | WGL011 | No | - |
+| WGL012 | No | - |
+| WGL013 | No | - |
+| WGL014 | No | - |
+| WGL015 | No | - |
+| WGL016 | No | - |
+| WGL017 | No | - |
+| WGL018 | No | - |
+| WGL019 | No | - |
 
 ### Programmatic Auto-Fix
 

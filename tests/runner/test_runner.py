@@ -280,3 +280,211 @@ class TestImportErrors:
             result = import_module_from_path(Path(f.name))
 
         assert result is None
+
+    def test_import_nonexistent_file(self):
+        """Handle import of non-existent file."""
+        from wetwire_gitlab.runner import import_module_from_path
+
+        result = import_module_from_path(Path("/nonexistent/path/module.py"))
+        assert result is None
+
+
+class TestExtractWithTypeSearch:
+    """Tests for extracting values via type name search."""
+
+    def test_extract_jobs_no_job_class(self):
+        """Extract jobs when no Job class exists."""
+        from wetwire_gitlab.runner import (
+            extract_jobs_from_module,
+            import_module_from_path,
+        )
+
+        code = '''
+# No Job class defined
+some_value = 42
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            module = import_module_from_path(Path(f.name))
+            jobs = extract_jobs_from_module(module, "Job")
+
+        assert jobs == []
+
+    def test_extract_pipelines_no_pipeline_class(self):
+        """Extract pipelines when no Pipeline class exists."""
+        from wetwire_gitlab.runner import (
+            extract_pipelines_from_module,
+            import_module_from_path,
+        )
+
+        code = '''
+# No Pipeline class defined
+some_value = 42
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            module = import_module_from_path(Path(f.name))
+            pipelines = extract_pipelines_from_module(module, "Pipeline")
+
+        assert pipelines == []
+
+    def test_extract_jobs_via_type_iteration(self):
+        """Extract jobs when Job class is found via type iteration."""
+        from wetwire_gitlab.runner import (
+            extract_jobs_from_module,
+            import_module_from_path,
+        )
+
+        # Job is defined but not directly named in module scope
+        code = '''
+from dataclasses import dataclass
+
+# Create an aliased job class
+@dataclass
+class MyJob:
+    name: str
+    stage: str = "build"
+
+# Create instance
+build = MyJob(name="build", stage="build")
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            module = import_module_from_path(Path(f.name))
+            jobs = extract_jobs_from_module(module, "MyJob")
+
+        assert len(jobs) == 1
+        assert jobs[0].name == "build"
+
+
+class TestResolveModulePathEdgeCases:
+    """Tests for edge cases in resolve_module_path."""
+
+    def test_resolve_module_path_not_under_src(self):
+        """Resolve path when file is not under src_dir."""
+        from wetwire_gitlab.runner import resolve_module_path
+
+        # File is in project root, not under src
+        path = Path("/project/ci_jobs.py")
+        project_root = Path("/project")
+        src_dir = Path("/project/src")
+
+        module_path = resolve_module_path(path, project_root, src_dir)
+
+        assert module_path == "ci_jobs"
+
+
+class TestPyprojectEdgeCases:
+    """Tests for pyproject.toml parsing edge cases."""
+
+    def test_find_src_with_setuptools(self):
+        """Find src directory from setuptools config."""
+        from wetwire_gitlab.runner import find_src_directory
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            pyproject = '''
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["src/mypackage"]
+'''
+            (path / "pyproject.toml").write_text(pyproject)
+            (path / "src").mkdir()
+
+            src_dir = find_src_directory(path)
+
+        assert src_dir is not None
+        assert src_dir.name == "src"
+
+    def test_find_src_with_invalid_pyproject(self):
+        """Handle invalid pyproject.toml gracefully."""
+        from wetwire_gitlab.runner import find_src_directory
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            # Invalid TOML
+            (path / "pyproject.toml").write_text("invalid { toml content")
+            (path / "src").mkdir()
+
+            # Should fall back to default directory detection
+            src_dir = find_src_directory(path)
+
+        assert src_dir is not None
+        assert src_dir.name == "src"
+
+    def test_find_src_with_lib_directory(self):
+        """Find lib directory as fallback."""
+        from wetwire_gitlab.runner import find_src_directory
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+            (path / "lib").mkdir()
+
+            src_dir = find_src_directory(path)
+
+        assert src_dir is not None
+        assert src_dir.name == "lib"
+
+
+class TestExtractWithHiddenDirs:
+    """Tests for extracting with hidden directories."""
+
+    def test_extract_jobs_skips_pycache(self):
+        """Extract jobs skips __pycache__ directory."""
+        from wetwire_gitlab.runner import extract_all_jobs
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            code = '''
+from dataclasses import dataclass
+
+@dataclass
+class Job:
+    name: str
+
+build = Job(name="build")
+'''
+            (path / "jobs.py").write_text(code)
+            # Create __pycache__ with a Python file (should be skipped)
+            (path / "__pycache__").mkdir()
+            (path / "__pycache__" / "cached.py").write_text(code)
+
+            jobs = extract_all_jobs(path, "Job")
+
+        # Should only find the job in jobs.py, not in __pycache__
+        assert len(jobs) == 1
+
+    def test_extract_pipelines_skips_hidden(self):
+        """Extract pipelines skips hidden directories."""
+        from wetwire_gitlab.runner import extract_all_pipelines
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            code = '''
+from dataclasses import dataclass
+
+@dataclass
+class Pipeline:
+    stages: list
+
+pipeline = Pipeline(stages=["build"])
+'''
+            (path / "pipeline.py").write_text(code)
+            # Create hidden directory (should be skipped)
+            (path / ".hidden").mkdir()
+            (path / ".hidden" / "secret.py").write_text(code)
+
+            pipelines = extract_all_pipelines(path, "Pipeline")
+
+        # Should only find the pipeline in pipeline.py
+        assert len(pipelines) == 1

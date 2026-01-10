@@ -11,8 +11,8 @@ All configurations use typed Python dataclasses. No raw dictionaries, no string 
 ### Jobs
 
 ```python
-from wetwire_gitlab.pipeline import Job, Artifacts
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.pipeline import *
+from wetwire_gitlab.intrinsics import *
 
 build = Job(
     name="build",
@@ -25,7 +25,7 @@ build = Job(
 ### Pipelines
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 
 pipeline = Pipeline(stages=["build", "test", "deploy"])
 ```
@@ -35,7 +35,7 @@ pipeline = Pipeline(stages=["build", "test", "deploy"])
 Use typed variable namespaces instead of raw strings:
 
 ```python
-from wetwire_gitlab.intrinsics import CI, GitLab, MR
+from wetwire_gitlab.intrinsics import *
 
 # CI variables
 CI.COMMIT_SHA          # $CI_COMMIT_SHA
@@ -53,7 +53,7 @@ MR.SOURCE_BRANCH       # $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
 Use typed rule constants:
 
 ```python
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.intrinsics import *
 
 deploy = Job(
     name="deploy",
@@ -66,7 +66,7 @@ deploy = Job(
 Use direct Job references instead of strings for type-safe dependencies:
 
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 build = Job(name="build", stage="build", script=["make build"])
 

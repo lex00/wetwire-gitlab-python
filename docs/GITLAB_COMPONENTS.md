@@ -23,7 +23,7 @@ GitLab CI/CD Components are reusable pipeline configurations from the GitLab Com
 ## Basic Usage
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 from wetwire_gitlab.components import SASTComponent, SecretDetectionComponent
 
 # Create component instances
@@ -168,7 +168,7 @@ terraform = TerraformComponent(
 ## Complete Example
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline, Job
+from wetwire_gitlab.pipeline import *, Job
 from wetwire_gitlab.components import (
     SASTComponent,
     SecretDetectionComponent,

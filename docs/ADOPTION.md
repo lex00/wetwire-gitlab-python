@@ -141,7 +141,7 @@ uv run wetwire-gitlab list && echo "OK"
 
 Start with a simple job file:
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -183,7 +183,7 @@ Run `wetwire-gitlab build`, diff the output, push to a test branch.
 Create a new job:
 
 ```python
-from wetwire_gitlab.pipeline import Job, Artifacts
+from wetwire_gitlab.pipeline import *, Artifacts
 
 test = Job(
     name="unit-tests",

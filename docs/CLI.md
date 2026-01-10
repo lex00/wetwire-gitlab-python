@@ -239,7 +239,7 @@ job = Job(
 
 **After `wetwire-gitlab lint --fix`:**
 ```python
-from wetwire_gitlab.intrinsics import When
+from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="deploy",
@@ -389,7 +389,7 @@ build:
 
 **Output (jobs.py):**
 ```python
-from wetwire_gitlab.pipeline import Job, Artifacts
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -558,7 +558,7 @@ my-pipeline/
 
 **jobs.py:**
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -576,7 +576,7 @@ test = Job(
 
 **pipeline.py:**
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 
 pipeline = Pipeline(
     stages=["build", "test", "deploy"],

@@ -68,7 +68,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.pipeline import Rule
+from wetwire_gitlab.pipeline import *
 
 job = Job(
     name="deploy",
@@ -92,7 +92,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.intrinsics import CI
+from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="deploy",
@@ -116,7 +116,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.pipeline import Cache
+from wetwire_gitlab.pipeline import *
 
 cache = Cache(key="npm", paths=["node_modules/"])
 job = Job(
@@ -141,7 +141,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.pipeline import Artifacts
+from wetwire_gitlab.pipeline import *
 
 job = Job(
     name="build",
@@ -224,7 +224,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="deploy",
@@ -253,7 +253,7 @@ job = Job(
 **Good:**
 
 ```python
-from wetwire_gitlab.intrinsics import When
+from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="deploy",
@@ -306,7 +306,7 @@ cache = Cache(key="npm", paths=["node_modules/"], policy="pull")
 **Good:**
 
 ```python
-from wetwire_gitlab.intrinsics import CachePolicy
+from wetwire_gitlab.intrinsics import *
 
 cache = Cache(key="npm", paths=["node_modules/"], policy=CachePolicy.PULL)
 ```
@@ -329,7 +329,7 @@ artifacts = Artifacts(paths=["dist/"], when="always")
 **Good:**
 
 ```python
-from wetwire_gitlab.intrinsics import ArtifactsWhen
+from wetwire_gitlab.intrinsics import *
 
 artifacts = Artifacts(paths=["dist/"], when=ArtifactsWhen.ALWAYS)
 ```
@@ -386,7 +386,7 @@ job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
 **Good:**
 
 ```python
-from wetwire_gitlab.pipeline import Image
+from wetwire_gitlab.pipeline import *
 
 job = Job(name="test", stage="test", script=["pytest"], image=Image(name="python:3.11"))
 ```

@@ -73,7 +73,7 @@ test:
 **Python:**
 
 ```python
-from wetwire_gitlab.pipeline import Artifacts, Job
+from wetwire_gitlab.pipeline import *
 
 test = Job(
     name="test",
@@ -100,7 +100,7 @@ deploy:
 **Python:**
 
 ```python
-from wetwire_gitlab.pipeline import Job, Rule
+from wetwire_gitlab.pipeline import *
 
 deploy = Job(
     name="deploy",
@@ -125,7 +125,7 @@ include:
 **Python:**
 
 ```python
-from wetwire_gitlab.pipeline import Include
+from wetwire_gitlab.pipeline import *
 
 includes = [
     Include(template="Jobs/Test.gitlab-ci.yml"),
@@ -148,7 +148,7 @@ variables:
 **Python:**
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 
 pipeline = Pipeline(
     variables={
@@ -171,7 +171,7 @@ Replace string variables with typed references:
 Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")
 
 # After
-from wetwire_gitlab.intrinsics import CI
+from wetwire_gitlab.intrinsics import *
 
 Rule(if_=f"{CI.COMMIT_BRANCH} == {CI.DEFAULT_BRANCH}")
 ```
@@ -185,7 +185,7 @@ Replace common patterns with predefined rules:
 rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")]
 
 # After
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.intrinsics import *
 
 rules=[Rules.ON_DEFAULT_BRANCH]
 ```
@@ -196,7 +196,7 @@ Create shared variables for reusable config:
 
 ```python
 # cache.py
-from wetwire_gitlab.pipeline import Cache
+from wetwire_gitlab.pipeline import *
 
 npm_cache = Cache(
     key="${CI_COMMIT_REF_SLUG}",

@@ -30,7 +30,7 @@ wetwire-gitlab import .gitlab-ci.yml
 Use the `Job` dataclass:
 
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -44,7 +44,7 @@ build = Job(
 Use typed variable namespaces instead of raw strings:
 
 ```python
-from wetwire_gitlab.intrinsics import CI, GitLab, MR
+from wetwire_gitlab.intrinsics import *
 
 # These expand to proper $VARIABLE syntax
 branch = CI.COMMIT_BRANCH     # $CI_COMMIT_BRANCH
@@ -57,8 +57,8 @@ source = MR.SOURCE_BRANCH     # $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
 Use the `Rule` dataclass or pre-defined rules:
 
 ```python
-from wetwire_gitlab.pipeline import Rule
-from wetwire_gitlab.intrinsics import Rules, CI
+from wetwire_gitlab.pipeline import *
+from wetwire_gitlab.intrinsics import *
 
 # Pre-defined rule
 deploy = Job(rules=[Rules.ON_DEFAULT_BRANCH])
@@ -72,7 +72,7 @@ custom = Rule(if_=f"{CI.COMMIT_BRANCH} == 'main'")
 Use the `Artifacts` dataclass:
 
 ```python
-from wetwire_gitlab.pipeline import Artifacts
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -152,7 +152,7 @@ wetwire-gitlab graph --format dot
 ### How do I handle child pipelines?
 
 ```python
-from wetwire_gitlab.pipeline import Job, Trigger
+from wetwire_gitlab.pipeline import *, Trigger
 
 trigger_frontend = Job(
     name="trigger-frontend",

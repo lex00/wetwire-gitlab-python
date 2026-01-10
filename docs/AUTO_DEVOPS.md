@@ -16,7 +16,7 @@ wetwire-gitlab provides typed configuration for customizing Auto DevOps.
 ## Basic Usage
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 from wetwire_gitlab.templates import AutoDevOps
 
 # Create Auto DevOps configuration
@@ -164,9 +164,9 @@ auto_devops = AutoDevOps(
 ## Complete Example
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline, Job
+from wetwire_gitlab.pipeline import *, Job
 from wetwire_gitlab.templates import AutoDevOps, AutoDevOpsConfig
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.intrinsics import *
 
 # Configure Auto DevOps
 auto_devops_config = AutoDevOpsConfig(

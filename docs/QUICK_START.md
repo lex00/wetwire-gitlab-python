@@ -41,7 +41,7 @@ package = "ci"
 **ci/pipeline.py:**
 
 ```python
-from wetwire_gitlab.pipeline import Pipeline
+from wetwire_gitlab.pipeline import *
 
 pipeline = Pipeline(stages=["test", "deploy"])
 ```
@@ -49,8 +49,8 @@ pipeline = Pipeline(stages=["test", "deploy"])
 **ci/jobs.py:**
 
 ```python
-from wetwire_gitlab.intrinsics import CI, Rules, When
-from wetwire_gitlab.pipeline import Job, Rule
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 test = Job(
     name="test",
@@ -142,8 +142,8 @@ As your pipeline grows, organize jobs into logical modules.
 **ci/jobs/build.py:**
 
 ```python
-from wetwire_gitlab.intrinsics import CI
-from wetwire_gitlab.pipeline import Artifacts, Job
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 build_frontend = Job(
     name="build-frontend",
@@ -165,7 +165,7 @@ build_backend = Job(
 **ci/jobs/test.py:**
 
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 test_unit = Job(
     name="test-unit",
@@ -201,7 +201,7 @@ Extract reusable components to avoid repetition.
 **ci/shared.py:**
 
 ```python
-from wetwire_gitlab.pipeline import Cache
+from wetwire_gitlab.pipeline import *
 
 # Shared cache for all Python jobs
 python_cache = Cache(
@@ -224,7 +224,7 @@ DOCKER_VARS = {
 **ci/jobs.py:**
 
 ```python
-from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.pipeline import *
 
 from .shared import DOCKER_VARS, python_cache
 
@@ -251,8 +251,8 @@ build_docker = Job(
 ### Docker Build and Push
 
 ```python
-from wetwire_gitlab.intrinsics import CI, Rules
-from wetwire_gitlab.pipeline import Artifacts, Job
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 build = Job(
     name="build",
@@ -277,7 +277,7 @@ build = Job(
 ### Multi-Stage Pipeline with Dependencies
 
 ```python
-from wetwire_gitlab.pipeline import Artifacts, Job, Pipeline
+from wetwire_gitlab.pipeline import *
 
 # Define pipeline stages
 pipeline = Pipeline(stages=["prepare", "build", "test", "deploy"])
@@ -330,8 +330,8 @@ deploy = Job(
 ### Conditional Deployments
 
 ```python
-from wetwire_gitlab.intrinsics import CI, When
-from wetwire_gitlab.pipeline import Job, Rule
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 # Auto-deploy to staging on main branch
 deploy_staging = Job(
@@ -371,7 +371,7 @@ deploy_dev = Job(
 ### Matrix Testing
 
 ```python
-from wetwire_gitlab.pipeline import Cache, Job
+from wetwire_gitlab.pipeline import *
 
 # Shared cache configuration
 pip_cache = Cache(
@@ -408,8 +408,8 @@ test_py313 = Job(
 ### Monorepo with Change Detection
 
 ```python
-from wetwire_gitlab.intrinsics import CI
-from wetwire_gitlab.pipeline import Artifacts, Job, Rule, Trigger
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 # Detect which packages changed
 detect_changes = Job(
@@ -448,7 +448,7 @@ trigger_frontend = Job(
 Use typed variable references instead of raw strings:
 
 ```python
-from wetwire_gitlab.intrinsics import CI, GitLab, MR
+from wetwire_gitlab.intrinsics import *
 
 # Commit information
 CI.COMMIT_SHA           # $CI_COMMIT_SHA
@@ -486,7 +486,7 @@ MR.IID                  # $CI_MERGE_REQUEST_IID
 ### Predefined Rules
 
 ```python
-from wetwire_gitlab.intrinsics import Rules
+from wetwire_gitlab.intrinsics import *
 
 # Common rule patterns
 Rules.ON_DEFAULT_BRANCH    # Run on default branch (main/master)
@@ -497,7 +497,7 @@ Rules.ON_MERGE_REQUEST     # Run on merge requests
 ### When Constants
 
 ```python
-from wetwire_gitlab.intrinsics import When
+from wetwire_gitlab.intrinsics import *
 
 job = Job(
     name="manual-deploy",
@@ -508,8 +508,8 @@ job = Job(
 ### Cache Policy
 
 ```python
-from wetwire_gitlab.intrinsics import CachePolicy
-from wetwire_gitlab.pipeline import Cache
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 cache = Cache(
     key="my-cache",
@@ -521,8 +521,8 @@ cache = Cache(
 ### Artifacts When
 
 ```python
-from wetwire_gitlab.intrinsics import ArtifactsWhen
-from wetwire_gitlab.pipeline import Artifacts
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
 
 artifacts = Artifacts(
     paths=["test-results/"],
@@ -591,7 +591,7 @@ WGL003: Use predefined variables from intrinsics
 rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")]
 
 # After
-from wetwire_gitlab.intrinsics import CI
+from wetwire_gitlab.intrinsics import *
 rules=[Rule(if_=f"{CI.COMMIT_BRANCH} == {CI.DEFAULT_BRANCH}")]
 ```
 

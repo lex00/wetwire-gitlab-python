@@ -20,8 +20,8 @@ pip install wetwire-gitlab
 Define your pipeline using typed Python dataclasses:
 
 ```python
-from wetwire_gitlab.pipeline import Job, Pipeline, Rule, Artifacts
-from wetwire_gitlab.intrinsics import CI, When, Rules
+from wetwire_gitlab.pipeline import *
+from wetwire_gitlab.intrinsics import *
 from wetwire_gitlab.serialize import build_pipeline_yaml
 
 # Define jobs
@@ -74,7 +74,7 @@ Typed dataclasses for all GitLab CI/CD configuration:
 Pre-defined CI/CD variables and constants:
 
 ```python
-from wetwire_gitlab.intrinsics import CI, GitLab, MR, When, CachePolicy, Rules
+from wetwire_gitlab.intrinsics import *
 
 # CI variables
 CI.COMMIT_SHA          # $CI_COMMIT_SHA
@@ -102,7 +102,7 @@ Rules.MANUAL
 Convert typed objects to YAML:
 
 ```python
-from wetwire_gitlab.serialize import to_yaml, to_dict, build_pipeline_yaml
+from wetwire_gitlab.serialize import *
 
 # Single object
 yaml_str = to_yaml(job)
@@ -116,7 +116,7 @@ yaml_str = build_pipeline_yaml(pipeline, jobs)
 Discover Job and Pipeline declarations in Python source files:
 
 ```python
-from wetwire_gitlab.discover import discover_in_directory, discover_jobs
+from wetwire_gitlab.discover import *
 
 # Discover all jobs and pipelines in a directory
 result = discover_in_directory(Path("src/"))
@@ -131,7 +131,7 @@ jobs = discover_jobs(Path("ci/jobs.py"))
 Check pipeline definitions for common issues:
 
 ```python
-from wetwire_gitlab.linter import lint_file, lint_directory
+from wetwire_gitlab.linter import *
 
 # Lint a single file
 result = lint_file(Path("ci/jobs.py"))
@@ -157,7 +157,7 @@ Lint rules:
 Parse existing `.gitlab-ci.yml` files:
 
 ```python
-from wetwire_gitlab.importer import parse_gitlab_ci_file
+from wetwire_gitlab.importer import *
 
 pipeline = parse_gitlab_ci_file(Path(".gitlab-ci.yml"))
 print(f"Stages: {pipeline.stages}")
@@ -170,7 +170,7 @@ for job in pipeline.jobs:
 Validate pipelines using the GitLab CLI:
 
 ```python
-from wetwire_gitlab.validation import validate_pipeline, is_glab_installed
+from wetwire_gitlab.validation import *
 
 if is_glab_installed():
     result = validate_pipeline(yaml_content)
@@ -186,7 +186,7 @@ if is_glab_installed():
 Order jobs by dependencies for YAML generation:
 
 ```python
-from wetwire_gitlab.template import order_jobs_for_yaml, detect_cycle
+from wetwire_gitlab.template import *
 
 # Check for circular dependencies
 has_cycle, cycle_nodes = detect_cycle(dependency_graph)

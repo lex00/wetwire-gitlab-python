@@ -104,6 +104,66 @@ build = Job(
 wetwire-gitlab lint
 ```
 
+## Advanced Usage
+
+### How do I use Auto DevOps templates?
+
+```python
+from wetwire_gitlab.templates import AutoDevOps, SAST, DAST
+
+# Full Auto DevOps
+auto_devops = AutoDevOps(
+    deploy_enabled=True,
+    sast_disabled=False,
+)
+
+# Individual security templates
+sast = SAST(excluded_paths=["vendor/"])
+dast = DAST(website="https://example.com")
+```
+
+### How do I configure GitLab Runner?
+
+```python
+from wetwire_gitlab.runner_config import Config, Runner, Executor, DockerConfig
+
+docker = DockerConfig(image="python:3.11", privileged=True)
+runner = Runner(
+    name="my-runner",
+    url="https://gitlab.com",
+    token="glrt-xxx",
+    executor=Executor.DOCKER,
+    docker=docker,
+)
+config = Config(concurrent=4, runners=[runner])
+print(config.to_toml())
+```
+
+### How do I visualize the pipeline graph?
+
+```bash
+# Mermaid format (for GitLab/GitHub rendering)
+wetwire-gitlab graph
+
+# DOT format (for Graphviz)
+wetwire-gitlab graph --format dot
+```
+
+### How do I handle child pipelines?
+
+```python
+from wetwire_gitlab.pipeline import Job, Trigger
+
+trigger_frontend = Job(
+    name="trigger-frontend",
+    stage="trigger",
+    trigger=Trigger(
+        include=[{"local": "frontend/.gitlab-ci.yml"}],
+        strategy="depend",
+    ),
+)
+```
+
 ## Troubleshooting
 
 ### glab validation fails
@@ -121,6 +181,21 @@ glab auth login
 ### Import produces unexpected output
 
 The importer converts YAML to typed Python. Complex includes or anchors may need manual adjustment.
+
+### Jobs not discovered
+
+Ensure your Python files:
+1. Import `Job` from `wetwire_gitlab.pipeline`
+2. Declare jobs at module level (not inside functions)
+3. Are in the package specified in `pyproject.toml`
+
+### Type errors in IDE
+
+Install the package in development mode:
+
+```bash
+pip install -e .
+```
 
 ## Resources
 

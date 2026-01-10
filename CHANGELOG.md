@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation** (`docs/`) - Added adoption and versioning guides (#73)
   - ADOPTION.md: Migration strategies, escape hatches, team onboarding
   - VERSIONING.md: Version types, release workflow, breaking changes policy
+- **Linter Refactoring** (`linter/rules/`) - Split rules into categorical modules (#73)
+  - type_rules.py: WGL001-WGL006, WGL012, WGL013, WGL016 (typed constants)
+  - pattern_rules.py: WGL009, WGL010 (predefined patterns)
+  - file_rules.py: WGL007, WGL008 (file-level checks)
+  - job_rules.py: WGL011, WGL014-WGL019 (job validation)
 
 #### Phase 3: Command Integration
 

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9D: Test Reorganization
+
+- **Test Directory Structure** (`tests/`) - Reorganized tests into subdirectories (#82)
+  - cli/: Command-line interface tests (11 files)
+  - linter/: Linter rule tests (3 files)
+  - importer/: YAML import tests (1 file)
+  - codegen/: Code generation tests (3 files)
+  - pipeline/: Core type tests (5 files)
+  - discover/: AST discovery tests (1 file)
+  - components/: Component wrapper tests (3 files)
+  - runner/: Runner loader tests (1 file)
+  - integration/: Integration and example tests (7 files)
+
 #### Phase 9C: Domain-Specific Documentation
 
 - **Domain Documentation** (`docs/`) - GitLab-specific feature guides (#81)

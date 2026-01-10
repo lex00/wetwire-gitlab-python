@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 14: Developer Tooling
+
+- **Optional wetwire-core** (`pyproject.toml`) - Core CLI commands work without wetwire-core (#122)
+  - Moved wetwire-core to `[agent]` optional dependency
+  - Only `design` and `test` commands require it
+  - Try/except imports with helpful error messages
+  - New test file for optional dependency verification
+
+- **Pre-commit Hooks** (`.pre-commit-config.yaml`) - Automated code quality checks (#123)
+  - Ruff linter with auto-fix
+  - Ruff formatter
+  - YAML validation
+  - Trailing whitespace and EOF fixes
+  - Large file detection (1MB limit)
+
+- **Type Checking** (`pyrightconfig.json`) - Static type analysis (#124)
+  - Pyright configuration for Python 3.11+
+  - types-PyYAML type stubs added to dev dependencies
+  - Standard type checking mode
+
+- **Pytest Slow Marker** (`pyproject.toml`) - Fast test iteration (#125)
+  - New `@pytest.mark.slow` for integration tests
+  - 749 fast tests, 281 slow tests (1030 total)
+  - Run fast tests: `pytest -m "not slow"`
+  - Updated docs/DEVELOPERS.md with usage
+
+- **Graphviz Optional** (`pyproject.toml`) - Optional DOT output (#126)
+  - New `[graph]` optional dependency
+  - graphviz>=0.20 for DOT format output
+
 #### Phase 12E: Watch Mode
 
 - **Watch Mode** (`cli/commands/build.py`) - Auto-rebuild on file changes (#107)

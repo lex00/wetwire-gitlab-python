@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 10B: Runner Config Coverage
+
+- **Runner Config Module Coverage** (`tests/components/`) - Improved test coverage (#90)
+  - runner_config/config.py: 80% → 94% (+14%)
+  - All other runner_config modules: 100%
+  - Added 12 new tests (667 total)
+  - Overall project coverage: 74% → 76%
+  - Test GCS cache serialization and TOML parsing
+
 #### Phase 10A: Test Coverage Improvements
 
 - **Core Module Coverage** (`tests/`) - Improved test coverage for core modules (#90)

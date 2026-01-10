@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 # Add examples to path for import
-EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
+EXAMPLES_DIR = Path(__file__).parent.parent.parent / "examples"
 
 
 def import_example_ci(example_name: str):

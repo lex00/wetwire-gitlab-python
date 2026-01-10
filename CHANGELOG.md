@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9B: Documentation Improvements
+
+- **EXAMPLES.md** (`docs/EXAMPLES.md`) - Comprehensive examples documentation (#80)
+  - Documented all 5 example projects with key patterns
+  - Added pattern reference table
+  - Added README.md examples section with link
+
 #### Phase 9A: Job Reference Support
 
 - **Job Reference Support** (`serialize/converter.py`) - Direct Job references in needs/dependencies (#79)

@@ -3,8 +3,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
-
 
 class TestErrorExit:
     """Tests for error_exit utility function."""

@@ -2,6 +2,8 @@
 
 This document describes the internal architecture of wetwire-gitlab.
 
+For architectural context on the wetwire pattern, see the [wetwire architecture documentation](https://github.com/lex00/wetwire/blob/main/docs/ARCHITECTURE.md).
+
 ## Package Structure
 
 ```

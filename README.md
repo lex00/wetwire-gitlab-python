@@ -2,6 +2,13 @@
 
 A Python library for generating GitLab CI/CD configuration from typed Python declarations.
 
+## Wetwire Pattern
+
+This project follows the [Wetwire Specification](https://github.com/lex00/wetwire/blob/main/docs/WETWIRE_SPEC.md)
+for infrastructure-as-code. See also:
+- [Feature Matrix](https://github.com/lex00/wetwire/blob/main/docs/FEATURE_MATRIX.md)
+- [Architecture](https://github.com/lex00/wetwire/blob/main/docs/ARCHITECTURE.md)
+
 ## Installation
 
 ```bash

@@ -1,5 +1,7 @@
 # wetwire-gitlab (Python)
 
+Part of the [wetwire](https://github.com/lex00/wetwire) ecosystem.
+
 Generate GitLab CI/CD configuration from typed Python declarations.
 
 ## Syntax Principles

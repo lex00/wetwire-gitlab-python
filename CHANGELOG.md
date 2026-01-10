@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Build Manifest Tracking
+
+- **Build Manifest** (`cli/commands/build.py`) - Track build pipeline stages per WETWIRE_SPEC.md section 8.4 (#129)
+  - New `--manifest` flag for build command
+  - Generates `manifest.json` alongside `.gitlab-ci.yml` output
+  - Tracks: version, timestamp, source files with SHA256 hashes, discovered jobs, dependencies
+  - New `BuildManifest` dataclass in contracts module
+  - `create_manifest()` utility function for programmatic use
+  - Supports incremental builds via source file hash tracking
+
 #### Phase 14: Developer Tooling
 
 - **Optional wetwire-core** (`pyproject.toml`) - Core CLI commands work without wetwire-core (#122)

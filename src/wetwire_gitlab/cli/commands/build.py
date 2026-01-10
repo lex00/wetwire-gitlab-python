@@ -1,11 +1,97 @@
 """Build command implementation."""
 
 import argparse
+import hashlib
 import json
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from wetwire_gitlab.contracts import BuildManifest, DiscoveredJob
+
+
+def _compute_file_hash(file_path: Path) -> str:
+    """Compute SHA256 hash of a file's contents.
+
+    Args:
+        file_path: Path to the file to hash.
+
+    Returns:
+        Hex-encoded SHA256 hash string.
+    """
+    if not file_path.exists():
+        return ""
+    content = file_path.read_bytes()
+    return hashlib.sha256(content).hexdigest()
+
+
+def create_manifest(
+    jobs: list["DiscoveredJob"],
+    output_file: str,
+    source_directory: Path,
+) -> "BuildManifest":
+    """Create a build manifest from discovered jobs.
+
+    Args:
+        jobs: List of discovered jobs from AST analysis.
+        output_file: Path to the generated output file.
+        source_directory: Root directory of source files.
+
+    Returns:
+        BuildManifest instance with all pipeline tracking information.
+    """
+    from wetwire_gitlab import __version__
+    from wetwire_gitlab.contracts import BuildManifest
+
+    # Collect unique source files and compute hashes
+    source_files_set: set[str] = set()
+    for job in jobs:
+        source_files_set.add(job.file_path)
+
+    source_files = []
+    for file_path_str in sorted(source_files_set):
+        file_path = Path(file_path_str)
+        file_hash = _compute_file_hash(file_path)
+        # Use relative path if possible
+        try:
+            rel_path = file_path.relative_to(source_directory)
+            path_str = str(rel_path)
+        except ValueError:
+            path_str = file_path_str
+        source_files.append({"path": path_str, "hash": file_hash})
+
+    # Build discovered jobs list
+    discovered_jobs = []
+    for job in jobs:
+        job_info: dict = {
+            "name": job.name,
+            "file": job.file_path,
+            "line": job.line_number,
+        }
+        if job.stage:
+            job_info["stage"] = job.stage
+        discovered_jobs.append(job_info)
+
+    # Build dependencies map
+    dependencies: dict[str, list[str]] = {}
+    for job in jobs:
+        if job.dependencies:
+            dependencies[job.name] = list(job.dependencies)
+
+    # Generate ISO timestamp
+    generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+    return BuildManifest(
+        version=__version__,
+        generated_at=generated_at,
+        source_files=source_files,
+        discovered_jobs=discovered_jobs,
+        dependencies=dependencies,
+        output_file=output_file,
+    )
 
 
 def _do_build(args: argparse.Namespace, silent: bool = False) -> int:
@@ -102,6 +188,34 @@ def _do_build(args: argparse.Namespace, silent: bool = False) -> int:
                 "Warning: Schema validation is only supported for YAML format",
                 file=sys.stderr,
             )
+
+    # Generate manifest if requested
+    if hasattr(args, "manifest") and args.manifest:
+        from wetwire_gitlab.discover import discover_in_directory
+
+        # Discover jobs to get metadata for manifest
+        list_result = discover_in_directory(scan_dir)
+        discovered_jobs = list_result.jobs
+
+        # Determine output file path for manifest
+        output_file_path = args.output if args.output else ".gitlab-ci.yml"
+
+        # Create manifest
+        manifest = create_manifest(
+            jobs=discovered_jobs,
+            output_file=output_file_path,
+            source_directory=scan_dir,
+        )
+
+        # Determine manifest output location
+        if args.output:
+            manifest_path = Path(args.output).parent / "manifest.json"
+        else:
+            manifest_path = path / "manifest.json"
+
+        manifest_path.write_text(manifest.to_json())
+        if not silent:
+            print(f"Generated {manifest_path}")
 
     # Create build result for tracking
     result = BuildResult(

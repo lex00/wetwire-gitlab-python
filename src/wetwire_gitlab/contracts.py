@@ -1,5 +1,6 @@
 """Contracts and protocols for wetwire-gitlab."""
 
+import json
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
@@ -90,6 +91,56 @@ class BuildResult:
     output_path: str | None
     jobs_count: int
     errors: list[str] | None = None
+
+
+@dataclass
+class BuildManifest:
+    """Manifest tracking build pipeline stages per WETWIRE_SPEC.md section 8.4.
+
+    Tracks resources through discovery to emission, providing traceable output
+    showing what was discovered and how it was processed.
+
+    Attributes:
+        version: Package version used for the build.
+        generated_at: ISO timestamp when the manifest was generated.
+        source_files: List of source files with paths and content hashes.
+        discovered_jobs: List of discovered jobs with metadata.
+        dependencies: Mapping of job names to their dependencies.
+        output_file: Path to the generated output file.
+    """
+
+    version: str
+    generated_at: str
+    source_files: list[dict[str, str]]
+    discovered_jobs: list[dict[str, Any]]
+    dependencies: dict[str, list[str]]
+    output_file: str
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert manifest to dictionary for JSON serialization.
+
+        Returns:
+            Dictionary representation of the manifest.
+        """
+        return {
+            "version": self.version,
+            "generated_at": self.generated_at,
+            "source_files": self.source_files,
+            "discovered_jobs": self.discovered_jobs,
+            "dependencies": self.dependencies,
+            "output_file": self.output_file,
+        }
+
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize manifest to JSON string.
+
+        Args:
+            indent: Number of spaces for indentation.
+
+        Returns:
+            JSON string representation of the manifest.
+        """
+        return json.dumps(self.to_dict(), indent=indent)
 
 
 @dataclass

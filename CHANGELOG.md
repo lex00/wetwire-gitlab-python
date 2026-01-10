@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Auto DevOps Templates** (`templates/`) - Typed wrappers for GitLab Auto DevOps: AutoDevOps, AutoDevOpsConfig dataclasses with to_include() and to_variables() methods (#50)
 - **Job Templates** (`templates/`) - Build, Test, Deploy, SAST, DAST template wrappers for Jobs/*.gitlab-ci.yml and Security/*.gitlab-ci.yml includes (#50)
+- **Runner Config** (`runner_config/`) - Typed dataclasses for GitLab Runner config.toml: Config, Runner, Executor, DockerConfig, KubernetesConfig, CacheConfig with TOML serialization (#51)
 
 #### Phase 4: Polish & Integration
 

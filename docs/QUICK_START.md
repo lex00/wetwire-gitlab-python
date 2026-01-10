@@ -563,6 +563,39 @@ integration_test = Job(
 #           MONGODB_6, ELASTICSEARCH_8, etc.
 ```
 
+### Docker Images and Services
+
+Use typed constants for common Docker images and services instead of hardcoded strings:
+
+```python
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
+
+# Use typed image constants
+test = Job(
+    name="test",
+    stage="test",
+    image=Images.PYTHON_3_12,  # Instead of "python:3.12"
+    script=["pytest tests/"],
+)
+
+# Use typed service constants
+integration_test = Job(
+    name="integration-test",
+    stage="test",
+    image=Images.NODE_20,
+    services=[Services.POSTGRES_15, Services.REDIS_7],
+    script=["npm run test:integration"],
+)
+
+# Available constants:
+# Images: PYTHON_3_11, PYTHON_3_12, PYTHON_3_13, NODE_18, NODE_20,
+#         GO_1_21, GO_1_22, GO_1_23, RUBY_3_2, RUBY_3_3,
+#         RUST_1_75, ALPINE_LATEST, UBUNTU_22_04, etc.
+# Services: DOCKER_DIND, POSTGRES_14/15/16, MYSQL_8, REDIS_7,
+#           MONGODB_6, ELASTICSEARCH_8, etc.
+```
+
 ## Troubleshooting
 
 ### Common Errors

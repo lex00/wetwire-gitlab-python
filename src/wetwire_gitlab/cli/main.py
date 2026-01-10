@@ -147,7 +147,30 @@ def create_parser() -> argparse.ArgumentParser:
     )
     init_parser.add_argument(
         "--name",
-        help="Project name (default: directory name)",
+        required=True,
+        help="Package name (snake_case, e.g., 'my_pipeline')",
+    )
+    init_parser.add_argument(
+        "-d",
+        "--description",
+        help="Package description",
+    )
+    init_parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Overwrite existing package",
+    )
+    init_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="List created files",
+    )
+    init_parser.add_argument(
+        "--no-scaffold",
+        action="store_true",
+        help="Skip generating README.md, CLAUDE.md, .gitignore",
     )
 
     # design command
@@ -551,8 +574,30 @@ def run_init(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    print(f"Init command not yet implemented. Output: {args.output}")
-    return 1
+    from wetwire_gitlab.cli.init import create_package
+
+    output_dir = Path(args.output)
+
+    result = create_package(
+        output_dir=output_dir,
+        name=args.name,
+        description=args.description,
+        no_scaffold=args.no_scaffold,
+        force=args.force,
+    )
+
+    if not result["success"]:
+        print(f"Error: {result['error']}", file=sys.stderr)
+        return 1
+
+    print(result["message"])
+
+    if args.verbose and "files" in result:
+        print("\nCreated files:")
+        for filepath in result["files"]:
+            print(f"  - {filepath}")
+
+    return 0
 
 
 def run_design(args: argparse.Namespace) -> int:

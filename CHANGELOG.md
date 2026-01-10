@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Command** (`cli/`) - Stub for persona-based evaluation requiring wetwire-core integration (#48)
 - **Graph Command** (`cli/`) - DAG visualization with Mermaid and DOT format output (#48)
 
+#### Phase 7: Feature Completeness
+
+- **Init Command** (`cli/init.py`) - Full implementation with package scaffolding (#64)
+  - Creates package structure (\_\_init\_\_.py, jobs.py, pipeline.py)
+  - Generates README.md, CLAUDE.md, .gitignore by default
+  - Supports --force, --verbose, --no-scaffold, --description flags
+  - Created packages are immediately buildable
+
 #### Phase 6: Production Readiness
 
 - **wetwire-core Integration** (`agent.py`, `cli/main.py`) - Full integration with wetwire-core for AI-assisted pipeline design and persona-based testing (#54)

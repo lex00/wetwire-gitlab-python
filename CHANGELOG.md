@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 8: Advanced Features
+
+- **Linter Auto-Fix** (`linter/`) - Automatic fixing of lint issues (#73)
+  - `fix_code()`: Fix lint issues in source code strings
+  - `fix_file()`: Fix lint issues in files with optional write mode
+  - `--fix` CLI flag: Apply fixes via `wetwire-gitlab lint --fix`
+  - WGL010 auto-fix: Converts `when="manual"` to `when=When.MANUAL` with import
+  - LintIssue fields: `original`, `suggestion`, `fix_imports`, `insert_after_line`
+
 #### Phase 3: Command Integration
 
 - **Build Command** (`cli/`) - Full build command implementation: discovers jobs/pipelines, extracts values via runner, generates YAML/JSON output with --format and --output flags (#43)

@@ -103,6 +103,10 @@ class LintIssue:
         line_number: Line number of the issue.
         column: Column number of the issue.
         severity: Issue severity (error, warning, info).
+        original: Original code to replace (for auto-fix).
+        suggestion: Suggested fix code (for auto-fix).
+        fix_imports: List of import statements needed for the fix.
+        insert_after_line: Line number to insert suggestion after (for insertions).
     """
 
     code: str
@@ -111,6 +115,10 @@ class LintIssue:
     line_number: int
     column: int | None = None
     severity: str = "error"
+    original: str | None = None
+    suggestion: str | None = None
+    fix_imports: list[str] | None = None
+    insert_after_line: int | None = None
 
 
 @dataclass

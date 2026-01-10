@@ -301,6 +301,51 @@ wetwire-gitlab lint -r WGL001 -r WGL003
 wetwire-gitlab lint --format json
 ```
 
+## Auto-Fix
+
+Some rules support automatic fixing. Use the `--fix` flag to apply fixes:
+
+```bash
+# Fix issues in current directory
+wetwire-gitlab lint --fix
+
+# Fix issues in specific file
+wetwire-gitlab lint --fix src/ci/jobs.py
+```
+
+### Auto-Fixable Rules
+
+| Code | Auto-fixable | Fix Description |
+|------|--------------|-----------------|
+| WGL001 | No | - |
+| WGL002 | No | - |
+| WGL003 | No | - |
+| WGL004 | No | - |
+| WGL005 | No | - |
+| WGL006 | No | - |
+| WGL007 | No | - |
+| WGL008 | No | - |
+| WGL009 | No | - |
+| WGL010 | **Yes** | Converts `when="manual"` to `when=When.MANUAL` and adds import |
+| WGL011 | No | - |
+
+### Programmatic Auto-Fix
+
+You can also use the auto-fix functions programmatically:
+
+```python
+from wetwire_gitlab.linter import fix_code, fix_file
+
+# Fix code string
+fixed_code = fix_code(source_code)
+
+# Fix file (read-only)
+fixed_code = fix_file("src/ci/jobs.py")
+
+# Fix file and write changes
+fix_file("src/ci/jobs.py", write=True)
+```
+
 ## Disabling Rules
 
 Rules can be disabled per-file using comments:

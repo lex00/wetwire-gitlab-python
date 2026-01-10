@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12D: Diff Command
+
+- **Diff Command** (`cli/commands/diff.py`) - Compare generated YAML with existing (#106)
+  - New `wetwire-gitlab diff` command
+  - Unified and context diff formats
+  - Semantic comparison option (--semantic)
+  - Color-coded output for additions/deletions
+  - Exit codes: 0=identical, 1=different, 2=error
+  - 16 new tests (809 total tests)
+
 #### Phase 12C: Semantic Equivalence Testing
 
 - **Semantic Equivalence Testing** (`testing/`) - Added round-trip validation (#102)

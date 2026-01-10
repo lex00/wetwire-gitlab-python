@@ -2,6 +2,7 @@
 
 from wetwire_gitlab.cli.commands.build import run_build
 from wetwire_gitlab.cli.commands.design import run_design
+from wetwire_gitlab.cli.commands.diff import run_diff
 from wetwire_gitlab.cli.commands.graph import run_graph
 from wetwire_gitlab.cli.commands.import_cmd import run_import
 from wetwire_gitlab.cli.commands.init import run_init
@@ -14,6 +15,7 @@ from wetwire_gitlab.cli.commands.version import run_version
 __all__ = [
     "run_build",
     "run_design",
+    "run_diff",
     "run_graph",
     "run_import",
     "run_init",

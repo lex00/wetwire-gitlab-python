@@ -7,6 +7,7 @@ The `wetwire-gitlab` command provides tools for generating and validating GitLab
 | Command | Description |
 |---------|-------------|
 | `wetwire-gitlab build` | Generate .gitlab-ci.yml from Python definitions |
+| `wetwire-gitlab diff` | Compare generated YAML with existing file |
 | `wetwire-gitlab validate` | Validate pipeline using GitLab CI lint API |
 | `wetwire-gitlab lint` | Check code for wetwire-gitlab issues |
 | `wetwire-gitlab list` | List discovered jobs and pipelines |
@@ -102,6 +103,193 @@ test:
     "artifacts": {"paths": ["build/"]}
   }
 }
+```
+
+---
+
+## diff
+
+Compare generated YAML output with an existing .gitlab-ci.yml file.
+
+This command helps you see what changes when adopting wetwire-gitlab for existing projects, or verify that your Python code generates the expected YAML.
+
+```bash
+# Compare with .gitlab-ci.yml in current directory
+wetwire-gitlab diff
+
+# Compare with specific original file
+wetwire-gitlab diff --original .gitlab-ci.yml.backup
+
+# Use semantic comparison (structure-based)
+wetwire-gitlab diff --semantic
+
+# Show context diff format
+wetwire-gitlab diff --format context
+
+# Compare specific package
+wetwire-gitlab diff ./ci --original .gitlab-ci.yml
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `PATH` | Path to Python package (default: current directory) |
+| `--original` | Path to original .gitlab-ci.yml (default: .gitlab-ci.yml in PATH) |
+| `--format, -f` | Diff format: `unified` (default) or `context` |
+| `--semantic` | Compare YAML structure semantically (ignores formatting) |
+
+### How It Works
+
+1. Generates YAML from your Python package (same as `build` command)
+2. Reads the original .gitlab-ci.yml file
+3. Compares the two files and displays differences
+4. Returns appropriate exit code for automation
+
+### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Files are identical (no differences) |
+| 1 | Files differ (changes detected) |
+| 2 | Error (missing file, invalid syntax, etc.) |
+
+### Diff Formats
+
+**Unified diff (default):**
+```diff
+--- .gitlab-ci.yml
++++ generated
+@@ -1,4 +1,5 @@
+ stages:
+   - build
+   - test
++  - deploy
+```
+
+**Context diff:**
+```diff
+*** .gitlab-ci.yml
+--- generated
+***************
+*** 1,4 ****
+--- 1,5 ----
+  stages:
+    - build
+    - test
++   - deploy
+```
+
+### Text vs Semantic Comparison
+
+**Text comparison (default):**
+- Compares files byte-for-byte
+- Detects whitespace and formatting differences
+- Useful for exact reproduction
+
+**Semantic comparison (--semantic):**
+- Parses YAML and compares structure
+- Ignores formatting differences (spaces, line breaks, list styles)
+- Useful for verifying logical equivalence
+
+### Examples
+
+**Example 1: Verify migration**
+```bash
+# You're migrating .gitlab-ci.yml to Python
+# Check if output matches original
+wetwire-gitlab diff
+
+# Exit code 0 = perfect match
+echo $?
+```
+
+**Example 2: Track changes**
+```bash
+# Before making changes, save current output
+wetwire-gitlab build > baseline.yml
+
+# Make changes to Python code
+# Compare new output with baseline
+wetwire-gitlab diff --original baseline.yml
+```
+
+**Example 3: CI/CD validation**
+```yaml
+# In .gitlab-ci.yml
+verify-reproducible:
+  stage: test
+  script:
+    - wetwire-gitlab diff --original .gitlab-ci.yml
+    - if [ $? -ne 0 ]; then echo "Generated YAML differs!"; exit 1; fi
+```
+
+**Example 4: Semantic comparison**
+```bash
+# These are semantically identical but formatted differently:
+
+# original.yml
+stages: [build, test]
+build:
+  script: ["make"]
+
+# generated.yml
+stages:
+  - build
+  - test
+build:
+  script:
+    - make
+
+# Text comparison: different
+wetwire-gitlab diff --original original.yml
+# Exit code: 1
+
+# Semantic comparison: identical
+wetwire-gitlab diff --original original.yml --semantic
+# Exit code: 0
+```
+
+### Output Colors
+
+Diff output uses ANSI colors for readability:
+- Red: Removed lines (lines in original, not in generated)
+- Green: Added lines (lines in generated, not in original)
+- Cyan: Diff markers (@@ or ***)
+
+### Use Cases
+
+1. **Migration verification**: Ensure Python code generates identical YAML
+2. **Change tracking**: See what changed after code modifications
+3. **CI/CD checks**: Fail builds if generated output drifts
+4. **Refactoring**: Verify refactors don't change output
+5. **Documentation**: Show before/after for examples
+
+### Common Workflows
+
+**Adopting wetwire-gitlab:**
+```bash
+# 1. Import existing YAML to Python
+wetwire-gitlab import .gitlab-ci.yml
+
+# 2. Verify import was accurate
+wetwire-gitlab diff
+# Should show no differences or only formatting
+
+# 3. Make improvements to Python code
+# 4. See what changed
+wetwire-gitlab diff
+```
+
+**Continuous validation:**
+```bash
+# Add to CI pipeline
+wetwire-gitlab build ci/ -o .gitlab-ci.yml.new
+wetwire-gitlab diff --original .gitlab-ci.yml.new
+if [ $? -eq 1 ]; then
+  echo "Regenerate .gitlab-ci.yml with: wetwire-gitlab build ci/"
+  exit 1
+fi
 ```
 
 ---
@@ -791,11 +979,10 @@ wetwire-gitlab import .gitlab-ci.yml -o ci/
 wetwire-gitlab lint ci/ --fix
 
 # 3. Verify output matches original
-wetwire-gitlab build ci/ -o new.yml
-diff .gitlab-ci.yml new.yml
+wetwire-gitlab diff ci/ --original .gitlab-ci.yml
 
-# 4. Replace original
-mv new.yml .gitlab-ci.yml
+# 4. If identical or acceptable differences, replace original
+wetwire-gitlab build ci/ -o .gitlab-ci.yml
 ```
 
 ### Team Workflow

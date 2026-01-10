@@ -6,6 +6,7 @@ import sys
 from wetwire_gitlab.cli.commands import (
     run_build,
     run_design,
+    run_diff,
     run_graph,
     run_import,
     run_init,
@@ -61,6 +62,33 @@ def create_parser() -> argparse.ArgumentParser:
         choices=["yaml", "json"],
         default="yaml",
         help="Output format (default: yaml)",
+    )
+
+    # diff command
+    diff_parser = subparsers.add_parser(
+        "diff", help="Compare generated YAML with existing .gitlab-ci.yml"
+    )
+    diff_parser.add_argument(
+        "path",
+        nargs="?",
+        default=".",
+        help="Path to Python package (default: current directory)",
+    )
+    diff_parser.add_argument(
+        "--original",
+        help="Path to original .gitlab-ci.yml (default: .gitlab-ci.yml in path)",
+    )
+    diff_parser.add_argument(
+        "-f",
+        "--format",
+        choices=["unified", "context"],
+        default="unified",
+        help="Diff format (default: unified)",
+    )
+    diff_parser.add_argument(
+        "--semantic",
+        action="store_true",
+        help="Compare YAML structure semantically instead of text-based",
     )
 
     # validate command
@@ -298,6 +326,7 @@ def main(argv: list[str] | None = None) -> int:
     handlers = {
         "version": run_version,
         "build": run_build,
+        "diff": run_diff,
         "validate": run_validate,
         "list": run_list,
         "lint": run_lint,

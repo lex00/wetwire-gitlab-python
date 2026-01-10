@@ -230,7 +230,9 @@ def fix_code(
 
     # Apply replacements (in reverse order by line number)
     fixed_source = source
-    for issue in sorted(replacements, key=lambda i: (i.line_number, i.column or 0), reverse=True):
+    for issue in sorted(
+        replacements, key=lambda i: (i.line_number, i.column or 0), reverse=True
+    ):
         if issue.original and issue.suggestion:
             # Try both double and single quotes
             original_patterns = [
@@ -246,7 +248,9 @@ def fix_code(
     # Apply insertions (in reverse line order)
     if insertions:
         lines = fixed_source.splitlines(keepends=True)
-        for issue in sorted(insertions, key=lambda i: i.insert_after_line or 0, reverse=True):
+        for issue in sorted(
+            insertions, key=lambda i: i.insert_after_line or 0, reverse=True
+        ):
             if issue.insert_after_line is not None and issue.suggestion:
                 suggestion = issue.suggestion
                 if not suggestion.endswith("\n"):
@@ -329,7 +333,12 @@ def _add_imports(source: str, imports: set[str]) -> str:
         insert_pos = 0
         for i, line in enumerate(lines):
             stripped = line.strip()
-            if stripped and not stripped.startswith("#") and not stripped.startswith('"""') and not stripped.startswith("'''"):
+            if (
+                stripped
+                and not stripped.startswith("#")
+                and not stripped.startswith('"""')
+                and not stripped.startswith("'''")
+            ):
                 insert_pos = i
                 break
         lines.insert(insert_pos, import_block)

@@ -38,7 +38,15 @@ def run_design(args: argparse.Namespace) -> int:
         return launch_kiro(prompt=None, project_dir=output_dir)
 
     # Use Anthropic API via wetwire-core (default)
-    from wetwire_core.agents import InteractiveConversationHandler
+    try:
+        from wetwire_core.agents import InteractiveConversationHandler
+    except ImportError:
+        print(
+            "Error: Design command with anthropic provider requires wetwire-core package.\n"
+            "Install with: pip install wetwire-gitlab[agent]",
+            file=sys.stderr,
+        )
+        return 1
 
     from wetwire_gitlab.agent import GitLabRunnerAgent, detect_existing_package
 
@@ -47,15 +55,22 @@ def run_design(args: argparse.Namespace) -> int:
 
     if existing_package:
         print(f"\033[33mFound existing package: {existing_package}\033[0m")
-        print(f"\033[90mFiles: {', '.join(existing_files) if existing_files else '(none)'}\033[0m")
+        print(
+            f"\033[90mFiles: {', '.join(existing_files) if existing_files else '(none)'}\033[0m"
+        )
         print()
 
     # Create a custom handler that uses GitLabRunnerAgent
     class GitLabInteractiveHandler(InteractiveConversationHandler):
         """Interactive handler using GitLab-specific runner."""
 
-        def __init__(self, output_dir: Path, existing_package: str | None = None,
-                     existing_files: list[str] | None = None, max_turns: int = 20):
+        def __init__(
+            self,
+            output_dir: Path,
+            existing_package: str | None = None,
+            existing_files: list[str] | None = None,
+            max_turns: int = 20,
+        ):
             self.output_dir = output_dir
             self.existing_package = existing_package
             self.existing_files = existing_files or []
@@ -97,18 +112,43 @@ def run_design(args: argparse.Namespace) -> int:
                 # Display tool results
                 for result in tool_results:
                     if result.tool_name == "run_lint":
-                        lint_passed = "passed" in result.content.lower() or "no issues" in result.content.lower()
-                        status = "\033[32mPASS\033[0m" if lint_passed else "\033[31mFAIL\033[0m"
-                        print(f"\033[90m[lint] {status}: {result.content}\033[0m", flush=True)
+                        lint_passed = (
+                            "passed" in result.content.lower()
+                            or "no issues" in result.content.lower()
+                        )
+                        status = (
+                            "\033[32mPASS\033[0m"
+                            if lint_passed
+                            else "\033[31mFAIL\033[0m"
+                        )
+                        print(
+                            f"\033[90m[lint] {status}: {result.content}\033[0m",
+                            flush=True,
+                        )
                     elif result.tool_name == "run_build":
                         build_succeeded = not result.is_error
-                        status = "\033[32mOK\033[0m" if build_succeeded else "\033[31mFAIL\033[0m"
-                        content = result.content[:300] + "..." if len(result.content) > 300 else result.content
+                        status = (
+                            "\033[32mOK\033[0m"
+                            if build_succeeded
+                            else "\033[31mFAIL\033[0m"
+                        )
+                        content = (
+                            result.content[:300] + "..."
+                            if len(result.content) > 300
+                            else result.content
+                        )
                         print(f"\033[90m[build] {status}: {content}\033[0m", flush=True)
                     elif result.tool_name in ("init_package", "write_file"):
-                        print(f"\033[90m[{result.tool_name}] {result.content}\033[0m", flush=True)
+                        print(
+                            f"\033[90m[{result.tool_name}] {result.content}\033[0m",
+                            flush=True,
+                        )
                     elif result.tool_name == "read_file":
-                        content = result.content[:200] + "..." if len(result.content) > 200 else result.content
+                        content = (
+                            result.content[:200] + "..."
+                            if len(result.content) > 200
+                            else result.content
+                        )
                         print(f"\033[90m[read_file] {content}\033[0m", flush=True)
 
                 # Check for questions
@@ -127,25 +167,38 @@ def run_design(args: argparse.Namespace) -> int:
                         print("\n\033[33mSession ended.\033[0m")
                         break
 
-                    messages.append(Message(role="developer", content=developer_response))
+                    messages.append(
+                        Message(role="developer", content=developer_response)
+                    )
                     current_message = developer_response
                     print("\n\033[1mRunner:\033[0m ", end="", flush=True)
                 else:
                     # Check if build succeeded
                     just_built = any(
-                        getattr(r, 'tool_name', '') == 'run_build' and not r.is_error
+                        getattr(r, "tool_name", "") == "run_build" and not r.is_error
                         for r in tool_results
                     )
 
                     if just_built and build_succeeded:
-                        print("\n\n\033[1mWhat's next?\033[0m (type 'done' to exit): ", end="")
+                        print(
+                            "\n\n\033[1mWhat's next?\033[0m (type 'done' to exit): ",
+                            end="",
+                        )
                         developer_response = input()
 
-                        if developer_response.lower() in ("quit", "exit", "q", "done", ""):
+                        if developer_response.lower() in (
+                            "quit",
+                            "exit",
+                            "q",
+                            "done",
+                            "",
+                        ):
                             print("\n\033[33mSession ended.\033[0m")
                             break
 
-                        messages.append(Message(role="developer", content=developer_response))
+                        messages.append(
+                            Message(role="developer", content=developer_response)
+                        )
                         current_message = developer_response
                         print("\n\033[1mRunner:\033[0m ", end="", flush=True)
                     elif tool_results:
@@ -155,11 +208,19 @@ def run_design(args: argparse.Namespace) -> int:
                         print("\n\n\033[1mYour input:\033[0m ", end="")
                         developer_response = input()
 
-                        if developer_response.lower() in ("quit", "exit", "q", "done", ""):
+                        if developer_response.lower() in (
+                            "quit",
+                            "exit",
+                            "q",
+                            "done",
+                            "",
+                        ):
                             print("\n\033[33mSession ended.\033[0m")
                             break
 
-                        messages.append(Message(role="developer", content=developer_response))
+                        messages.append(
+                            Message(role="developer", content=developer_response)
+                        )
                         current_message = developer_response
                         print("\n\033[1mRunner:\033[0m ", end="", flush=True)
 

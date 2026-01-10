@@ -243,7 +243,10 @@ class WGL020AvoidNestedJobConstructors:
                                 # Check each element in the list
                                 for elt in kw.value.elts:
                                     if isinstance(elt, ast.Call):
-                                        if isinstance(elt.func, ast.Name) and elt.func.id == "Job":
+                                        if (
+                                            isinstance(elt.func, ast.Name)
+                                            and elt.func.id == "Job"
+                                        ):
                                             issues.append(
                                                 LintIssue(
                                                     code=self.code,
@@ -277,7 +280,9 @@ class WGL022AvoidDuplicateNeeds:
                                 seen: set[str] = set()
                                 for elt in kw.value.elts:
                                     # Only check string constants
-                                    if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                    if isinstance(elt, ast.Constant) and isinstance(
+                                        elt.value, str
+                                    ):
                                         if elt.value in seen:
                                             issues.append(
                                                 LintIssue(

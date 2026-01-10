@@ -3,7 +3,10 @@
 import subprocess
 from unittest.mock import MagicMock, patch
 
+import pytest
 
+
+@pytest.mark.slow
 class TestGlabValidation:
     """Tests for glab pipeline validation."""
 
@@ -136,6 +139,7 @@ test:
         assert result.merged_yaml is not None
 
 
+@pytest.mark.slow
 class TestGlabAvailability:
     """Tests for glab CLI availability checking."""
 
@@ -156,6 +160,7 @@ class TestGlabAvailability:
             assert is_glab_installed() is False
 
 
+@pytest.mark.slow
 class TestGlabValidationFromFile:
     """Tests for validating from a file path."""
 
@@ -174,9 +179,7 @@ test:
   script: ["echo test"]
 """
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".yml", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".yml", delete=False, mode="w") as f:
             f.write(yaml_content)
             f.flush()
 
@@ -192,6 +195,7 @@ test:
         assert result.valid is True
 
 
+@pytest.mark.slow
 class TestGlabErrors:
     """Tests for error handling in glab integration."""
 

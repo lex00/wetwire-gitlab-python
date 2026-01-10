@@ -350,6 +350,7 @@ license_scanning:
 # =============================================================================
 
 
+@pytest.mark.slow
 class TestAutoDevOpsTemplates:
     """Tests for Auto DevOps template patterns."""
 
@@ -397,6 +398,7 @@ class TestAutoDevOpsTemplates:
         assert "Rule" in code
 
 
+@pytest.mark.slow
 class TestLanguageTemplates:
     """Tests for language-specific CI templates."""
 
@@ -474,6 +476,7 @@ class TestLanguageTemplates:
         assert 'name="release"' in code
 
 
+@pytest.mark.slow
 class TestSecurityTemplates:
     """Tests for security scanning templates."""
 
@@ -519,7 +522,9 @@ class TestSecurityTemplates:
         pipeline = parse_gitlab_ci(CONTAINER_SCANNING_TEMPLATE)
 
         assert len(pipeline.includes) == 1
-        assert pipeline.includes[0].template == "Security/Container-Scanning.gitlab-ci.yml"
+        assert (
+            pipeline.includes[0].template == "Security/Container-Scanning.gitlab-ci.yml"
+        )
         assert "scan" in pipeline.stages
         assert len(pipeline.jobs) == 2
 
@@ -539,7 +544,9 @@ class TestSecurityTemplates:
         pipeline = parse_gitlab_ci(SECRET_DETECTION_TEMPLATE)
 
         assert len(pipeline.includes) == 1
-        assert pipeline.includes[0].template == "Security/Secret-Detection.gitlab-ci.yml"
+        assert (
+            pipeline.includes[0].template == "Security/Secret-Detection.gitlab-ci.yml"
+        )
         assert "security" in pipeline.stages
 
     def test_secret_detection_round_trip(self):
@@ -555,7 +562,10 @@ class TestSecurityTemplates:
         pipeline = parse_gitlab_ci(DEPENDENCY_SCANNING_TEMPLATE)
 
         assert len(pipeline.includes) == 1
-        assert pipeline.includes[0].template == "Security/Dependency-Scanning.gitlab-ci.yml"
+        assert (
+            pipeline.includes[0].template
+            == "Security/Dependency-Scanning.gitlab-ci.yml"
+        )
 
         dep_job = next(j for j in pipeline.jobs if j.name == "dependency_scanning")
         assert dep_job.before_script is not None
@@ -573,10 +583,13 @@ class TestSecurityTemplates:
         pipeline = parse_gitlab_ci(LICENSE_SCANNING_TEMPLATE)
 
         assert len(pipeline.includes) == 1
-        assert pipeline.includes[0].template == "Security/License-Scanning.gitlab-ci.yml"
+        assert (
+            pipeline.includes[0].template == "Security/License-Scanning.gitlab-ci.yml"
+        )
         assert "compliance" in pipeline.stages
 
 
+@pytest.mark.slow
 class TestCodeGenerationValidation:
     """Tests validating generated Python code is executable."""
 
@@ -641,6 +654,7 @@ class TestCodeGenerationValidation:
         assert success_count == len(all_templates)
 
 
+@pytest.mark.slow
 class TestRoundTripEquivalence:
     """Tests for round-trip equivalence: parse -> generate -> parse."""
 
@@ -745,6 +759,7 @@ test:
         assert test_job.needs == ["build"]
 
 
+@pytest.mark.slow
 class TestComplexPatterns:
     """Tests for complex GitLab CI patterns found in official templates."""
 

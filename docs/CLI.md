@@ -800,18 +800,37 @@ digraph {
 **Mermaid** (GitHub, GitLab, documentation):
 - Embed directly in Markdown files
 - Use Mermaid Live Editor: https://mermaid.live
+- No extra dependencies needed
 
 **DOT** (Graphviz):
-```bash
-# Install graphviz
-brew install graphviz  # macOS
 
-# Render to PNG
+The `graph` command outputs DOT format as plain text. To render DOT files to images, you need the Graphviz command-line tools:
+
+```bash
+# Install Graphviz CLI tools
+brew install graphviz       # macOS
+sudo apt install graphviz   # Debian/Ubuntu
+
+# Generate DOT and render to PNG
 wetwire-gitlab graph --format dot | dot -Tpng -o pipeline.png
 
-# Render to SVG
+# Generate DOT and render to SVG
 wetwire-gitlab graph --format dot | dot -Tsvg -o pipeline.svg
+
+# Save DOT file first, then render
+wetwire-gitlab graph --format dot -o pipeline.dot
+dot -Tpng pipeline.dot -o pipeline.png
 ```
+
+**Optional Python graphviz library:**
+
+For programmatic rendering within Python scripts, you can optionally install the graphviz Python package:
+
+```bash
+pip install 'wetwire-gitlab[graph]'
+```
+
+Note: The `graph` command itself does not use the Python graphviz library. It generates DOT format as text, which can be piped to the Graphviz CLI tools for rendering.
 
 ---
 
@@ -1130,6 +1149,28 @@ git push
 ---
 
 ## Dependencies
+
+### graphviz (Graph rendering)
+
+The `graph` command outputs DOT format as plain text. For rendering DOT graphs to images (PNG, SVG, etc.), install the Graphviz command-line tools:
+
+```bash
+brew install graphviz       # macOS
+sudo apt install graphviz   # Debian/Ubuntu
+```
+
+For programmatic rendering within Python scripts, you can optionally install the graphviz Python package:
+
+```bash
+pip install 'wetwire-gitlab[graph]'
+```
+
+Or add to your project:
+```bash
+uv add 'wetwire-gitlab[graph]'
+```
+
+Note: Mermaid format output requires no additional dependencies.
 
 ### watchdog (Watch mode)
 

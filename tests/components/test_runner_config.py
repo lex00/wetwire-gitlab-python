@@ -285,7 +285,7 @@ class TestTomlSerialization:
         toml_str = config.to_toml()
 
         assert "concurrent = 4" in toml_str
-        assert '[[runners]]' in toml_str
+        assert "[[runners]]" in toml_str
         assert 'name = "my-runner"' in toml_str
         assert 'executor = "shell"' in toml_str
 
@@ -405,7 +405,7 @@ class TestFromToml:
         """Parse minimal TOML config."""
         from wetwire_gitlab.runner_config import Config
 
-        toml_str = '''
+        toml_str = """
 concurrent = 4
 
 [[runners]]
@@ -413,7 +413,7 @@ name = "my-runner"
 url = "https://gitlab.com"
 token = "glrt-xxxxxxxxxxxx"
 executor = "shell"
-'''
+"""
         config = Config.from_toml(toml_str)
 
         assert config.concurrent == 4
@@ -424,7 +424,7 @@ executor = "shell"
         """Parse TOML with Docker config."""
         from wetwire_gitlab.runner_config import Config, Executor
 
-        toml_str = '''
+        toml_str = """
 concurrent = 2
 
 [[runners]]
@@ -436,7 +436,7 @@ executor = "docker"
 [runners.docker]
 image = "python:3.11"
 privileged = true
-'''
+"""
         config = Config.from_toml(toml_str)
 
         assert config.runners[0].executor == Executor.DOCKER
@@ -448,7 +448,7 @@ privileged = true
         """Parse TOML with Kubernetes config."""
         from wetwire_gitlab.runner_config import Config, Executor
 
-        toml_str = '''
+        toml_str = """
 concurrent = 2
 
 [[runners]]
@@ -464,7 +464,7 @@ image = "alpine:latest"
 privileged = true
 service_account = "runner-sa"
 image_pull_secrets = ["docker-registry"]
-'''
+"""
         config = Config.from_toml(toml_str)
 
         assert config.runners[0].executor == Executor.KUBERNETES
@@ -477,7 +477,7 @@ image_pull_secrets = ["docker-registry"]
         """Parse TOML with S3 cache config."""
         from wetwire_gitlab.runner_config import Config
 
-        toml_str = '''
+        toml_str = """
 concurrent = 2
 
 [[runners]]
@@ -497,7 +497,7 @@ AccessKey = "AKIAIOSFODNN7EXAMPLE"
 SecretKey = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 BucketName = "my-bucket"
 BucketLocation = "us-east-1"
-'''
+"""
         config = Config.from_toml(toml_str)
 
         assert config.runners[0].cache is not None
@@ -510,7 +510,7 @@ BucketLocation = "us-east-1"
         """Parse TOML with GCS cache config."""
         from wetwire_gitlab.runner_config import Config
 
-        toml_str = '''
+        toml_str = """
 concurrent = 2
 
 [[runners]]
@@ -529,14 +529,16 @@ CredentialsFile = "/path/to/credentials.json"
 BucketName = "my-gcs-bucket"
 AccessID = "sa@project.iam.gserviceaccount.com"
 PrivateKey = "-----BEGIN PRIVATE KEY-----"
-'''
+"""
         config = Config.from_toml(toml_str)
 
         assert config.runners[0].cache is not None
         assert config.runners[0].cache.type == "gcs"
         assert config.runners[0].cache.gcs is not None
         assert config.runners[0].cache.gcs.bucket_name == "my-gcs-bucket"
-        assert config.runners[0].cache.gcs.credentials_file == "/path/to/credentials.json"
+        assert (
+            config.runners[0].cache.gcs.credentials_file == "/path/to/credentials.json"
+        )
 
 
 class TestGCSCacheToToml:

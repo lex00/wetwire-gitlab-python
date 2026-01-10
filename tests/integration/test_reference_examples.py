@@ -94,6 +94,7 @@ build:
 """
 
 
+@pytest.mark.slow
 class TestParseRealPipelines:
     """Test parsing real pipeline configurations."""
 
@@ -137,9 +138,12 @@ class TestParseRealPipelines:
 
         assert len(pipeline.includes) == 2
         assert any(inc.local == "/templates/build.yml" for inc in pipeline.includes)
-        assert any(inc.template == "Security/SAST.gitlab-ci.yml" for inc in pipeline.includes)
+        assert any(
+            inc.template == "Security/SAST.gitlab-ci.yml" for inc in pipeline.includes
+        )
 
 
+@pytest.mark.slow
 class TestRoundTripConversion:
     """Test round-trip: YAML -> Python -> YAML."""
 
@@ -179,6 +183,7 @@ class TestRoundTripConversion:
         assert "if_=" in code
 
 
+@pytest.mark.slow
 class TestCodeGenerationQuality:
     """Test quality of generated Python code."""
 
@@ -223,6 +228,7 @@ class TestCodeGenerationQuality:
         assert "build" in code
 
 
+@pytest.mark.slow
 class TestEdgeCases:
     """Test edge cases in pipeline parsing."""
 
@@ -274,6 +280,7 @@ job:
         assert job.allow_failure is False
 
 
+@pytest.mark.slow
 class TestSuccessRateTracking:
     """Test success rate tracking for round-trip tests."""
 
@@ -320,6 +327,7 @@ class TestSuccessRateTracking:
         assert success_count == len(sample_pipelines)
 
 
+@pytest.mark.slow
 class TestRealWorldPatterns:
     """Test real-world GitLab CI patterns."""
 

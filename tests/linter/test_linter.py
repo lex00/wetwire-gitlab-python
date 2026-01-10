@@ -11,11 +11,11 @@ class TestLinterFramework:
         """Lint a single Python file."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["echo test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -31,15 +31,15 @@ job = Job(name="test", stage="test", script=["echo test"])
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            (path / "jobs.py").write_text('''
+            (path / "jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job
 job = Job(name="test", stage="test", script=["echo test"])
-''')
+""")
 
-            (path / "pipelines.py").write_text('''
+            (path / "pipelines.py").write_text("""
 from wetwire_gitlab.pipeline import Pipeline
 pipeline = Pipeline(stages=["test"])
-''')
+""")
 
             result = lint_directory(path)
 
@@ -49,10 +49,10 @@ pipeline = Pipeline(stages=["test"])
         """Lint with specific rules enabled."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 job = Job(name="test", stage="test", script=["echo test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -68,11 +68,11 @@ class TestLintRuleWGL001:
         """Detect raw include component usage instead of typed wrapper."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Include
 
 include = Include(component="gitlab.com/components/sast@main")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -89,7 +89,7 @@ class TestLintRuleWGL002:
         """Detect raw dict rules instead of Rule dataclass."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -98,7 +98,7 @@ job = Job(
     script=["echo test"],
     rules=[{"if": "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"}]
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -116,11 +116,11 @@ class TestLintRuleWGL003:
         from wetwire_gitlab.linter import lint_file
 
         # Use a pattern that won't trigger WGL009
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Rule
 
 rule = Rule(if_="$CI_COMMIT_SHA")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -137,7 +137,7 @@ class TestLintRuleWGL004:
         """Detect raw dict cache instead of Cache dataclass."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -146,7 +146,7 @@ job = Job(
     script=["echo test"],
     cache={"paths": [".cache"]}
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -163,7 +163,7 @@ class TestLintRuleWGL005:
         """Detect raw dict artifacts instead of Artifacts dataclass."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -172,7 +172,7 @@ job = Job(
     script=["echo test"],
     artifacts={"paths": ["build/"]}
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -189,11 +189,11 @@ class TestLintRuleWGL006:
         """Detect string literals for stage instead of constants."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(name="test", stage="test", script=["echo test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -211,12 +211,12 @@ class TestLintRuleWGL007:
         """Detect duplicate job names in the same file."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job1 = Job(name="build", stage="build", script=["make"])
 job2 = Job(name="build", stage="test", script=["test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -240,10 +240,10 @@ class TestLintRuleWGL008:
                 f'job{i} = Job(name="job{i}", stage="build", script=["echo {i}"])'
             )
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
-''' + "\n".join(jobs)
+""" + "\n".join(jobs)
 
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
@@ -261,12 +261,12 @@ class TestLinterConfig:
         """Exclude specific rules from linting."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job1 = Job(name="build", stage="build", script=["make"])
 job2 = Job(name="build", stage="test", script=["test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -279,10 +279,10 @@ job2 = Job(name="build", stage="test", script=["test"])
         """Lint success returns True."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 # A simple Python file with no issues
 x = 1
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -299,12 +299,12 @@ class TestLinterOutput:
         """Lint issues have all required fields."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job1 = Job(name="build", stage="build", script=["make"])
 job2 = Job(name="build", stage="test", script=["test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -325,7 +325,7 @@ class TestLintRuleWGL009:
         """Detect Rule() with common patterns that have predefined constants."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
@@ -334,7 +334,7 @@ job = Job(
     script=["make deploy"],
     rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")]
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -347,7 +347,7 @@ job = Job(
         """Detect Rule() with tag pattern."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
@@ -356,7 +356,7 @@ job = Job(
     script=["make release"],
     rules=[Rule(if_="$CI_COMMIT_TAG")]
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -369,7 +369,7 @@ job = Job(
         """Allow custom Rule() without predefined patterns."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job, Rule
 
 job = Job(
@@ -378,7 +378,7 @@ job = Job(
     script=["make custom"],
     rules=[Rule(if_="$CUSTOM_VAR == 'yes'")]
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -395,7 +395,7 @@ class TestLintRuleWGL010:
         """Detect when='manual' string instead of When.MANUAL."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -404,7 +404,7 @@ job = Job(
     script=["make deploy"],
     when="manual"
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -417,7 +417,7 @@ job = Job(
         """Detect when='always' string instead of When.ALWAYS."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -426,7 +426,7 @@ job = Job(
     script=["make cleanup"],
     when="always"
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -439,7 +439,7 @@ job = Job(
         """Allow When.MANUAL constant usage."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 from wetwire_gitlab.intrinsics import When
 
@@ -449,7 +449,7 @@ job = Job(
     script=["make deploy"],
     when=When.MANUAL
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -466,14 +466,14 @@ class TestLintRuleWGL011:
         """Detect Job() without stage keyword."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
     name="build",
     script=["make build"],
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -486,7 +486,7 @@ job = Job(
         """Allow Job() with explicit stage keyword."""
         from wetwire_gitlab.linter import lint_file
 
-        code = '''
+        code = """
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -494,7 +494,7 @@ job = Job(
     stage="build",
     script=["make build"],
 )
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()

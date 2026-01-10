@@ -71,11 +71,19 @@ def run_test(args: argparse.Namespace) -> int:
         return 0 if result["success"] else 1
 
     # Use Anthropic API via wetwire-core (default)
-    from wetwire_core.agent.personas import PERSONAS, load_persona
-    from wetwire_core.agent.results import ResultsWriter, SessionResults
-    from wetwire_core.agent.scoring import Rating, Score
-    from wetwire_core.agents import AIConversationHandler, DeveloperAgent
-    from wetwire_core.runner import Message
+    try:
+        from wetwire_core.agent.personas import PERSONAS, load_persona
+        from wetwire_core.agent.results import ResultsWriter, SessionResults
+        from wetwire_core.agent.scoring import Rating, Score
+        from wetwire_core.agents import AIConversationHandler, DeveloperAgent
+        from wetwire_core.runner import Message
+    except ImportError:
+        print(
+            "Error: Test command with anthropic provider requires wetwire-core package.\n"
+            "Install with: pip install wetwire-gitlab[agent]",
+            file=sys.stderr,
+        )
+        return 1
 
     from wetwire_gitlab.agent import GitLabRunnerAgent
 
@@ -111,8 +119,14 @@ def run_test(args: argparse.Namespace) -> int:
         class GitLabAIHandler(AIConversationHandler):
             """AI conversation handler using GitLab runner."""
 
-            def __init__(self, prompt: str, persona_name: str, persona_instructions: str,
-                         output_dir: Path, max_turns: int = 10):
+            def __init__(
+                self,
+                prompt: str,
+                persona_name: str,
+                persona_instructions: str,
+                output_dir: Path,
+                max_turns: int = 10,
+            ):
                 self.prompt = prompt
                 self.persona_name = persona_name
                 self.persona_instructions = persona_instructions
@@ -148,7 +162,10 @@ def run_test(args: argparse.Namespace) -> int:
                             lint_called = True
                             ran_lint_this_turn = True
                             pending_lint = False
-                            lint_passed = "passed" in result.content.lower() or "no issues" in result.content.lower()
+                            lint_passed = (
+                                "passed" in result.content.lower()
+                                or "no issues" in result.content.lower()
+                            )
                         elif result.tool_name == "write_file":
                             wrote_file_this_turn = True
                             pending_lint = True
@@ -160,7 +177,9 @@ def run_test(args: argparse.Namespace) -> int:
                             "STOP: You wrote a file but did not call run_lint. "
                             "Call run_lint now."
                         )
-                        self.messages.append(Message(role="system", content=current_message))
+                        self.messages.append(
+                            Message(role="system", content=current_message)
+                        )
                         continue
 
                     # Check for questions
@@ -173,7 +192,9 @@ def run_test(args: argparse.Namespace) -> int:
                     if question:
                         self.messages.append(Message(role="runner", content=question))
                         developer_response = developer.respond(question)
-                        self.messages.append(Message(role="developer", content=developer_response))
+                        self.messages.append(
+                            Message(role="developer", content=developer_response)
+                        )
 
                         if "DONE" in developer_response.upper():
                             break
@@ -181,16 +202,27 @@ def run_test(args: argparse.Namespace) -> int:
                         current_message = developer_response
                     else:
                         if response_text:
-                            self.messages.append(Message(role="runner", content=response_text))
+                            self.messages.append(
+                                Message(role="runner", content=response_text)
+                            )
 
-                        if "completed" in response_text.lower() or "done" in response_text.lower():
+                        if (
+                            "completed" in response_text.lower()
+                            or "done" in response_text.lower()
+                        ):
                             if not lint_called or pending_lint:
-                                current_message = "ERROR: Must call run_lint before done."
-                                self.messages.append(Message(role="system", content=current_message))
+                                current_message = (
+                                    "ERROR: Must call run_lint before done."
+                                )
+                                self.messages.append(
+                                    Message(role="system", content=current_message)
+                                )
                                 continue
                             elif not lint_passed:
                                 current_message = "ERROR: Lint did not pass."
-                                self.messages.append(Message(role="system", content=current_message))
+                                self.messages.append(
+                                    Message(role="system", content=current_message)
+                                )
                                 continue
                             break
 
@@ -198,7 +230,10 @@ def run_test(args: argparse.Namespace) -> int:
 
                     if turn > 5 and not runner.package_name:
                         self.messages.append(
-                            Message(role="system", content="Warning: No package after multiple turns")
+                            Message(
+                                role="system",
+                                content="Warning: No package after multiple turns",
+                            )
                         )
                         break
 
@@ -227,7 +262,9 @@ def run_test(args: argparse.Namespace) -> int:
             lint_quality=Rating.EXCELLENT if produced_package else Rating.NONE,
             code_quality=Rating.GOOD if produced_package else Rating.NONE,
             output_validity=Rating.GOOD if produced_package else Rating.NONE,
-            question_efficiency=Rating.EXCELLENT if len(questions) <= 2 else Rating.GOOD,
+            question_efficiency=Rating.EXCELLENT
+            if len(questions) <= 2
+            else Rating.GOOD,
         )
 
         # Write results

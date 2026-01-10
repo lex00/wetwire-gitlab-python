@@ -4,6 +4,8 @@ import importlib
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add examples to path for import
 EXAMPLES_DIR = Path(__file__).parent.parent.parent / "examples"
 
@@ -27,6 +29,7 @@ def import_example_ci(example_name: str):
     return importlib.import_module("ci")
 
 
+@pytest.mark.slow
 class TestPythonAppExample:
     """Tests for python-app example."""
 
@@ -56,6 +59,7 @@ class TestPythonAppExample:
         assert ci.deploy.stage == "deploy"
 
 
+@pytest.mark.slow
 class TestDockerBuildExample:
     """Tests for docker-build example."""
 
@@ -75,6 +79,7 @@ class TestDockerBuildExample:
         assert ci.pipeline.stages == ["build", "test", "push"]
 
 
+@pytest.mark.slow
 class TestMultiStageExample:
     """Tests for multi-stage example."""
 
@@ -102,6 +107,7 @@ class TestMultiStageExample:
         assert "test-unit" in ci.deploy_staging.needs
 
 
+@pytest.mark.slow
 class TestKubernetesDeployExample:
     """Tests for kubernetes-deploy example."""
 
@@ -124,6 +130,7 @@ class TestKubernetesDeployExample:
         assert ci.deploy_production.environment["name"] == "production"
 
 
+@pytest.mark.slow
 class TestMonorepoExample:
     """Tests for monorepo example."""
 

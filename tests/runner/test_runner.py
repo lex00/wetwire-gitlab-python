@@ -11,10 +11,10 @@ class TestModuleImport:
         """Import a module from a file path."""
         from wetwire_gitlab.runner import import_module_from_path
 
-        code = '''
+        code = """
 x = 42
 y = "hello"
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -28,7 +28,7 @@ y = "hello"
         """Import a module containing Job definitions."""
         from wetwire_gitlab.runner import import_module_from_path
 
-        code = '''
+        code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -37,7 +37,7 @@ class Job:
     stage: str = "build"
 
 build_job = Job(name="build")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -57,7 +57,7 @@ class TestValueExtraction:
             import_module_from_path,
         )
 
-        code = '''
+        code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -69,7 +69,7 @@ class Job:
 build = Job(name="build", stage="build", script=["make build"])
 test = Job(name="test", stage="test", script=["pytest"])
 other_var = "not a job"
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -87,7 +87,7 @@ other_var = "not a job"
             import_module_from_path,
         )
 
-        code = '''
+        code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -95,7 +95,7 @@ class Pipeline:
     stages: list
 
 pipeline = Pipeline(stages=["build", "test"])
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -145,14 +145,14 @@ class TestPyprojectParsing:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            pyproject = '''
+            pyproject = """
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mypackage"]
-'''
+"""
             (path / "pyproject.toml").write_text(pyproject)
             (path / "src").mkdir()
 
@@ -197,7 +197,7 @@ class TestExtractFromDirectory:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            code = '''
+            code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -208,7 +208,7 @@ class Job:
 
 build = Job(name="build", stage="build", script=["make"])
 test = Job(name="test", stage="test", script=["pytest"])
-'''
+"""
             (path / "jobs.py").write_text(code)
 
             jobs = extract_all_jobs(path, "Job")
@@ -222,7 +222,7 @@ test = Job(name="test", stage="test", script=["pytest"])
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            code1 = '''
+            code1 = """
 from dataclasses import dataclass
 
 @dataclass
@@ -232,8 +232,8 @@ class Job:
     script: list = None
 
 build = Job(name="build", stage="build", script=["make"])
-'''
-            code2 = '''
+"""
+            code2 = """
 from dataclasses import dataclass
 
 @dataclass
@@ -243,7 +243,7 @@ class Job:
     script: list = None
 
 test = Job(name="test", stage="test", script=["pytest"])
-'''
+"""
             (path / "build.py").write_text(code1)
             (path / "test.py").write_text(code2)
 
@@ -299,10 +299,10 @@ class TestExtractWithTypeSearch:
             import_module_from_path,
         )
 
-        code = '''
+        code = """
 # No Job class defined
 some_value = 42
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -318,10 +318,10 @@ some_value = 42
             import_module_from_path,
         )
 
-        code = '''
+        code = """
 # No Pipeline class defined
 some_value = 42
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -338,7 +338,7 @@ some_value = 42
         )
 
         # Job is defined but not directly named in module scope
-        code = '''
+        code = """
 from dataclasses import dataclass
 
 # Create an aliased job class
@@ -349,7 +349,7 @@ class MyJob:
 
 # Create instance
 build = MyJob(name="build", stage="build")
-'''
+"""
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)
             f.flush()
@@ -387,14 +387,14 @@ class TestPyprojectEdgeCases:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            pyproject = '''
+            pyproject = """
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["src/mypackage"]
-'''
+"""
             (path / "pyproject.toml").write_text(pyproject)
             (path / "src").mkdir()
 
@@ -444,7 +444,7 @@ class TestExtractWithHiddenDirs:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            code = '''
+            code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -452,7 +452,7 @@ class Job:
     name: str
 
 build = Job(name="build")
-'''
+"""
             (path / "jobs.py").write_text(code)
             # Create __pycache__ with a Python file (should be skipped)
             (path / "__pycache__").mkdir()
@@ -470,7 +470,7 @@ build = Job(name="build")
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir)
 
-            code = '''
+            code = """
 from dataclasses import dataclass
 
 @dataclass
@@ -478,7 +478,7 @@ class Pipeline:
     stages: list
 
 pipeline = Pipeline(stages=["build"])
-'''
+"""
             (path / "pipeline.py").write_text(code)
             # Create hidden directory (should be skipped)
             (path / ".hidden").mkdir()

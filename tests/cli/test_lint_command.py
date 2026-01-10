@@ -212,7 +212,7 @@ class TestLintRules:
         from wetwire_gitlab.linter import lint_file
 
         test_file = tmp_path / "test.py"
-        test_file.write_text('''
+        test_file.write_text("""
 from wetwire_gitlab.pipeline import Job
 
 job = Job(
@@ -220,7 +220,7 @@ job = Job(
     script=["echo test"],
     rules=[{"if": "$CI"}],
 )
-''')
+""")
 
         result = lint_file(test_file, rules=["WGL002"])
         # Should detect raw dict usage

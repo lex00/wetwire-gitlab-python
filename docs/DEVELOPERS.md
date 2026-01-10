@@ -33,6 +33,23 @@ uv sync --group dev
 pip install -e ".[dev]"
 ```
 
+### Pre-commit Hooks
+
+Pre-commit hooks automatically check your code before each commit. This ensures code quality and consistency.
+
+```bash
+# Install pre-commit hooks (one-time setup)
+uv run pre-commit install
+
+# Manually run all hooks on all files
+uv run pre-commit run --all-files
+
+# Run hooks on specific files
+uv run pre-commit run --files src/wetwire_gitlab/pipeline.py
+```
+
+The hooks will automatically run on `git commit`. If any hook fails, the commit will be aborted and you'll need to fix the issues before committing again.
+
 ### Development Scripts
 
 The project includes automation scripts in the `scripts/` directory:
@@ -101,15 +118,27 @@ Follow these guidelines:
 # Run all tests
 uv run pytest
 
+# Run fast tests only (skip slow integration tests)
+uv run pytest -m "not slow"
+
 # Run specific tests
 uv run pytest tests/test_pipeline.py
 
 # Run with coverage
 uv run pytest --cov=src
 
+# Run only slow tests
+uv run pytest -m slow
+
 # Or use the CI script to run full workflow
 ./scripts/ci.sh
 ```
+
+**Performance Tip**: During development, use `pytest -m "not slow"` for quick iteration. Slow tests include:
+- Integration tests (tests/integration/)
+- Template corpus tests (112 GitLab CI templates)
+
+These comprehensive tests are important but can be run less frequently during development.
 
 ### 4. Run Linters
 

@@ -48,7 +48,7 @@ def _format_value(value: Any, indent: int = 0) -> str:
     elif isinstance(value, str):
         # Use repr for proper escaping
         return repr(value)
-    elif isinstance(value, (int, float)):
+    elif isinstance(value, int | float):
         return str(value)
     elif isinstance(value, list):
         if not value:
@@ -61,8 +61,7 @@ def _format_value(value: Any, indent: int = 0) -> str:
         if not value:
             return "{}"
         items = ",\n".join(
-            f'{indent_str}    {repr(k)}: {_format_value(v)}'
-            for k, v in value.items()
+            f"{indent_str}    {repr(k)}: {_format_value(v)}" for k, v in value.items()
         )
         return f"{{\n{items},\n{indent_str}}}"
     else:
@@ -114,7 +113,7 @@ def _generate_job(job: IRJob, indent: int = 0) -> str:  # noqa: ARG001
     """
     var_name = _sanitize_identifier(job.name)
 
-    lines = [f'{var_name} = Job(']
+    lines = [f"{var_name} = Job("]
     lines.append(f'    name="{job.name}",')
 
     if job.stage:

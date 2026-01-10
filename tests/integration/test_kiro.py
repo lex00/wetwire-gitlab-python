@@ -9,7 +9,10 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 
+
+@pytest.mark.slow
 class TestKiroProviderFlag:
     """Tests for --provider flag in CLI commands."""
 
@@ -70,6 +73,7 @@ class TestKiroProviderFlag:
         assert "--timeout" in result.stdout
 
 
+@pytest.mark.slow
 class TestKiroModuleImports:
     """Tests for kiro module imports and structure."""
 
@@ -104,6 +108,7 @@ class TestKiroModuleImports:
         assert callable(run_kiro_scenario)
 
 
+@pytest.mark.slow
 class TestKiroInstaller:
     """Tests for Kiro configuration installer."""
 
@@ -150,6 +155,7 @@ class TestKiroInstaller:
         assert check_kiro_installed() is False
 
 
+@pytest.mark.slow
 class TestKiroInstallConfigs:
     """Tests for installing Kiro configurations."""
 
@@ -195,6 +201,7 @@ class TestKiroInstallConfigs:
             assert config_path.exists()
 
 
+@pytest.mark.slow
 class TestLaunchKiro:
     """Tests for launch_kiro function."""
 
@@ -227,6 +234,7 @@ class TestLaunchKiro:
         assert "wetwire-runner" in call_args
 
 
+@pytest.mark.slow
 class TestRunKiroScenario:
     """Tests for run_kiro_scenario function."""
 
@@ -263,6 +271,7 @@ class TestRunKiroScenario:
             assert "template_valid" in result
 
 
+@pytest.mark.slow
 class TestKiroAgentConfig:
     """Tests for Kiro agent configuration content."""
 
@@ -273,7 +282,10 @@ class TestKiroAgentConfig:
         assert "name" in AGENT_CONFIG
         assert AGENT_CONFIG["name"] == "wetwire-runner"
         assert "prompt" in AGENT_CONFIG
-        assert "GitLab" in AGENT_CONFIG["prompt"] or "gitlab" in AGENT_CONFIG["prompt"].lower()
+        assert (
+            "GitLab" in AGENT_CONFIG["prompt"]
+            or "gitlab" in AGENT_CONFIG["prompt"].lower()
+        )
 
     def test_agent_config_references_mcp_tools(self):
         """Agent config references MCP tools."""

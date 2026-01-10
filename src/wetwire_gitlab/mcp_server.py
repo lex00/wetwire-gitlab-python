@@ -147,7 +147,8 @@ def _lint_path(path: str, fix: bool = False) -> dict[str, Any]:
         files = [
             f
             for f in files
-            if "__pycache__" not in str(f) and not any(p.startswith(".") for p in f.parts)
+            if "__pycache__" not in str(f)
+            and not any(p.startswith(".") for p in f.parts)
         ]
 
     if not files:
@@ -212,7 +213,9 @@ def _build_template(path: str, output_format: str = "yaml") -> dict[str, Any]:
         }
 
     # Use first pipeline or create default
-    pipeline = pipelines[0] if pipelines else Pipeline(stages=["build", "test", "deploy"])
+    pipeline = (
+        pipelines[0] if pipelines else Pipeline(stages=["build", "test", "deploy"])
+    )
 
     # Build output
     yaml_str = build_pipeline_yaml(pipeline, jobs)
@@ -293,7 +296,9 @@ def _import_yaml(path: str) -> dict[str, Any]:
 def create_server() -> Server:
     """Create and configure the MCP server."""
     if Server is None:
-        raise ImportError("MCP package required. Install with: pip install wetwire-gitlab[mcp]")
+        raise ImportError(
+            "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
+        )
 
     server = Server("wetwire-gitlab-mcp")
 
@@ -413,12 +418,16 @@ def create_server() -> Server:
 async def run_server() -> None:
     """Run the MCP server with stdio transport."""
     if stdio_server is None:
-        raise ImportError("MCP package required. Install with: pip install wetwire-gitlab[mcp]")
+        raise ImportError(
+            "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
+        )
 
     server = create_server()
 
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+        await server.run(
+            read_stream, write_stream, server.create_initialization_options()
+        )
 
 
 def main() -> None:

@@ -368,10 +368,20 @@ from wetwire_gitlab.intrinsics import CI, GitLab, MR, Rules, When
             )
 
         # Set PYTHONPATH to include output_dir so the package can be imported
-        pythonpath = str(self.package_dir.parent) if self.existing_package else str(self.output_dir)
+        pythonpath = (
+            str(self.package_dir.parent)
+            if self.existing_package
+            else str(self.output_dir)
+        )
 
         result = subprocess.run(
-            [sys.executable, "-m", "wetwire_gitlab.cli", "build", str(self.package_dir)],
+            [
+                sys.executable,
+                "-m",
+                "wetwire_gitlab.cli",
+                "build",
+                str(self.package_dir),
+            ],
             capture_output=True,
             text=True,
             env={**os.environ, "PYTHONPATH": pythonpath},
@@ -389,7 +399,9 @@ from wetwire_gitlab.intrinsics import CI, GitLab, MR, Rules, When
                 is_error=True,
             )
 
-    def run_turn(self, developer_message: str | None = None) -> tuple[str, list[ToolResult]]:
+    def run_turn(
+        self, developer_message: str | None = None
+    ) -> tuple[str, list[ToolResult]]:
         """Run one turn of the Runner agent.
 
         Returns:
@@ -446,7 +458,11 @@ def detect_existing_package(directory: Path) -> tuple[str | None, list[str]]:
 
     content = init_file.read_text()
     # Check for wetwire-gitlab imports or Pipeline/Job usage
-    if "wetwire_gitlab" not in content and "Pipeline" not in content and "Job" not in content:
+    if (
+        "wetwire_gitlab" not in content
+        and "Pipeline" not in content
+        and "Job" not in content
+    ):
         return None, []
 
     package_name = directory.name

@@ -54,10 +54,10 @@ pipeline = Pipeline(
 
         # Create minimal pyproject.toml
         pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('''[project]
+        pyproject.write_text("""[project]
 name = "sample"
 version = "0.1.0"
-''')
+""")
 
         return tmp_path
 
@@ -153,7 +153,10 @@ deploy:
 
         # Exit code 0 for identical files
         assert result.returncode == 0
-        assert "identical" in result.stdout.lower() or "no differences" in result.stdout.lower()
+        assert (
+            "identical" in result.stdout.lower()
+            or "no differences" in result.stdout.lower()
+        )
 
     def test_diff_different_files(self, different_yaml):
         """Diff returns exit code 1 for different files."""
@@ -176,7 +179,11 @@ deploy:
         # Exit code 1 for different files
         assert result.returncode == 1
         # Output should contain diff
-        assert "+" in result.stdout or "-" in result.stdout or "deploy" in result.stdout.lower()
+        assert (
+            "+" in result.stdout
+            or "-" in result.stdout
+            or "deploy" in result.stdout.lower()
+        )
 
     def test_diff_unified_format(self, different_yaml):
         """Diff outputs unified format."""
@@ -224,7 +231,11 @@ deploy:
 
         # Context diff format should have *** markers
         if result.returncode == 1:
-            assert "***" in result.stdout or "---" in result.stdout or len(result.stdout) > 0
+            assert (
+                "***" in result.stdout
+                or "---" in result.stdout
+                or len(result.stdout) > 0
+            )
 
     def test_diff_missing_original(self, tmp_path: Path):
         """Diff handles missing original file."""
@@ -293,7 +304,7 @@ build:
         src_dir.mkdir(parents=True)
 
         (src_dir / "__init__.py").write_text("")
-        (src_dir / "jobs.py").write_text('''
+        (src_dir / "jobs.py").write_text("""
 from wetwire_gitlab.pipeline import Job, Pipeline
 
 pipeline = Pipeline(stages=["build"])
@@ -303,7 +314,7 @@ build = Job(
     stage="build",
     script=["make build"],
 )
-''')
+""")
 
         # Build and compare
         import argparse
@@ -342,12 +353,14 @@ class TestDiffFormatting:
         original = ["line 1\n", "line 2\n", "line 3\n"]
         generated = ["line 1\n", "line 2 modified\n", "line 3\n"]
 
-        diff = list(difflib.unified_diff(
-            original,
-            generated,
-            fromfile="original.yml",
-            tofile="generated.yml",
-        ))
+        diff = list(
+            difflib.unified_diff(
+                original,
+                generated,
+                fromfile="original.yml",
+                tofile="generated.yml",
+            )
+        )
 
         # Should have @@ markers
         assert any("@@" in line for line in diff)
@@ -359,12 +372,14 @@ class TestDiffFormatting:
         original = ["line 1\n", "line 2\n", "line 3\n"]
         generated = ["line 1\n", "line 2 modified\n", "line 3\n"]
 
-        diff = list(difflib.context_diff(
-            original,
-            generated,
-            fromfile="original.yml",
-            tofile="generated.yml",
-        ))
+        diff = list(
+            difflib.context_diff(
+                original,
+                generated,
+                fromfile="original.yml",
+                tofile="generated.yml",
+            )
+        )
 
         # Should have *** markers
         assert any("***" in line for line in diff)
@@ -493,4 +508,7 @@ build:
 
         # With semantic comparison, these should be identical
         if result.returncode == 0:
-            assert "identical" in result.stdout.lower() or "no differences" in result.stdout.lower()
+            assert (
+                "identical" in result.stdout.lower()
+                or "no differences" in result.stdout.lower()
+            )

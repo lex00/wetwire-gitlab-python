@@ -186,9 +186,7 @@ def _generate_dot_graph(
             if job.variables:
                 for var_name in job.variables:
                     lines.append(f'  "{var_name}";')
-                    lines.append(
-                        f'  "{var_name}" -> "{job.name}" [style=dashed];'
-                    )
+                    lines.append(f'  "{var_name}" -> "{job.name}" [style=dashed];')
 
     lines.append("}")
     return lines

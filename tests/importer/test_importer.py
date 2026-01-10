@@ -259,9 +259,7 @@ test:
     - echo test
 """
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".yml", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".yml", delete=False, mode="w") as f:
             f.write(yaml_content)
             f.flush()
             pipeline = parse_gitlab_ci_file(Path(f.name))

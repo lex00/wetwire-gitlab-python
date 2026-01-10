@@ -19,9 +19,17 @@ class WGL009UsePredefinedRules:
 
     # Patterns that match common rule conditions with their replacements
     PATTERN_MAP = [
-        (r'^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$', 'Rules.ON_DEFAULT_BRANCH', 'ON_DEFAULT_BRANCH'),
-        (r'^\$CI_COMMIT_TAG$', 'Rules.ON_TAG', 'ON_TAG'),
-        (r'^\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']$', 'Rules.ON_MERGE_REQUEST', 'ON_MERGE_REQUEST'),
+        (
+            r"^\$CI_COMMIT_BRANCH\s*==\s*\$CI_DEFAULT_BRANCH$",
+            "Rules.ON_DEFAULT_BRANCH",
+            "ON_DEFAULT_BRANCH",
+        ),
+        (r"^\$CI_COMMIT_TAG$", "Rules.ON_TAG", "ON_TAG"),
+        (
+            r'^\$CI_PIPELINE_SOURCE\s*==\s*["\']merge_request_event["\']$',
+            "Rules.ON_MERGE_REQUEST",
+            "ON_MERGE_REQUEST",
+        ),
     ]
 
     def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
@@ -58,7 +66,9 @@ class WGL009UsePredefinedRules:
                                                 column=node.col_offset,
                                                 original=original,
                                                 suggestion=suggestion,
-                                                fix_imports=["from wetwire_gitlab.intrinsics import Rules"],
+                                                fix_imports=[
+                                                    "from wetwire_gitlab.intrinsics import Rules"
+                                                ],
                                             )
                                         )
                                         break
@@ -100,7 +110,9 @@ class WGL010UseTypedWhenConstants:
                                             column=kw.value.col_offset,
                                             original=original,
                                             suggestion=suggestion,
-                                            fix_imports=["from wetwire_gitlab.intrinsics import When"],
+                                            fix_imports=[
+                                                "from wetwire_gitlab.intrinsics import When"
+                                            ],
                                         )
                                     )
 

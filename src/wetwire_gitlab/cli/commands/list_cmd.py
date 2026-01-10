@@ -64,7 +64,11 @@ def run_list(args: argparse.Namespace) -> int:
         print("-" * 60)
         if result.jobs:
             for job in result.jobs:
-                deps = f" (needs: {', '.join(job.dependencies)})" if job.dependencies else ""
+                deps = (
+                    f" (needs: {', '.join(job.dependencies)})"
+                    if job.dependencies
+                    else ""
+                )
                 print(f"  {job.name:<20} {job.file_path}:{job.line_number}{deps}")
         else:
             print("  No jobs found")

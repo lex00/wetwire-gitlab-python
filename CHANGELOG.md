@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Phase 7: Feature Completeness
 
+- **CLI Utilities Module** (`cli/cli_utils.py`) - Reusable CLI helper functions (#68)
+  - `error_exit()`: Print error with optional hint and return exit code
+  - `validate_package_path()`: Validate and resolve package paths
+  - `require_optional_dependency()`: Check for optional dependencies
+  - `resolve_output_dir()`: Resolve output directory with optional creation
+  - `add_common_args()`: Add shared arguments to parsers
+  - `print_success()`, `print_warning()`: Formatted output helpers
 - **Graph Command Enhancements** (`cli/main.py`, `discover/scanner.py`) - Enhanced DAG visualization (#66)
   - `--params/-p` flag: Include pipeline variables as nodes with different shapes
   - `--cluster/-c` flag: Group jobs by stage in subgraphs

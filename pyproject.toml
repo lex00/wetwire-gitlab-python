@@ -35,7 +35,11 @@ dev = [
     "ty>=0.0.1a0",
     "pytest>=7.4",
     "pytest-cov>=4.1",
+    "pytest-asyncio>=0.23",
     "ruff>=0.1",
+]
+mcp = [
+    "mcp>=1.0.0",
 ]
 
 [dependency-groups]
@@ -43,11 +47,13 @@ dev = [
     "ty>=0.0.1a0",
     "pytest>=7.4",
     "pytest-cov>=4.1",
+    "pytest-asyncio>=0.23",
     "ruff>=0.1",
 ]
 
 [project.scripts]
 wetwire-gitlab = "wetwire_gitlab.cli:main"
+wetwire-gitlab-mcp = "wetwire_gitlab.mcp_server:main"
 
 [project.urls]
 Homepage = "https://github.com/lex00/wetwire-gitlab-python"

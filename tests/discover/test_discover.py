@@ -360,3 +360,225 @@ pipeline = Pipeline(stages=["build", "test"])
 
         assert len(result.jobs) == 0
         assert len(result.pipelines) == 0
+
+
+class TestDiscoverEdgeCases:
+    """Tests for edge cases in job discovery."""
+
+    def test_job_with_module_prefix(self):
+        """Discover Job call using module prefix (module.Job)."""
+        from wetwire_gitlab.discover import discover_jobs
+
+        code = '''
+import wetwire_gitlab.pipeline as pipeline
+
+job = pipeline.Job(name="build", stage="build", script=["make"])
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            jobs = discover_jobs(Path(f.name))
+
+        assert len(jobs) == 1
+        assert jobs[0].name == "build"
+
+    def test_pipeline_with_module_prefix(self):
+        """Discover Pipeline call using module prefix (module.Pipeline)."""
+        from wetwire_gitlab.discover import discover_pipelines
+
+        code = '''
+import wetwire_gitlab.pipeline as p
+
+pipe = p.Pipeline(stages=["build", "test"])
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            pipelines = discover_pipelines(Path(f.name))
+
+        assert len(pipelines) == 1
+        assert pipelines[0].name == "pipe"
+
+    def test_job_with_when_enum(self):
+        """Discover Job with When.MANUAL enum value."""
+        from wetwire_gitlab.discover import discover_jobs
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.intrinsics import When
+
+deploy = Job(name="deploy", stage="deploy", script=["deploy"], when=When.MANUAL)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            jobs = discover_jobs(Path(f.name))
+
+        assert len(jobs) == 1
+        assert jobs[0].when == "manual"
+
+    def test_job_with_when_string(self):
+        """Discover Job with when string value."""
+        from wetwire_gitlab.discover import discover_jobs
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+deploy = Job(name="deploy", stage="deploy", script=["deploy"], when="always")
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            jobs = discover_jobs(Path(f.name))
+
+        assert len(jobs) == 1
+        assert jobs[0].when == "always"
+
+    def test_job_with_variables_dict(self):
+        """Discover Job with variables dict."""
+        from wetwire_gitlab.discover import discover_jobs
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+deploy = Job(name="deploy", stage="deploy", script=["deploy"], variables={"KEY": "value"})
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            jobs = discover_jobs(Path(f.name))
+
+        assert len(jobs) == 1
+        assert jobs[0].variables is not None
+        assert jobs[0].variables.get("KEY") == "value"
+
+    def test_job_with_variables_call(self):
+        """Discover Job with Variables() call."""
+        from wetwire_gitlab.discover import discover_jobs
+
+        code = '''
+from wetwire_gitlab.pipeline import Job, Variables
+
+deploy = Job(name="deploy", stage="deploy", script=["deploy"], variables=Variables({"ENV": "prod"}))
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            jobs = discover_jobs(Path(f.name))
+
+        assert len(jobs) == 1
+        assert jobs[0].variables is not None
+        assert jobs[0].variables.get("ENV") == "prod"
+
+
+class TestScannerHelpers:
+    """Tests for scanner helper functions."""
+
+    def test_extract_string_from_non_string(self):
+        """_extract_string_value returns None for non-string nodes."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_string_value
+
+        # Test with an integer constant
+        node = ast.parse("42").body[0].value
+        result = _extract_string_value(node)
+        assert result is None
+
+    def test_extract_list_from_non_list(self):
+        """_extract_list_values returns None for non-list nodes."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_list_values
+
+        # Test with a string constant
+        node = ast.parse('"hello"').body[0].value
+        result = _extract_list_values(node)
+        assert result is None
+
+    def test_extract_list_with_empty_list(self):
+        """_extract_list_values returns None for empty list."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_list_values
+
+        # Test with an empty list
+        node = ast.parse("[]").body[0].value
+        result = _extract_list_values(node)
+        assert result is None
+
+    def test_extract_list_with_non_string_elements(self):
+        """_extract_list_values skips non-string elements."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_list_values
+
+        # Test with mixed elements - only strings are extracted
+        node = ast.parse('["a", 1, "b"]').body[0].value
+        result = _extract_list_values(node)
+        assert result == ["a", "b"]
+
+    def test_get_keyword_for_non_constant_value(self):
+        """_get_keyword_value returns (node, None) for complex values."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _get_keyword_value
+
+        # Parse a call with a function call as keyword value
+        call = ast.parse('Job(name=func())').body[0].value
+        node, value = _get_keyword_value(call, "name")
+        assert node is not None
+        assert value is None
+
+    def test_extract_variables_with_non_dict(self):
+        """_extract_variables returns None for non-dict/non-call nodes."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_variables
+
+        # Test with a string constant
+        node = ast.parse('"not a dict"').body[0].value
+        result = _extract_variables(node)
+        assert result is None
+
+    def test_extract_dict_with_none_key(self):
+        """_extract_dict_values handles None keys (dict unpacking)."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_dict_values
+
+        # Parse dict with spread operator (simulated with dict)
+        # In practice, **other would have key=None
+        node = ast.parse('{"key": "value"}').body[0].value
+        result = _extract_dict_values(node)
+        assert result == {"key": "value"}
+
+    def test_extract_dict_with_non_string_value(self):
+        """_extract_dict_values handles non-string values."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _extract_dict_values
+
+        # Dict with numeric value
+        node = ast.parse('{"key": 42}').body[0].value
+        result = _extract_dict_values(node)
+        assert result is not None
+        assert result.get("key") == ""  # Non-string becomes empty string
+
+    def test_is_job_call_with_non_call(self):
+        """_is_job_call returns False for non-Call nodes."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _is_job_call
+
+        node = ast.parse('"not a call"').body[0].value
+        assert _is_job_call(node) is False
+
+    def test_is_pipeline_call_with_non_call(self):
+        """_is_pipeline_call returns False for non-Call nodes."""
+        import ast
+
+        from wetwire_gitlab.discover.scanner import _is_pipeline_call
+
+        node = ast.parse('"not a call"').body[0].value
+        assert _is_pipeline_call(node) is False

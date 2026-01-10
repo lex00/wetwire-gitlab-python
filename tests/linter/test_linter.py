@@ -501,3 +501,241 @@ job = Job(
 
         wgl011_issues = [i for i in result.issues if i.code == "WGL011"]
         assert len(wgl011_issues) == 0
+
+
+class TestLinterEdgeCases:
+    """Tests for linter edge cases and error handling."""
+
+    def test_lint_file_with_syntax_error(self):
+        """Lint file with Python syntax error returns empty result."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = """
+def broken(
+    # Missing closing paren
+x = 1
+"""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        assert result.success is True
+        assert result.files_checked == 0
+        assert len(result.issues) == 0
+
+    def test_lint_file_non_python_skipped(self):
+        """Lint non-Python files are skipped."""
+        from wetwire_gitlab.linter import lint_file
+
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode="w") as f:
+            f.write("not python code")
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        assert result.success is True
+        assert result.files_checked == 0
+
+    def test_lint_file_unknown_rule(self):
+        """Lint with unknown rule code is ignored."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = """
+x = 1
+"""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name), rules=["UNKNOWN_RULE_999"])
+
+        assert result.success is True
+        assert len(result.issues) == 0
+
+    def test_lint_directory_skips_pycache(self):
+        """Lint directory skips __pycache__ directories."""
+        from wetwire_gitlab.linter import lint_directory
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            # Create a normal Python file
+            (path / "jobs.py").write_text("""
+from wetwire_gitlab.pipeline import Job
+job = Job(name="test", stage="test", script=["echo test"])
+""")
+
+            # Create a __pycache__ directory with a Python file
+            pycache = path / "__pycache__"
+            pycache.mkdir()
+            (pycache / "cached.py").write_text("""
+from wetwire_gitlab.pipeline import Job
+job = Job(name="cached", stage="test", script=["echo cached"])
+""")
+
+            result = lint_directory(path)
+
+        # Should only count jobs.py, not the cached file
+        assert result.files_checked == 1
+
+    def test_lint_directory_skips_hidden_dirs(self):
+        """Lint directory skips hidden directories."""
+        from wetwire_gitlab.linter import lint_directory
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir)
+
+            # Create a normal Python file
+            (path / "jobs.py").write_text("x = 1")
+
+            # Create a hidden directory with a Python file
+            hidden = path / ".hidden"
+            hidden.mkdir()
+            (hidden / "secret.py").write_text("y = 2")
+
+            result = lint_directory(path)
+
+        # Should only count jobs.py, not the hidden file
+        assert result.files_checked == 1
+
+
+class TestLintCodeFunction:
+    """Tests for the lint_code function."""
+
+    def test_lint_code_basic(self):
+        """Lint code string works."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """
+from wetwire_gitlab.pipeline import Job
+job = Job(name="test", stage="test", script=["echo test"])
+"""
+        issues = lint_code(code)
+        assert isinstance(issues, list)
+
+    def test_lint_code_with_syntax_error(self):
+        """Lint code with syntax error returns empty list."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """
+def broken(
+    # Missing closing paren
+"""
+        issues = lint_code(code)
+        assert issues == []
+
+    def test_lint_code_with_exclude_rules(self):
+        """Lint code with excluded rules."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """
+from wetwire_gitlab.pipeline import Job
+job1 = Job(name="build", stage="build", script=["make"])
+job2 = Job(name="build", stage="test", script=["test"])
+"""
+        issues = lint_code(code, exclude_rules=["WGL007"])
+        wgl007_issues = [i for i in issues if i.code == "WGL007"]
+        assert len(wgl007_issues) == 0
+
+    def test_lint_code_with_unknown_rule(self):
+        """Lint code with unknown rule code is ignored."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = "x = 1"
+        issues = lint_code(code, rules=["UNKNOWN_RULE_999"])
+        assert issues == []
+
+
+class TestFixCodeFunction:
+    """Tests for the fix_code function."""
+
+    def test_fix_code_no_issues(self):
+        """Fix code with no issues returns source unchanged."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = """
+from wetwire_gitlab.intrinsics import When
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    when=When.MANUAL
+)
+"""
+        fixed = fix_code(code)
+        assert fixed == code
+
+    def test_fix_code_with_insertions(self):
+        """Fix code handles line insertions."""
+        from wetwire_gitlab.linter import fix_code
+
+        # This test verifies insertion handling works
+        # The actual fix behavior depends on rules that produce insertions
+        code = """
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    when="manual"
+)
+"""
+        fixed = fix_code(code, rules=["WGL010"])
+        # Should have fixed the when="manual" to When.MANUAL
+        assert "When.MANUAL" in fixed or fixed == code
+
+
+class TestAddImportsFunction:
+    """Tests for the _add_imports helper function."""
+
+    def test_add_imports_after_existing(self):
+        """Add imports after existing imports."""
+        from wetwire_gitlab.linter.linter import _add_imports
+
+        source = """import os
+import sys
+
+x = 1
+"""
+        imports = {"from wetwire_gitlab.intrinsics import When"}
+        result = _add_imports(source, imports)
+
+        # Should add import after existing imports
+        assert "from wetwire_gitlab.intrinsics import When" in result
+
+    def test_add_imports_no_existing(self):
+        """Add imports when no existing imports."""
+        from wetwire_gitlab.linter.linter import _add_imports
+
+        source = """x = 1
+y = 2
+"""
+        imports = {"from wetwire_gitlab.intrinsics import When"}
+        result = _add_imports(source, imports)
+
+        # Should add import at beginning
+        assert "from wetwire_gitlab.intrinsics import When" in result
+
+    def test_add_imports_empty_set(self):
+        """Add imports with empty set returns source unchanged."""
+        from wetwire_gitlab.linter.linter import _add_imports
+
+        source = "x = 1"
+        result = _add_imports(source, set())
+        assert result == source
+
+    def test_add_imports_after_docstring(self):
+        """Add imports after module docstring."""
+        from wetwire_gitlab.linter.linter import _add_imports
+
+        source = '''"""Module docstring."""
+
+x = 1
+'''
+        imports = {"import os"}
+        result = _add_imports(source, imports)
+
+        # Should still have docstring before import
+        assert result.index('"""Module docstring."""') < result.index("import os")

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 10A: Test Coverage Improvements
+
+- **Core Module Coverage** (`tests/`) - Improved test coverage for core modules (#90)
+  - linter/linter.py: 79% → 93% (+14%)
+  - discover/scanner.py: 84% → 99% (+15%)
+  - Added 31 new tests (655 total)
+  - Test edge cases: syntax errors, unknown rules, directory skipping
+  - Test helper functions and module-prefixed calls
+
 #### Phase 9E: CLI Documentation
 
 - **CLI.md Expansion** (`docs/CLI.md`) - Comprehensive CLI reference (#83)

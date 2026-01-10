@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Test Command** (`cli/`) - Stub for persona-based evaluation requiring wetwire-core integration (#48)
 - **Graph Command** (`cli/`) - DAG visualization with Mermaid and DOT format output (#48)
 
+#### Phase 5: Extended Features
+
+- **Auto DevOps Templates** (`templates/`) - Typed wrappers for GitLab Auto DevOps: AutoDevOps, AutoDevOpsConfig dataclasses with to_include() and to_variables() methods (#50)
+- **Job Templates** (`templates/`) - Build, Test, Deploy, SAST, DAST template wrappers for Jobs/*.gitlab-ci.yml and Security/*.gitlab-ci.yml includes (#50)
+
 #### Phase 4: Polish & Integration
 
 - **Reference Example Testing** (`tests/`) - Comprehensive tests for YAML parsing, code generation quality, round-trip conversion, and real-world patterns (#49)

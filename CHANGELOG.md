@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12B: Auto-Fix Expansion
+
+- **Auto-Fix Expansion** (`linter/rules/`) - Added auto-fix support for more rules (#101)
+  - WGL003: Auto-fix raw CI variable strings → intrinsic constants
+  - WGL009: Auto-fix common rule patterns → Rules constants
+  - Now 5 rules support auto-fix (WGL003, WGL009, WGL010, WGL012, WGL013)
+  - Added 8 new auto-fix tests (766 total tests)
+  - Updated LINT_RULES.md with auto-fix indicators
+
 #### Phase 12A: Development Scripts
 
 - **Development Scripts** (`scripts/`) - Added automation scripts for development (#100)

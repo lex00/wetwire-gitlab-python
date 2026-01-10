@@ -237,6 +237,156 @@ job = Job(name="test", stage="test", script=["test"], artifacts=Artifacts(paths=
         assert "ArtifactsWhen.ON_FAILURE" in result
 
 
+class TestFixWGL003:
+    """Tests for WGL003 auto-fix functionality."""
+
+    def test_fix_code_fixes_wgl003_ci_commit_sha(self):
+        """fix_code fixes WGL003 CI variable string to CI.COMMIT_SHA."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["echo $CI_COMMIT_SHA"],
+    rules=[Rule(if_="$CI_COMMIT_SHA")],
+)
+'''
+        result = fix_code(code)
+        assert '"$CI_COMMIT_SHA"' not in result
+        assert "CI.COMMIT_SHA" in result
+        assert "from wetwire_gitlab.intrinsics import CI" in result
+
+    def test_fix_code_fixes_wgl003_ci_default_branch(self):
+        """fix_code fixes WGL003 $CI_DEFAULT_BRANCH to CI.DEFAULT_BRANCH."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["echo test"],
+    rules=[Rule(if_="$CI_DEFAULT_BRANCH")],
+)
+'''
+        result = fix_code(code)
+        assert '"$CI_DEFAULT_BRANCH"' not in result
+        assert "CI.DEFAULT_BRANCH" in result
+
+    def test_fix_code_fixes_wgl003_multiple_ci_vars(self):
+        """fix_code fixes multiple CI variables in complex if_ expression."""
+        from wetwire_gitlab.linter import fix_code
+
+        # Use a pattern that won't trigger WGL009
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["echo test"],
+    rules=[Rule(if_="$CI_COMMIT_SHA && $CI_COMMIT_BRANCH")],
+)
+'''
+        result = fix_code(code)
+        assert '"$CI_COMMIT_SHA && $CI_COMMIT_BRANCH"' not in result
+        # Should replace with CI.COMMIT_SHA and CI.COMMIT_BRANCH
+        assert "CI.COMMIT_SHA" in result
+        assert "CI.COMMIT_BRANCH" in result
+
+    def test_fix_code_fixes_wgl003_ci_commit_tag(self):
+        """fix_code fixes WGL003 $CI_COMMIT_TAG to CI.COMMIT_TAG."""
+        from wetwire_gitlab.linter import fix_code
+
+        # Use a pattern that won't trigger WGL009 (tag with additional condition)
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["echo test"],
+    rules=[Rule(if_="$CI_COMMIT_TAG && $CI_COMMIT_BRANCH")],
+)
+'''
+        result = fix_code(code)
+        assert '"$CI_COMMIT_TAG' not in result
+        assert "CI.COMMIT_TAG" in result
+
+    def test_fix_code_fixes_wgl003_ci_pipeline_source(self):
+        """fix_code fixes WGL003 $CI_PIPELINE_SOURCE to CI.PIPELINE_SOURCE."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["echo test"],
+    rules=[Rule(if_='$CI_PIPELINE_SOURCE == "web"')],
+)
+'''
+        result = fix_code(code)
+        assert '"$CI_PIPELINE_SOURCE' not in result
+        assert "CI.PIPELINE_SOURCE" in result
+
+
+class TestFixWGL009:
+    """Tests for WGL009 auto-fix functionality."""
+
+    def test_fix_code_fixes_wgl009_on_default_branch(self):
+        """fix_code fixes WGL009 default branch rule to Rules.ON_DEFAULT_BRANCH."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["deploy"],
+    rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")],
+)
+'''
+        result = fix_code(code)
+        assert 'Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")' not in result
+        assert "Rules.ON_DEFAULT_BRANCH" in result
+        assert "from wetwire_gitlab.intrinsics import Rules" in result
+
+    def test_fix_code_fixes_wgl009_on_tag(self):
+        """fix_code fixes WGL009 tag rule to Rules.ON_TAG."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="release",
+    stage="release",
+    script=["release"],
+    rules=[Rule(if_="$CI_COMMIT_TAG")],
+)
+'''
+        result = fix_code(code)
+        assert 'Rule(if_="$CI_COMMIT_TAG")' not in result
+        assert "Rules.ON_TAG" in result
+
+    def test_fix_code_fixes_wgl009_on_merge_request(self):
+        """fix_code fixes WGL009 MR rule to Rules.ON_MERGE_REQUEST."""
+        from wetwire_gitlab.linter import fix_code
+
+        code = '''from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="test",
+    stage="test",
+    script=["test"],
+    rules=[Rule(if_='$CI_PIPELINE_SOURCE == "merge_request_event"')],
+)
+'''
+        result = fix_code(code)
+        assert 'Rule(if_=' not in result
+        assert "Rules.ON_MERGE_REQUEST" in result
+
+
 class TestAutoFixCLI:
     """Tests for auto-fix CLI integration."""
 

@@ -115,10 +115,11 @@ class TestLintRuleWGL003:
         """Detect raw CI variable strings instead of intrinsics."""
         from wetwire_gitlab.linter import lint_file
 
+        # Use a pattern that won't trigger WGL009
         code = '''
 from wetwire_gitlab.pipeline import Rule
 
-rule = Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")
+rule = Rule(if_="$CI_COMMIT_SHA")
 '''
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
             f.write(code)

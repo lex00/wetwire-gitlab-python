@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9A: Job Reference Support
+
+- **Job Reference Support** (`serialize/converter.py`) - Direct Job references in needs/dependencies (#79)
+  - Support Job instances in `needs` and `dependencies` fields
+  - Extract job name automatically from Job.name field
+  - Backwards compatible with string references
+  - Updated CLAUDE.md with Job reference examples
+  - Type-safe: IDE can verify Job references exist
+
 #### Phase 7D: Kiro Provider Support
 
 - **Kiro Provider** (`kiro/`) - Alternative AI provider for design and test commands (#67)

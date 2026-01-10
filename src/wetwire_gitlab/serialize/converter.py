@@ -61,7 +61,9 @@ def to_dict(obj: Any) -> dict[str, Any]:
             result[yaml_name] = to_dict(value)
         # Handle lists
         elif isinstance(value, list):
-            result[yaml_name] = [_convert_list_item(item) for item in value]
+            result[yaml_name] = [
+                _convert_list_item(item, field_name=field.name) for item in value
+            ]
         # Handle dicts
         elif isinstance(value, dict):
             result[yaml_name] = {k: _convert_list_item(v) for k, v in value.items()}
@@ -71,17 +73,24 @@ def to_dict(obj: Any) -> dict[str, Any]:
     return result
 
 
-def _convert_list_item(item: Any) -> Any:
-    """Convert a list item, handling dataclasses and JobRefs.
+def _convert_list_item(item: Any, field_name: str | None = None) -> Any:
+    """Convert a list item, handling dataclasses, JobRefs, and Job references.
 
     Args:
         item: Any item in a list.
+        field_name: The field name (for context-specific handling).
 
     Returns:
         Converted item suitable for YAML.
     """
     if isinstance(item, JobRef):
         return item.to_dict()
+
+    # Handle Job references in needs/dependencies fields
     if is_dataclass(item) and not isinstance(item, type):
+        # If item is a Job and we're in needs/dependencies, extract name
+        if field_name in ("needs", "dependencies") and hasattr(item, "name"):
+            return item.name
         return to_dict(item)
+
     return item

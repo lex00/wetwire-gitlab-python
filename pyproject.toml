@@ -41,6 +41,9 @@ dev = [
 mcp = [
     "mcp>=1.0.0",
 ]
+kiro = [
+    "mcp>=1.0.0",
+]
 
 [dependency-groups]
 dev = [

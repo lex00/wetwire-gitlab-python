@@ -194,6 +194,13 @@ def create_parser() -> argparse.ArgumentParser:
         default=3,
         help="Maximum lint/fix cycles (default: 3)",
     )
+    design_parser.add_argument(
+        "-p",
+        "--provider",
+        choices=["anthropic", "kiro"],
+        default="anthropic",
+        help="AI provider to use (default: anthropic)",
+    )
 
     # test command
     test_parser = subparsers.add_parser(
@@ -208,6 +215,20 @@ def create_parser() -> argparse.ArgumentParser:
     test_parser.add_argument(
         "--persona",
         help="Persona name for testing",
+    )
+    test_parser.add_argument(
+        "-p",
+        "--provider",
+        choices=["anthropic", "kiro"],
+        default="anthropic",
+        help="AI provider to use (default: anthropic)",
+    )
+    test_parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        default=300,
+        help="Timeout in seconds for kiro provider (default: 300)",
     )
 
     # graph command
@@ -643,17 +664,33 @@ def run_design(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    from wetwire_core.agents import InteractiveConversationHandler
-
-    from wetwire_gitlab.agent import GitLabRunnerAgent, detect_existing_package
-
     path = Path(args.path)
+    provider = getattr(args, "provider", "anthropic")
 
     # Determine output directory
     if path.is_dir():
         output_dir = path
     else:
         output_dir = Path.cwd()
+
+    if provider == "kiro":
+        # Use Kiro CLI provider
+        try:
+            from wetwire_gitlab.kiro import launch_kiro
+        except ImportError:
+            print(
+                "Error: Kiro integration requires mcp package.\n"
+                "Install with: pip install wetwire-gitlab[kiro]",
+                file=sys.stderr,
+            )
+            return 1
+
+        return launch_kiro(prompt=None, project_dir=output_dir)
+
+    # Use Anthropic API via wetwire-core (default)
+    from wetwire_core.agents import InteractiveConversationHandler
+
+    from wetwire_gitlab.agent import GitLabRunnerAgent, detect_existing_package
 
     # Check for existing package
     existing_package, existing_files = detect_existing_package(output_dir)
@@ -821,6 +858,62 @@ def run_test(args: argparse.Namespace) -> int:
     """
     import tempfile
 
+    path = Path(args.path)
+    provider = getattr(args, "provider", "anthropic")
+
+    # Determine output directory
+    if path.is_dir():
+        output_dir = path
+    else:
+        output_dir = Path.cwd()
+
+    if provider == "kiro":
+        # Use Kiro CLI provider
+        try:
+            from wetwire_gitlab.kiro import run_kiro_scenario
+        except ImportError:
+            print(
+                "Error: Kiro integration requires mcp package.\n"
+                "Install with: pip install wetwire-gitlab[kiro]",
+                file=sys.stderr,
+            )
+            return 1
+
+        # For Kiro, we need a prompt from the user
+        print("\033[1mTest prompt:\033[0m ", end="")
+        test_prompt = input()
+
+        if not test_prompt.strip():
+            print("No prompt provided.", file=sys.stderr)
+            return 1
+
+        print(f"Running Kiro scenario: {test_prompt}")
+        print()
+
+        result = run_kiro_scenario(
+            prompt=test_prompt,
+            project_dir=output_dir,
+            timeout=getattr(args, "timeout", 300),
+        )
+
+        # Print results
+        print("\n--- Scenario Results ---")
+        print(f"Success: {result['success']}")
+        print(f"Exit code: {result['exit_code']}")
+        print(f"Package: {result['package_path'] or 'None'}")
+        print(f"Template valid: {result['template_valid']}")
+
+        if result["stdout"]:
+            print("\n--- Stdout ---")
+            print(result["stdout"][:2000])
+
+        if result["stderr"]:
+            print("\n--- Stderr ---")
+            print(result["stderr"][:1000])
+
+        return 0 if result["success"] else 1
+
+    # Use Anthropic API via wetwire-core (default)
     from wetwire_core.agent.personas import PERSONAS, load_persona
     from wetwire_core.agent.results import ResultsWriter, SessionResults
     from wetwire_core.agent.scoring import Rating, Score
@@ -828,14 +921,6 @@ def run_test(args: argparse.Namespace) -> int:
     from wetwire_core.runner import Message
 
     from wetwire_gitlab.agent import GitLabRunnerAgent
-
-    path = Path(args.path)
-
-    # Determine output directory
-    if path.is_dir():
-        output_dir = path
-    else:
-        output_dir = Path.cwd()
 
     # Get persona
     persona_name = args.persona

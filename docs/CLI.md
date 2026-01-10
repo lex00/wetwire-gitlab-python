@@ -178,6 +178,8 @@ wetwire-gitlab graph [OPTIONS]
 | `--directory`, `-d` | `.` | Source directory |
 | `--format`, `-f` | `mermaid` | Output format (`mermaid` or `dot`) |
 | `--output`, `-o` | | Output file (stdout if not specified) |
+| `--params`, `-p` | | Include pipeline variables as nodes |
+| `--cluster`, `-c` | | Group jobs by stage in subgraphs |
 
 **Examples:**
 
@@ -190,6 +192,15 @@ wetwire-gitlab graph --format dot
 
 # Save to file
 wetwire-gitlab graph -o pipeline.mmd
+
+# Include variables in graph
+wetwire-gitlab graph --params
+
+# Group by stage
+wetwire-gitlab graph --cluster
+
+# Combine options
+wetwire-gitlab graph --cluster --params --format dot -o pipeline.dot
 ```
 
 ### init

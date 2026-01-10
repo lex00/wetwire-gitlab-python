@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Intrinsics Enhancement** (`intrinsics.py`) - Added PascalCase aliases for CI variables (CI.COMMIT_BRANCH, etc.) and Rules class for predefined rules (#52)
 - **Documentation** (`docs/`) - Added QUICK_START.md, CLI.md, LINT_RULES.md, IMPORT_WORKFLOW.md, INTERNALS.md, DEVELOPERS.md and expanded FAQ.md (#53)
 - **MCP Server** (`mcp_server.py`) - Model Context Protocol server for AI tool integration with init, lint, build, validate, and import tools (#55)
+- **Component Catalog Wrappers** (`components/`) - Typed wrappers for GitLab CI/CD Components: SAST, Secret Detection, Dependency Scanning, Container Scanning, Code Quality, License Scanning, Coverage, Terraform, DAST (#56)
 
 #### Phase 5: Extended Features
 

@@ -73,7 +73,7 @@ wetwire_gitlab/
 └── validation/         # glab integration
 ```
 
-## Lint Rules (WGL001-WGL008)
+## Lint Rules (WGL001-WGL011)
 
 - **WGL001**: Use typed component wrappers
 - **WGL002**: Use Rule dataclass instead of raw dict
@@ -83,6 +83,9 @@ wetwire_gitlab/
 - **WGL006**: Use typed stage constants
 - **WGL007**: Duplicate job names
 - **WGL008**: File contains too many jobs
+- **WGL009**: Use predefined Rules constants
+- **WGL010**: Use typed When constants
+- **WGL011**: Missing stage in Job
 
 ## Key Principles
 

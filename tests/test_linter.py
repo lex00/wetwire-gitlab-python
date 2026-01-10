@@ -315,3 +315,189 @@ job2 = Job(name="build", stage="test", script=["test"])
             assert hasattr(issue, "message")
             assert hasattr(issue, "file_path")
             assert hasattr(issue, "line_number")
+
+
+class TestLintRuleWGL009:
+    """Tests for WGL009: Use predefined Rules constants."""
+
+    def test_wgl009_detects_common_rule_patterns(self):
+        """Detect Rule() with common patterns that have predefined constants."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    rules=[Rule(if_="$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH")]
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl009_issues = [i for i in result.issues if i.code == "WGL009"]
+        assert len(wgl009_issues) > 0
+
+    def test_wgl009_detects_tag_pattern(self):
+        """Detect Rule() with tag pattern."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="release",
+    stage="deploy",
+    script=["make release"],
+    rules=[Rule(if_="$CI_COMMIT_TAG")]
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl009_issues = [i for i in result.issues if i.code == "WGL009"]
+        assert len(wgl009_issues) > 0
+
+    def test_wgl009_allows_custom_rules(self):
+        """Allow custom Rule() without predefined patterns."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job, Rule
+
+job = Job(
+    name="custom",
+    stage="build",
+    script=["make custom"],
+    rules=[Rule(if_="$CUSTOM_VAR == 'yes'")]
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl009_issues = [i for i in result.issues if i.code == "WGL009"]
+        assert len(wgl009_issues) == 0
+
+
+class TestLintRuleWGL010:
+    """Tests for WGL010: Use typed When constants."""
+
+    def test_wgl010_detects_string_when_manual(self):
+        """Detect when='manual' string instead of When.MANUAL."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    when="manual"
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl010_issues = [i for i in result.issues if i.code == "WGL010"]
+        assert len(wgl010_issues) > 0
+
+    def test_wgl010_detects_string_when_always(self):
+        """Detect when='always' string instead of When.ALWAYS."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="cleanup",
+    stage="deploy",
+    script=["make cleanup"],
+    when="always"
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl010_issues = [i for i in result.issues if i.code == "WGL010"]
+        assert len(wgl010_issues) > 0
+
+    def test_wgl010_allows_when_constant(self):
+        """Allow When.MANUAL constant usage."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.intrinsics import When
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    when=When.MANUAL
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl010_issues = [i for i in result.issues if i.code == "WGL010"]
+        assert len(wgl010_issues) == 0
+
+
+class TestLintRuleWGL011:
+    """Tests for WGL011: Missing stage."""
+
+    def test_wgl011_detects_missing_stage(self):
+        """Detect Job() without stage keyword."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="build",
+    script=["make build"],
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl011_issues = [i for i in result.issues if i.code == "WGL011"]
+        assert len(wgl011_issues) > 0
+
+    def test_wgl011_allows_explicit_stage(self):
+        """Allow Job() with explicit stage keyword."""
+        from wetwire_gitlab.linter import lint_file
+
+        code = '''
+from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="build",
+    stage="build",
+    script=["make build"],
+)
+'''
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write(code)
+            f.flush()
+            result = lint_file(Path(f.name))
+
+        wgl011_issues = [i for i in result.issues if i.code == "WGL011"]
+        assert len(wgl011_issues) == 0

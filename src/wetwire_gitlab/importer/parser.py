@@ -158,6 +158,12 @@ def parse_gitlab_ci(yaml_content: str) -> IRPipeline:
     # Parse workflow
     workflow = data.get("workflow")
 
+    # Parse top-level cache
+    cache = data.get("cache")
+
+    # Parse top-level services
+    services = data.get("services")
+
     return IRPipeline(
         stages=stages,
         jobs=jobs,
@@ -165,6 +171,8 @@ def parse_gitlab_ci(yaml_content: str) -> IRPipeline:
         variables=variables,
         default=default,
         workflow=workflow,
+        cache=cache,
+        services=services,
     )
 
 

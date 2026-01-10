@@ -1,0 +1,17 @@
+stages:
+  - test
+
+default:
+  image: python:3.11
+  services:
+    - postgres:14
+    - redis:7
+
+test:
+  stage: test
+  script:
+    - pytest
+  variables:
+    POSTGRES_DB: testdb
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres

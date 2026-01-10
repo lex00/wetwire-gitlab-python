@@ -61,6 +61,49 @@ deploy = Job(
 )
 ```
 
+### Docker Images and Services
+
+Use typed constants for common Docker images and services:
+
+```python
+from wetwire_gitlab.pipeline import *
+from wetwire_gitlab.intrinsics import *
+
+# Use typed image constants
+test = Job(
+    name="test",
+    stage="test",
+    image=Images.PYTHON_3_12,  # Instead of "python:3.12"
+    script=["pytest tests/"],
+)
+
+# Use typed service constants
+integration_test = Job(
+    name="integration-test",
+    stage="test",
+    image=Images.NODE_20,
+    services=[Services.POSTGRES_15, Services.REDIS_7],
+    script=["npm run test:integration"],
+)
+
+# Available image constants:
+# Python: PYTHON_3_11, PYTHON_3_11_SLIM, PYTHON_3_12, PYTHON_3_12_SLIM, PYTHON_3_13
+# Node: NODE_18, NODE_20, NODE_20_ALPINE
+# Go: GO_1_21, GO_1_22, GO_1_23
+# Ruby: RUBY_3_2, RUBY_3_3
+# Rust: RUST_1_75, RUST_LATEST
+# Alpine: ALPINE_LATEST, ALPINE_3_19
+# Ubuntu: UBUNTU_22_04, UBUNTU_24_04
+
+# Available service constants:
+# Docker: DOCKER_DIND, DOCKER_24_DIND
+# PostgreSQL: POSTGRES_14, POSTGRES_15, POSTGRES_16
+# MySQL: MYSQL_8
+# Redis: REDIS_7
+# MongoDB: MONGODB_6
+# Elasticsearch: ELASTICSEARCH_8
+```
+
 ### Job Dependencies
 
 Use direct Job references instead of strings for type-safe dependencies:
@@ -128,8 +171,9 @@ wetwire_gitlab/
 1. **Typed dataclasses** — Use Job, Pipeline, Rule, Artifacts classes
 2. **Intrinsics package** — Use CI.*, GitLab.*, MR.* for variables
 3. **Pre-defined rules** — Use Rules.ON_DEFAULT_BRANCH etc.
-4. **Flat declarations** — Extract complex configs to named variables
-5. **Direct references** — Use Job references in needs/dependencies for type safety
+4. **Typed constants** — Use Images.* and Services.* instead of hardcoded strings
+5. **Flat declarations** — Extract complex configs to named variables
+6. **Direct references** — Use Job references in needs/dependencies for type safety
 
 ## Build
 

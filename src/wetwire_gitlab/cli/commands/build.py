@@ -78,6 +78,31 @@ def _do_build(args: argparse.Namespace, silent: bool = False) -> int:
     else:
         print(output)
 
+    # Schema validation if requested
+    if hasattr(args, "schema_validate") and args.schema_validate:
+        if args.format == "yaml":
+            from wetwire_gitlab.validation.schema import validate_yaml
+
+            if not silent:
+                print("Validating against GitLab CI schema...")
+
+            validation_result = validate_yaml(output)
+
+            if not validation_result.valid:
+                print("Schema validation failed:", file=sys.stderr)
+                if validation_result.errors:
+                    for error in validation_result.errors:
+                        print(f"  - {error}", file=sys.stderr)
+                return 1
+
+            if not silent:
+                print("Schema validation passed")
+        else:
+            print(
+                "Warning: Schema validation is only supported for YAML format",
+                file=sys.stderr,
+            )
+
     # Create build result for tracking
     result = BuildResult(
         success=True,

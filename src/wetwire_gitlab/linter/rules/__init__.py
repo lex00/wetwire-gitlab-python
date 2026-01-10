@@ -16,6 +16,9 @@ from .job_rules import (
     WGL017EmptyRulesList,
     WGL018NeedsWithoutStage,
     WGL019ManualWithoutAllowFailure,
+    WGL020AvoidNestedJobConstructors,
+    WGL022AvoidDuplicateNeeds,
+    WGL023MissingImageForScriptJobs,
 )
 from .pattern_rules import WGL009UsePredefinedRules, WGL010UseTypedWhenConstants
 from .type_rules import (
@@ -28,6 +31,7 @@ from .type_rules import (
     WGL012UseCachePolicyConstants,
     WGL013UseArtifactsWhenConstants,
     WGL016UseImageDataclass,
+    WGL021UseTypedServiceConstants,
 )
 
 # All available rules
@@ -51,6 +55,10 @@ ALL_RULES: list[type] = [
     WGL017EmptyRulesList,
     WGL018NeedsWithoutStage,
     WGL019ManualWithoutAllowFailure,
+    WGL020AvoidNestedJobConstructors,
+    WGL021UseTypedServiceConstants,
+    WGL022AvoidDuplicateNeeds,
+    WGL023MissingImageForScriptJobs,
 ]
 
 # Rule code to class mapping
@@ -74,6 +82,10 @@ RULE_REGISTRY: dict[str, type] = {
     "WGL017": WGL017EmptyRulesList,
     "WGL018": WGL018NeedsWithoutStage,
     "WGL019": WGL019ManualWithoutAllowFailure,
+    "WGL020": WGL020AvoidNestedJobConstructors,
+    "WGL021": WGL021UseTypedServiceConstants,
+    "WGL022": WGL022AvoidDuplicateNeeds,
+    "WGL023": WGL023MissingImageForScriptJobs,
 }
 
 __all__ = [
@@ -89,6 +101,7 @@ __all__ = [
     "WGL012UseCachePolicyConstants",
     "WGL013UseArtifactsWhenConstants",
     "WGL016UseImageDataclass",
+    "WGL021UseTypedServiceConstants",
     # Pattern rules
     "WGL009UsePredefinedRules",
     "WGL010UseTypedWhenConstants",
@@ -102,6 +115,9 @@ __all__ = [
     "WGL017EmptyRulesList",
     "WGL018NeedsWithoutStage",
     "WGL019ManualWithoutAllowFailure",
+    "WGL020AvoidNestedJobConstructors",
+    "WGL022AvoidDuplicateNeeds",
+    "WGL023MissingImageForScriptJobs",
     # Registries
     "ALL_RULES",
     "RULE_REGISTRY",

@@ -1,0 +1,18 @@
+default:
+  before_script:
+    - echo "Setting up environment"
+    - source .env
+  after_script:
+    - echo "Cleaning up"
+
+stages:
+  - test
+
+test:
+  stage: test
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - pytest
+  after_script:
+    - rm -rf .cache

@@ -64,6 +64,7 @@ wetwire-gitlab build --watch -o .gitlab-ci.yml
 | `--format, -f` | Output format: `yaml` (default) or `json` |
 | `--stdout` | Print to stdout instead of file |
 | `--watch, -w` | Watch for file changes and auto-rebuild (requires watchdog) |
+| `--schema-validate` | Validate generated YAML against GitLab CI JSON schema (requires jsonschema) |
 
 ### How It Works
 
@@ -171,6 +172,58 @@ vim ci/jobs.py
 # Generated .gitlab-ci.yml
 # [14:25:30] Build successful
 ```
+
+### Schema Validation
+
+The `--schema-validate` flag enables validation of generated YAML against the official GitLab CI JSON schema. This provides an additional layer of validation beyond basic syntax checking.
+
+**Setup:**
+```bash
+# jsonschema is included as a core dependency
+# No additional installation needed
+```
+
+**Usage:**
+```bash
+# Validate generated YAML against GitLab CI schema
+wetwire-gitlab build --schema-validate
+
+# Combine with output file
+wetwire-gitlab build --schema-validate -o .gitlab-ci.yml
+```
+
+**What it validates:**
+- YAML structure matches GitLab CI schema
+- Required fields are present
+- Field types are correct
+- Enum values are valid
+
+**Example output:**
+```bash
+# Success
+wetwire-gitlab build --schema-validate
+Generated .gitlab-ci.yml
+Validating against GitLab CI schema...
+Schema validation passed
+
+# Failure
+wetwire-gitlab build --schema-validate
+Generated .gitlab-ci.yml
+Validating against GitLab CI schema...
+Schema validation failed:
+  - stages: 'not-an-array' is not of type 'array'
+  - build.script: 'script' is a required property
+```
+
+**Schema caching:**
+- Schema is cached locally in `~/.cache/wetwire-gitlab/`
+- Cache expires after 7 days
+- Fresh schema is fetched automatically when cache expires
+
+**Notes:**
+- Schema validation only works with YAML format (not JSON)
+- Requires internet connection for initial schema fetch
+- Complements but does not replace `glab ci lint` validation
 
 ---
 

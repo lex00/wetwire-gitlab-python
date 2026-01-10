@@ -1,0 +1,17 @@
+stages:
+  - test
+
+cache:
+  paths:
+    - node_modules/
+    - .npm/
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/

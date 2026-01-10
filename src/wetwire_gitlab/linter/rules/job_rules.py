@@ -221,3 +221,115 @@ class WGL019ManualWithoutAllowFailure:
                         )
 
         return issues
+
+
+class WGL020AvoidNestedJobConstructors:
+    """WGL020: Avoid nested Job constructors in lists."""
+
+    code = "WGL020"
+    message = "Avoid inline Job constructors; extract to named variables"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for nested Job() calls in needs/dependencies lists."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    # Check needs and dependencies keywords
+                    for kw in node.keywords:
+                        if kw.arg in ("needs", "dependencies"):
+                            if isinstance(kw.value, ast.List):
+                                # Check each element in the list
+                                for elt in kw.value.elts:
+                                    if isinstance(elt, ast.Call):
+                                        if isinstance(elt.func, ast.Name) and elt.func.id == "Job":
+                                            issues.append(
+                                                LintIssue(
+                                                    code=self.code,
+                                                    message=self.message,
+                                                    file_path=str(file_path),
+                                                    line_number=elt.lineno,
+                                                    column=elt.col_offset,
+                                                )
+                                            )
+
+        return issues
+
+
+class WGL022AvoidDuplicateNeeds:
+    """WGL022: Avoid duplicate entries in needs/dependencies."""
+
+    code = "WGL022"
+    message = "Duplicate entries in needs/dependencies list"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for duplicate entries in needs/dependencies lists."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    # Check needs and dependencies keywords
+                    for kw in node.keywords:
+                        if kw.arg in ("needs", "dependencies"):
+                            if isinstance(kw.value, ast.List):
+                                seen: set[str] = set()
+                                for elt in kw.value.elts:
+                                    # Only check string constants
+                                    if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                        if elt.value in seen:
+                                            issues.append(
+                                                LintIssue(
+                                                    code=self.code,
+                                                    message=f"{self.message}: '{elt.value}' appears multiple times",
+                                                    file_path=str(file_path),
+                                                    line_number=elt.lineno,
+                                                    column=elt.col_offset,
+                                                )
+                                            )
+                                        else:
+                                            seen.add(elt.value)
+
+        return issues
+
+
+class WGL023MissingImageForScriptJobs:
+    """WGL023: Warn on missing image for script jobs."""
+
+    code = "WGL023"
+    message = "Consider specifying an image for script jobs"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for jobs with script but no image."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    has_script = False
+                    has_trigger = False
+                    has_image = False
+
+                    for kw in node.keywords:
+                        if kw.arg == "script":
+                            has_script = True
+                        elif kw.arg == "trigger":
+                            has_trigger = True
+                        elif kw.arg == "image":
+                            has_image = True
+
+                    # Only flag if has script (not trigger) and no image
+                    if has_script and not has_trigger and not has_image:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=node.lineno,
+                                column=node.col_offset,
+                                severity="info",
+                            )
+                        )
+
+        return issues

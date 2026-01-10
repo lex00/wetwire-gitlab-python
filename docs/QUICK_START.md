@@ -530,6 +530,39 @@ artifacts = Artifacts(
 )
 ```
 
+### Docker Images and Services
+
+Use typed constants for common Docker images and services instead of hardcoded strings:
+
+```python
+from wetwire_gitlab.intrinsics import *
+from wetwire_gitlab.pipeline import *
+
+# Use typed image constants
+test = Job(
+    name="test",
+    stage="test",
+    image=Images.PYTHON_3_12,  # Instead of "python:3.12"
+    script=["pytest tests/"],
+)
+
+# Use typed service constants
+integration_test = Job(
+    name="integration-test",
+    stage="test",
+    image=Images.NODE_20,
+    services=[Services.POSTGRES_15, Services.REDIS_7],
+    script=["npm run test:integration"],
+)
+
+# Available constants:
+# Images: PYTHON_3_11, PYTHON_3_12, PYTHON_3_13, NODE_18, NODE_20,
+#         GO_1_21, GO_1_22, GO_1_23, RUBY_3_2, RUBY_3_3,
+#         RUST_1_75, ALPINE_LATEST, UBUNTU_22_04, etc.
+# Services: DOCKER_DIND, POSTGRES_14/15/16, MYSQL_8, REDIS_7,
+#           MONGODB_6, ELASTICSEARCH_8, etc.
+```
+
 ## Troubleshooting
 
 ### Common Errors
@@ -655,12 +688,13 @@ This generates Python code you can refactor into your project structure.
 ## Best Practices
 
 1. **Use typed dataclasses** - Prefer `Job()`, `Rule()`, `Cache()` over raw dicts
-2. **Extract shared configs** - Define caches, variables once and reuse
-3. **Organize by stage** - Split large pipelines into `ci/jobs/build.py`, `ci/jobs/test.py`, etc.
-4. **Use intrinsics** - Import `CI`, `GitLab`, `MR` for type-safe variables
-5. **Leverage predefined rules** - Use `Rules.ON_DEFAULT_BRANCH` instead of manual if conditions
-6. **Run lint regularly** - Catch issues early with `wetwire-gitlab lint --fix`
-7. **Validate before commit** - Always run `wetwire-gitlab validate` before pushing
+2. **Use typed constants** - Use `Images.*` and `Services.*` instead of hardcoded strings
+3. **Extract shared configs** - Define caches, variables once and reuse
+4. **Organize by stage** - Split large pipelines into `ci/jobs/build.py`, `ci/jobs/test.py`, etc.
+5. **Use intrinsics** - Import `CI`, `GitLab`, `MR` for type-safe variables
+6. **Leverage predefined rules** - Use `Rules.ON_DEFAULT_BRANCH` instead of manual if conditions
+7. **Run lint regularly** - Catch issues early with `wetwire-gitlab lint --fix`
+8. **Validate before commit** - Always run `wetwire-gitlab validate` before pushing
 
 ## Next Steps
 

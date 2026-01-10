@@ -1,0 +1,21 @@
+stages:
+  - test
+  - lint
+
+test:
+  stage: test
+  script:
+    - pytest
+
+lint:
+  stage: lint
+  script:
+    - ruff check .
+  allow_failure: true
+
+experimental:
+  stage: test
+  script:
+    - pytest tests/experimental/
+  allow_failure:
+    exit_codes: 137

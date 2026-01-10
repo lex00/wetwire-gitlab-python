@@ -1,0 +1,26 @@
+stages:
+  - build
+  - test
+
+build-app:
+  stage: build
+  script:
+    - make build
+  artifacts:
+    paths:
+      - dist/
+
+build-docs:
+  stage: build
+  script:
+    - make docs
+  artifacts:
+    paths:
+      - docs/
+
+test:
+  stage: test
+  script:
+    - make test
+  dependencies:
+    - build-app

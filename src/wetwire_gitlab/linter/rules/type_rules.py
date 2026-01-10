@@ -388,3 +388,34 @@ class WGL016UseImageDataclass:
                                 )
 
         return issues
+
+
+class WGL021UseTypedServiceConstants:
+    """WGL021: Use typed Service constants instead of raw strings."""
+
+    code = "WGL021"
+    message = "Use Service dataclass instead of string literal"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for string service values that should use Service dataclass."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    for kw in node.keywords:
+                        if kw.arg == "services" and isinstance(kw.value, ast.List):
+                            # Check each element in the services list
+                            for elt in kw.value.elts:
+                                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                    issues.append(
+                                        LintIssue(
+                                            code=self.code,
+                                            message=f"{self.message}: use Service(name=\"{elt.value}\")",
+                                            file_path=str(file_path),
+                                            line_number=elt.lineno,
+                                            column=elt.col_offset,
+                                        )
+                                    )
+
+        return issues

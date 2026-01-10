@@ -1,0 +1,54 @@
+stages:
+  - build
+  - test
+  - deploy
+
+default:
+  image: node:20
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+cache:
+  paths:
+    - .npm/
+    - node_modules/
+
+build:
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm run test
+  needs:
+    - build
+
+lint:
+  stage: test
+  script:
+    - npm ci
+    - npm run lint
+  needs:
+    - build
+
+deploy:
+  stage: deploy
+  script:
+    - npm ci
+    - npm run deploy
+  needs:
+    - test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  environment:
+    name: production

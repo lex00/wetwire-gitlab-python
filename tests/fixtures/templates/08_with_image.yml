@@ -1,0 +1,17 @@
+default:
+  image: python:3.11
+
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  script:
+    - pytest
+
+build:
+  stage: build
+  image: node:20
+  script:
+    - npm run build

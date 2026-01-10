@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Phase 7: Feature Completeness
 
+- **Graph Command Enhancements** (`cli/main.py`, `discover/scanner.py`) - Enhanced DAG visualization (#66)
+  - `--params/-p` flag: Include pipeline variables as nodes with different shapes
+  - `--cluster/-c` flag: Group jobs by stage in subgraphs
+  - Node annotations: Show when condition (manual, always, etc.)
+  - Enhanced scanner: Extract stage, variables, and when from Job declarations
 - **Additional Linter Rules** (`linter/rules.py`) - 3 new lint rules for GitLab patterns (#65)
   - WGL009: Use predefined Rules constants (Rules.ON_DEFAULT_BRANCH, etc.)
   - WGL010: Use typed When constants (When.MANUAL, etc.)

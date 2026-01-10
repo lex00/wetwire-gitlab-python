@@ -45,6 +45,9 @@ class DiscoveredJob:
         file_path: Path to the file containing the job.
         line_number: Line number where the job is defined.
         dependencies: List of variable names this job depends on.
+        stage: The job stage (optional).
+        variables: Dictionary of job variables (optional).
+        when: The when condition (optional).
     """
 
     name: str
@@ -52,6 +55,9 @@ class DiscoveredJob:
     file_path: str
     line_number: int
     dependencies: list[str] | None = None
+    stage: str | None = None
+    variables: dict[str, str] | None = None
+    when: str | None = None
 
 
 @dataclass

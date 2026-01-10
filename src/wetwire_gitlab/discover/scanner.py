@@ -44,6 +44,45 @@ def _extract_list_values(node: ast.expr) -> list[str] | None:
     return None
 
 
+def _extract_variables(node: ast.expr) -> dict[str, str] | None:
+    """Extract variables from a Variables(...) call or dict literal.
+
+    Args:
+        node: AST expression node.
+
+    Returns:
+        Dictionary of variable names to values, or None if not extractable.
+    """
+    # Handle Variables({...}) call
+    if isinstance(node, ast.Call):
+        if node.args and isinstance(node.args[0], ast.Dict):
+            return _extract_dict_values(node.args[0])
+    # Handle direct dict literal
+    if isinstance(node, ast.Dict):
+        return _extract_dict_values(node)
+    return None
+
+
+def _extract_dict_values(node: ast.Dict) -> dict[str, str] | None:
+    """Extract key-value pairs from a dict AST node.
+
+    Args:
+        node: AST Dict node.
+
+    Returns:
+        Dictionary of string keys to string values, or None if not extractable.
+    """
+    result: dict[str, str] = {}
+    for key, value in zip(node.keys, node.values, strict=False):
+        if key is None:
+            continue
+        key_str = _extract_string_value(key)
+        val_str = _extract_string_value(value)
+        if key_str is not None:
+            result[key_str] = val_str if val_str else ""
+    return result if result else None
+
+
 def _get_keyword_value(
     call: ast.Call, keyword_name: str
 ) -> tuple[ast.expr | None, Any]:
@@ -139,6 +178,25 @@ def discover_jobs(file_path: Path) -> list[DiscoveredJob]:
                     _, needs = _get_keyword_value(call, "needs")
                     dependencies = needs if isinstance(needs, list) else None
 
+                    # Extract stage keyword
+                    _, stage = _get_keyword_value(call, "stage")
+                    job_stage = stage if isinstance(stage, str) else None
+
+                    # Extract when keyword (handle both string and When.* attribute)
+                    when_node, when_val = _get_keyword_value(call, "when")
+                    job_when = None
+                    if isinstance(when_val, str):
+                        job_when = when_val
+                    elif when_node is not None and isinstance(when_node, ast.Attribute):
+                        # Handle When.MANUAL, When.ALWAYS, etc.
+                        job_when = when_node.attr.lower()
+
+                    # Extract variables keyword
+                    variables_node, _ = _get_keyword_value(call, "variables")
+                    job_variables = None
+                    if variables_node is not None:
+                        job_variables = _extract_variables(variables_node)
+
                     jobs.append(
                         DiscoveredJob(
                             name=job_name,
@@ -146,6 +204,9 @@ def discover_jobs(file_path: Path) -> list[DiscoveredJob]:
                             file_path=str(file_path),
                             line_number=node.lineno,
                             dependencies=dependencies,
+                            stage=job_stage,
+                            variables=job_variables,
+                            when=job_when,
                         )
                     )
 

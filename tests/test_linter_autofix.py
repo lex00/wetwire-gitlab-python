@@ -1,7 +1,6 @@
 """Tests for linter auto-fix functionality."""
 
 import tempfile
-from pathlib import Path
 
 
 class TestFixCode:
@@ -186,7 +185,7 @@ job = Job(name="deploy", stage="deploy", script=["deploy"], when="manual")
             f.flush()
             filepath = f.name
 
-        result = subprocess.run(
+        subprocess.run(
             [sys.executable, "-m", "wetwire_gitlab.cli", "lint", "--fix", filepath],
             capture_output=True,
             text=True,

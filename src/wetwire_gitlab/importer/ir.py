@@ -247,7 +247,7 @@ class IRPipeline:
             workflow=self.workflow,  # type: ignore
             include=include_list,
             default=self.default,  # type: ignore
-            variables=self.variables,
+            variables=self.variables,  # type: ignore
             cache=self.cache,  # type: ignore
             services=self.services,  # type: ignore
         )

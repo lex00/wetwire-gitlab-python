@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `--fix` CLI flag: Apply fixes via `wetwire-gitlab lint --fix`
   - WGL010 auto-fix: Converts `when="manual"` to `when=When.MANUAL` with import
   - LintIssue fields: `original`, `suggestion`, `fix_imports`, `insert_after_line`
+- **Additional Lint Rules** (`linter/rules.py`) - 8 new lint rules for GitLab patterns (#73)
+  - WGL012: Use CachePolicy constants instead of string literals
+  - WGL013: Use ArtifactsWhen constants instead of string literals
+  - WGL014: Jobs should have script, trigger, or extends
+  - WGL015: Jobs should have explicit name
+  - WGL016: Use Image dataclass instead of string literal
+  - WGL017: Empty rules list means job never runs
+  - WGL018: Jobs with needs should specify stage
+  - WGL019: Manual jobs should consider allow_failure
 
 #### Phase 3: Command Integration
 

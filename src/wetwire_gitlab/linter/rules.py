@@ -383,6 +383,288 @@ class WGL011MissingStage:
         return issues
 
 
+class WGL012UseCachePolicyConstants:
+    """WGL012: Use typed CachePolicy constants instead of string literals."""
+
+    code = "WGL012"
+    message = "Use typed CachePolicy constants instead of string literals"
+
+    # CachePolicy values that should use constants
+    POLICY_VALUES = ["pull", "push", "pull-push"]
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for string policy values that should use CachePolicy constants."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Cache(...) call with policy keyword
+                if isinstance(node.func, ast.Name) and node.func.id == "Cache":
+                    for kw in node.keywords:
+                        if kw.arg == "policy" and isinstance(kw.value, ast.Constant):
+                            if isinstance(kw.value.value, str):
+                                value = kw.value.value
+                                if value in self.POLICY_VALUES:
+                                    issues.append(
+                                        LintIssue(
+                                            code=self.code,
+                                            message=f"{self.message}: use CachePolicy.{value.upper().replace('-', '_')} instead of '{value}'",
+                                            file_path=str(file_path),
+                                            line_number=kw.value.lineno,
+                                            column=kw.value.col_offset,
+                                        )
+                                    )
+
+        return issues
+
+
+class WGL013UseArtifactsWhenConstants:
+    """WGL013: Use typed ArtifactsWhen constants instead of string literals."""
+
+    code = "WGL013"
+    message = "Use typed ArtifactsWhen constants instead of string literals"
+
+    # ArtifactsWhen values that should use constants
+    WHEN_VALUES = ["on_success", "on_failure", "always"]
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for string when values in Artifacts that should use ArtifactsWhen constants."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Artifacts(...) call with when keyword
+                if isinstance(node.func, ast.Name) and node.func.id == "Artifacts":
+                    for kw in node.keywords:
+                        if kw.arg == "when" and isinstance(kw.value, ast.Constant):
+                            if isinstance(kw.value.value, str):
+                                value = kw.value.value
+                                if value in self.WHEN_VALUES:
+                                    issues.append(
+                                        LintIssue(
+                                            code=self.code,
+                                            message=f"{self.message}: use ArtifactsWhen.{value.upper()} instead of '{value}'",
+                                            file_path=str(file_path),
+                                            line_number=kw.value.lineno,
+                                            column=kw.value.col_offset,
+                                        )
+                                    )
+
+        return issues
+
+
+class WGL014MissingScript:
+    """WGL014: Job should have script, trigger, or extends."""
+
+    code = "WGL014"
+    message = "Job should have script, trigger, or extends"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for Job() calls without script, trigger, or extends."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    has_script = False
+                    has_trigger = False
+                    has_extends = False
+                    for kw in node.keywords:
+                        if kw.arg == "script":
+                            has_script = True
+                        elif kw.arg == "trigger":
+                            has_trigger = True
+                        elif kw.arg == "extends":
+                            has_extends = True
+                    if not has_script and not has_trigger and not has_extends:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=node.lineno,
+                                column=node.col_offset,
+                            )
+                        )
+
+        return issues
+
+
+class WGL015MissingName:
+    """WGL015: Job should have explicit name."""
+
+    code = "WGL015"
+    message = "Job should have explicit name"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for Job() calls without name keyword."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    has_name = False
+                    for kw in node.keywords:
+                        if kw.arg == "name":
+                            has_name = True
+                            break
+                    if not has_name:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=node.lineno,
+                                column=node.col_offset,
+                            )
+                        )
+
+        return issues
+
+
+class WGL016UseImageDataclass:
+    """WGL016: Use Image dataclass instead of string."""
+
+    code = "WGL016"
+    message = "Use Image dataclass instead of string literal"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for string image values that should use Image dataclass."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Job(...) call with image keyword containing string
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    for kw in node.keywords:
+                        if kw.arg == "image" and isinstance(kw.value, ast.Constant):
+                            if isinstance(kw.value.value, str):
+                                issues.append(
+                                    LintIssue(
+                                        code=self.code,
+                                        message=f"{self.message}: use Image(name=\"{kw.value.value}\")",
+                                        file_path=str(file_path),
+                                        line_number=kw.value.lineno,
+                                        column=kw.value.col_offset,
+                                    )
+                                )
+
+        return issues
+
+
+class WGL017EmptyRulesList:
+    """WGL017: Empty rules list means job never runs."""
+
+    code = "WGL017"
+    message = "Empty rules list means job never runs"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for empty rules list in Job definitions."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                # Check for Job(...) call with rules=[]
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    for kw in node.keywords:
+                        if kw.arg == "rules" and isinstance(kw.value, ast.List):
+                            if len(kw.value.elts) == 0:
+                                issues.append(
+                                    LintIssue(
+                                        code=self.code,
+                                        message=self.message,
+                                        file_path=str(file_path),
+                                        line_number=kw.value.lineno,
+                                        column=kw.value.col_offset,
+                                    )
+                                )
+
+        return issues
+
+
+class WGL018NeedsWithoutStage:
+    """WGL018: Jobs with needs should specify stage."""
+
+    code = "WGL018"
+    message = "Jobs with needs should specify stage for clarity"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for Job() calls with needs but without stage."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    has_needs = False
+                    has_stage = False
+                    for kw in node.keywords:
+                        if kw.arg == "needs":
+                            has_needs = True
+                        elif kw.arg == "stage":
+                            has_stage = True
+                    if has_needs and not has_stage:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=node.lineno,
+                                column=node.col_offset,
+                            )
+                        )
+
+        return issues
+
+
+class WGL019ManualWithoutAllowFailure:
+    """WGL019: Manual jobs should consider allow_failure."""
+
+    code = "WGL019"
+    message = "Manual jobs should consider allow_failure to avoid blocking pipelines"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for manual jobs without allow_failure."""
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    is_manual = False
+                    has_allow_failure = False
+                    when_lineno = 0
+                    when_col = 0
+
+                    for kw in node.keywords:
+                        if kw.arg == "when":
+                            # Check for string "manual"
+                            if isinstance(kw.value, ast.Constant):
+                                if kw.value.value == "manual":
+                                    is_manual = True
+                                    when_lineno = kw.value.lineno
+                                    when_col = kw.value.col_offset
+                            # Check for When.MANUAL attribute access
+                            elif isinstance(kw.value, ast.Attribute):
+                                if kw.value.attr == "MANUAL":
+                                    is_manual = True
+                                    when_lineno = kw.value.lineno
+                                    when_col = kw.value.col_offset
+                        elif kw.arg == "allow_failure":
+                            has_allow_failure = True
+
+                    if is_manual and not has_allow_failure:
+                        issues.append(
+                            LintIssue(
+                                code=self.code,
+                                message=self.message,
+                                file_path=str(file_path),
+                                line_number=when_lineno or node.lineno,
+                                column=when_col or node.col_offset,
+                            )
+                        )
+
+        return issues
+
+
 # All available rules
 ALL_RULES: list[type] = [
     WGL001TypedComponentWrappers,
@@ -396,6 +678,14 @@ ALL_RULES: list[type] = [
     WGL009UsePredefinedRules,
     WGL010UseTypedWhenConstants,
     WGL011MissingStage,
+    WGL012UseCachePolicyConstants,
+    WGL013UseArtifactsWhenConstants,
+    WGL014MissingScript,
+    WGL015MissingName,
+    WGL016UseImageDataclass,
+    WGL017EmptyRulesList,
+    WGL018NeedsWithoutStage,
+    WGL019ManualWithoutAllowFailure,
 ]
 
 # Rule code to class mapping
@@ -411,4 +701,12 @@ RULE_REGISTRY: dict[str, type] = {
     "WGL009": WGL009UsePredefinedRules,
     "WGL010": WGL010UseTypedWhenConstants,
     "WGL011": WGL011MissingStage,
+    "WGL012": WGL012UseCachePolicyConstants,
+    "WGL013": WGL013UseArtifactsWhenConstants,
+    "WGL014": WGL014MissingScript,
+    "WGL015": WGL015MissingName,
+    "WGL016": WGL016UseImageDataclass,
+    "WGL017": WGL017EmptyRulesList,
+    "WGL018": WGL018NeedsWithoutStage,
+    "WGL019": WGL019ManualWithoutAllowFailure,
 }

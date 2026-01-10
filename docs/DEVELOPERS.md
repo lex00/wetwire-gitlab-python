@@ -9,17 +9,43 @@ This guide is for contributors to wetwire-gitlab-python.
 - Python 3.11 or later
 - uv (recommended) or pip
 
-### Clone and Install
+### Quick Start
+
+Use the development setup script for automated environment setup:
 
 ```bash
 git clone https://github.com/lex00/wetwire-gitlab-python.git
 cd wetwire-gitlab-python
 
+# Run setup script (creates venv and installs dependencies)
+./scripts/dev-setup.sh
+```
+
+### Manual Setup
+
+Alternatively, install manually:
+
+```bash
 # Install with dev dependencies
 uv sync --group dev
 
 # Or with pip
 pip install -e ".[dev]"
+```
+
+### Development Scripts
+
+The project includes automation scripts in the `scripts/` directory:
+
+```bash
+# Set up development environment
+./scripts/dev-setup.sh
+
+# Run full CI workflow locally (linting + tests with coverage)
+./scripts/ci.sh
+
+# Run type checker
+./scripts/check-types.sh
 ```
 
 ### Verify Installation
@@ -43,6 +69,7 @@ wetwire-gitlab-python/
 ├── tests/                   # Test files
 ├── examples/                # Example projects
 ├── docs/                    # Documentation
+├── scripts/                 # Development automation scripts
 ├── pyproject.toml          # Project configuration
 ├── CHANGELOG.md            # Version history
 ├── CLAUDE.md               # AI assistant guidelines
@@ -79,6 +106,9 @@ uv run pytest tests/test_pipeline.py
 
 # Run with coverage
 uv run pytest --cov=src
+
+# Or use the CI script to run full workflow
+./scripts/ci.sh
 ```
 
 ### 4. Run Linters
@@ -92,6 +122,8 @@ uv run ruff check --fix src tests
 
 # Type check
 uv run ty check src
+# Or use the type checking script
+./scripts/check-types.sh
 ```
 
 ### 5. Commit Changes

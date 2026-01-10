@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12A: Development Scripts
+
+- **Development Scripts** (`scripts/`) - Added automation scripts for development (#100)
+  - dev-setup.sh: Automated environment setup (venv + dependencies)
+  - ci.sh: Run full CI workflow locally (lint + tests + coverage)
+  - check-types.sh: Run type checker on source code
+  - Updated DEVELOPERS.md with script documentation and quick start
+
 #### Phase 10C: Loader and Codegen Coverage
 
 - **Loader and Codegen Coverage** (`tests/`) - Improved test coverage (#90)

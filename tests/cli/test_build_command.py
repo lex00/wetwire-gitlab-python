@@ -359,3 +359,225 @@ class TestBuildErrorHandling:
         # Should return None, not crash
         module = import_module_from_path(bad_file)
         assert module is None
+
+
+class TestBuildWatchMode:
+    """Tests for watch mode functionality."""
+
+    def test_watch_flag_is_recognized(self):
+        """Build command accepts --watch flag."""
+        result = subprocess.run(
+            [sys.executable, "-m", "wetwire_gitlab.cli", "build", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        # Help text should mention watch flag
+        assert "--watch" in result.stdout
+
+    def test_watch_mode_starts_observer(self, sample_project: Path, monkeypatch):
+        """Watch mode initializes file observer."""
+        pytest.importorskip("watchdog")
+
+        import argparse
+        import time
+        from unittest.mock import MagicMock, patch
+
+        from wetwire_gitlab.cli.commands.build import run_build
+
+        # Create args namespace with watch=True
+        args = argparse.Namespace(
+            path=str(sample_project),
+            output=None,
+            format="yaml",
+            watch=True,
+        )
+
+        # Mock time.sleep to raise KeyboardInterrupt
+        original_sleep = time.sleep
+        sleep_count = [0]
+
+        def mock_sleep(seconds):
+            sleep_count[0] += 1
+            if sleep_count[0] > 1:  # After initial build
+                raise KeyboardInterrupt
+            original_sleep(0.01)  # Small sleep to not busy-loop
+
+        # Mock watchdog Observer to avoid actual watching
+        with patch("watchdog.observers.Observer") as mock_observer, patch(
+            "time.sleep", side_effect=mock_sleep
+        ):
+            mock_instance = MagicMock()
+            mock_observer.return_value = mock_instance
+
+            # Should not crash
+            result = run_build(args)
+
+            # Observer should have been created
+            mock_observer.assert_called_once()
+            assert result == 0
+
+    def test_watch_mode_monitors_py_files(self, sample_project: Path):
+        """Watch mode monitors .py file changes."""
+        pytest.importorskip("watchdog")
+
+        import argparse
+        import time
+        from unittest.mock import MagicMock, patch
+
+        from wetwire_gitlab.cli.commands.build import run_build
+
+        args = argparse.Namespace(
+            path=str(sample_project),
+            output=None,
+            format="yaml",
+            watch=True,
+        )
+
+        # Mock time.sleep to raise KeyboardInterrupt
+        original_sleep = time.sleep
+        sleep_count = [0]
+
+        def mock_sleep(seconds):
+            sleep_count[0] += 1
+            if sleep_count[0] > 1:
+                raise KeyboardInterrupt
+            original_sleep(0.01)
+
+        # Mock the file observer
+        with patch("watchdog.observers.Observer") as mock_observer, patch(
+            "time.sleep", side_effect=mock_sleep
+        ):
+            mock_instance = MagicMock()
+            mock_observer.return_value = mock_instance
+
+            # Should not crash
+            result = run_build(args)
+
+            # Should have scheduled monitoring
+            mock_instance.schedule.assert_called_once()
+            assert result == 0
+
+    def test_watch_mode_handles_keyboard_interrupt(self, sample_project: Path):
+        """Watch mode exits cleanly on Ctrl+C."""
+        pytest.importorskip("watchdog")
+
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from wetwire_gitlab.cli.commands.build import run_build
+
+        args = argparse.Namespace(
+            path=str(sample_project),
+            output=None,
+            format="yaml",
+            watch=True,
+        )
+
+        # Mock time.sleep to raise KeyboardInterrupt immediately
+        def mock_sleep(seconds):
+            raise KeyboardInterrupt
+
+        with patch("watchdog.observers.Observer") as mock_observer, patch(
+            "time.sleep", side_effect=mock_sleep
+        ):
+            mock_instance = MagicMock()
+            mock_observer.return_value = mock_instance
+
+            # Should handle KeyboardInterrupt gracefully and return 0
+            result = run_build(args)
+            assert result == 0
+
+    def test_watch_mode_handles_syntax_errors(self, tmp_path: Path):
+        """Watch mode continues running after syntax errors."""
+        pytest.importorskip("watchdog")
+
+        import argparse
+        from unittest.mock import MagicMock, patch
+
+        from wetwire_gitlab.cli.commands.build import run_build
+
+        # Create a project with syntax error
+        src_dir = tmp_path / "src" / "sample"
+        src_dir.mkdir(parents=True)
+        (src_dir / "__init__.py").write_text("")
+        (src_dir / "bad.py").write_text("this is invalid python {{{{")
+
+        args = argparse.Namespace(
+            path=str(tmp_path),
+            output=None,
+            format="yaml",
+            watch=True,
+        )
+
+        # Mock time.sleep to raise KeyboardInterrupt immediately
+        def mock_sleep(seconds):
+            raise KeyboardInterrupt
+
+        with patch("watchdog.observers.Observer") as mock_observer, patch(
+            "time.sleep", side_effect=mock_sleep
+        ):
+            mock_instance = MagicMock()
+            mock_observer.return_value = mock_instance
+
+            # Should not crash
+            result = run_build(args)
+            # Should exit cleanly even with initial errors
+            assert result == 0
+
+    @pytest.fixture
+    def sample_project(self, tmp_path: Path):
+        """Create a sample project with pipeline definitions."""
+        # Create source directory structure
+        src_dir = tmp_path / "src" / "sample"
+        src_dir.mkdir(parents=True)
+
+        # Create __init__.py
+        (src_dir / "__init__.py").write_text('"""Sample package."""\n')
+
+        # Create jobs.py with Job definitions
+        jobs_py = src_dir / "jobs.py"
+        jobs_py.write_text('''"""Sample jobs."""
+
+from wetwire_gitlab.pipeline import Job, Artifacts
+
+build = Job(
+    name="build",
+    stage="build",
+    script=["make build"],
+    artifacts=Artifacts(paths=["dist/"]),
+)
+
+test = Job(
+    name="test",
+    stage="test",
+    script=["pytest"],
+    needs=["build"],
+)
+
+deploy = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    needs=["test"],
+)
+''')
+
+        # Create pipeline.py with Pipeline definition
+        pipeline_py = src_dir / "pipeline.py"
+        pipeline_py.write_text('''"""Sample pipeline."""
+
+from wetwire_gitlab.pipeline import Pipeline
+
+pipeline = Pipeline(
+    stages=["build", "test", "deploy"],
+)
+''')
+
+        # Create minimal pyproject.toml
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text('''[project]
+name = "sample"
+version = "0.1.0"
+''')
+
+        return tmp_path

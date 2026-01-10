@@ -48,6 +48,10 @@ wetwire-gitlab build --stdout
 
 # Write to specific file
 wetwire-gitlab build -o custom-pipeline.yml
+
+# Watch mode - auto-rebuild on file changes
+wetwire-gitlab build --watch
+wetwire-gitlab build --watch -o .gitlab-ci.yml
 ```
 
 ### Options
@@ -59,6 +63,7 @@ wetwire-gitlab build -o custom-pipeline.yml
 | `--output, -o` | Output file path (default: `.gitlab-ci.yml`) |
 | `--format, -f` | Output format: `yaml` (default) or `json` |
 | `--stdout` | Print to stdout instead of file |
+| `--watch, -w` | Watch for file changes and auto-rebuild (requires watchdog) |
 
 ### How It Works
 
@@ -103,6 +108,68 @@ test:
     "artifacts": {"paths": ["build/"]}
   }
 }
+```
+
+### Watch Mode
+
+Watch mode (`--watch` or `-w`) enables automatic rebuilding when source files change. This is useful during active development.
+
+**Features:**
+- Monitors all `.py` files in the package directory recursively
+- Performs initial build when watch mode starts
+- Automatically rebuilds when files are modified or created
+- Debounces rapid changes (waits 0.5s after last change)
+- Handles errors gracefully without crashing
+- Shows timestamp for each rebuild
+- Clean exit on Ctrl+C
+
+**Setup:**
+```bash
+# Install watchdog dependency
+pip install 'wetwire-gitlab[watch]'
+# or with uv
+uv add 'wetwire-gitlab[watch]'
+```
+
+**Example usage:**
+```bash
+# Watch and write to .gitlab-ci.yml
+wetwire-gitlab build --watch -o .gitlab-ci.yml
+
+# Output:
+# Watching for changes in: /path/to/project/src
+# Press Ctrl+C to stop
+# ============================================================
+#
+# [14:23:15] Initial build...
+# Generated .gitlab-ci.yml
+#
+# ============================================================
+# [14:24:03] Rebuilding...
+# Generated .gitlab-ci.yml
+# [14:24:03] Build successful
+# ============================================================
+```
+
+**Behavior:**
+- Initial build runs immediately when watch mode starts
+- File changes trigger rebuild with clear separators
+- Syntax errors are reported but don't stop watching
+- Timestamps show when each build occurred
+- Press Ctrl+C to exit cleanly
+
+**Common workflow:**
+```bash
+# Terminal 1: Start watch mode
+wetwire-gitlab build --watch -o .gitlab-ci.yml
+
+# Terminal 2: Edit pipeline code
+vim ci/jobs.py
+
+# Terminal 1: Automatically rebuilds on save
+# [14:25:30] Rebuilding...
+# Generated .gitlab-ci.yml
+# [14:25:30] Build successful
 ```
 
 ---
@@ -1010,6 +1077,19 @@ git push
 ---
 
 ## Dependencies
+
+### watchdog (Watch mode)
+
+The `build --watch` command requires the [watchdog](https://github.com/gorakhargosh/watchdog) package:
+
+```bash
+pip install 'wetwire-gitlab[watch]'
+```
+
+Or add to your project:
+```bash
+uv add 'wetwire-gitlab[watch]'
+```
 
 ### wetwire-core (Anthropic provider)
 

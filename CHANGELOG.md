@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12E: Watch Mode
+
+- **Watch Mode** (`cli/commands/build.py`) - Auto-rebuild on file changes (#107)
+  - New `--watch` flag for build command
+  - Uses watchdog library for file monitoring
+  - Debounces rapid changes (0.5s delay)
+  - Shows timestamps and clear separators
+  - Handles errors gracefully without crashing
+  - Optional dependency: `pip install wetwire-gitlab[watch]`
+  - 5 new tests (814 total tests)
+
 #### Phase 12D: Diff Command
 
 - **Diff Command** (`cli/commands/diff.py`) - Compare generated YAML with existing (#106)

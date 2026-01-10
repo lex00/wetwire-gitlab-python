@@ -61,6 +61,14 @@ def build_pipeline_yaml(pipeline: Pipeline, jobs: list[Job]) -> str:
     if "variables" in pipeline_dict:
         result["variables"] = pipeline_dict["variables"]
 
+    # Add cache if present
+    if "cache" in pipeline_dict:
+        result["cache"] = pipeline_dict["cache"]
+
+    # Add services if present
+    if "services" in pipeline_dict:
+        result["services"] = pipeline_dict["services"]
+
     # Add jobs
     for job in jobs:
         job_dict = to_dict(job)

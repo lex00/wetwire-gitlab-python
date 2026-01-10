@@ -22,6 +22,8 @@ class Pipeline:
         include: List of include configurations.
         default: Default job configuration.
         variables: Pipeline-level variables.
+        cache: Top-level cache configuration (applied to all jobs).
+        services: Top-level services configuration (applied to all jobs).
     """
 
     stages: list[str] | None = None
@@ -29,3 +31,5 @@ class Pipeline:
     include: list[Include] | None = None
     default: Default | None = None
     variables: dict[str, str | Variable] | None = None
+    cache: dict | list[dict] | None = None
+    services: list[str | dict] | None = None

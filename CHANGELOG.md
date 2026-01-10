@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 12C: Semantic Equivalence Testing
+
+- **Semantic Equivalence Testing** (`testing/`) - Added round-trip validation (#102)
+  - New `compare_yaml_semantic()` function for YAML comparison
+  - Compares YAML structure ignoring whitespace, ordering, quote style
+  - Added `to_pipeline()` and `to_job()` methods to IR classes
+  - Extended Pipeline to support top-level cache and services
+  - 27 new tests for semantic equivalence (793 total tests)
+  - Per WETWIRE_SPEC.md Section 11.1 requirement
+
 #### Phase 12B: Auto-Fix Expansion
 
 - **Auto-Fix Expansion** (`linter/rules/`) - Added auto-fix support for more rules (#101)

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 9C: Domain-Specific Documentation
+
+- **Domain Documentation** (`docs/`) - GitLab-specific feature guides (#81)
+  - GITLAB_COMPONENTS.md: Security scanning components (SAST, DAST, etc.)
+  - RUNNER_CONFIG.md: GitLab Runner config.toml generation
+  - AUTO_DEVOPS.md: Auto DevOps template configuration
+  - MCP_SERVER.md: MCP server tools and integration
+
 #### Phase 9B: Documentation Improvements
 
 - **EXAMPLES.md** (`docs/EXAMPLES.md`) - Comprehensive examples documentation (#80)

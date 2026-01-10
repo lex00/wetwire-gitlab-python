@@ -19,11 +19,12 @@ class TestLintCommandIntegration:
         (src_dir / "__init__.py").write_text('"""Clean package."""\n')
         (src_dir / "jobs.py").write_text('''"""Clean jobs."""
 
-from wetwire_gitlab.pipeline import Job, Artifacts
+from wetwire_gitlab.pipeline import Job, Artifacts, Image
 
 build = Job(
     name="build",
     stage="build",
+    image=Image(name="python:3.12"),
     script=["make build"],
     artifacts=Artifacts(paths=["dist/"]),
 )

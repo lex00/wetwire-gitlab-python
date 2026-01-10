@@ -422,6 +422,76 @@ class Rules:
     NEVER = never
 
 
+class Images:
+    """Common Docker images for GitLab CI jobs.
+
+    Provides typed constants for popular Docker images used in CI/CD pipelines.
+    Use these constants instead of hardcoded strings.
+    """
+
+    # Python images
+    PYTHON_3_11 = "python:3.11"
+    PYTHON_3_11_SLIM = "python:3.11-slim"
+    PYTHON_3_12 = "python:3.12"
+    PYTHON_3_12_SLIM = "python:3.12-slim"
+    PYTHON_3_13 = "python:3.13"
+
+    # Node.js images
+    NODE_18 = "node:18"
+    NODE_20 = "node:20"
+    NODE_20_ALPINE = "node:20-alpine"
+
+    # Go images
+    GO_1_21 = "golang:1.21"
+    GO_1_22 = "golang:1.22"
+    GO_1_23 = "golang:1.23"
+
+    # Ruby images
+    RUBY_3_2 = "ruby:3.2"
+    RUBY_3_3 = "ruby:3.3"
+
+    # Rust images
+    RUST_1_75 = "rust:1.75"
+    RUST_LATEST = "rust:latest"
+
+    # Alpine images
+    ALPINE_LATEST = "alpine:latest"
+    ALPINE_3_19 = "alpine:3.19"
+
+    # Ubuntu images
+    UBUNTU_22_04 = "ubuntu:22.04"
+    UBUNTU_24_04 = "ubuntu:24.04"
+
+
+class Services:
+    """Common service images for GitLab CI jobs.
+
+    Provides typed constants for popular service containers used in CI/CD pipelines.
+    Services run alongside your job and are typically used for databases, caches, etc.
+    """
+
+    # Docker-in-Docker services
+    DOCKER_DIND = "docker:dind"
+    DOCKER_24_DIND = "docker:24-dind"
+
+    # PostgreSQL services
+    POSTGRES_14 = "postgres:14"
+    POSTGRES_15 = "postgres:15"
+    POSTGRES_16 = "postgres:16"
+
+    # MySQL services
+    MYSQL_8 = "mysql:8"
+
+    # Redis services
+    REDIS_7 = "redis:7"
+
+    # MongoDB services
+    MONGODB_6 = "mongo:6"
+
+    # Elasticsearch services
+    ELASTICSEARCH_8 = "elasticsearch:8"
+
+
 __all__ = [
     # Context classes
     "CI",
@@ -433,6 +503,8 @@ __all__ = [
     "ArtifactsWhen",
     "PipelineSource",
     "Rules",
+    "Images",
+    "Services",
     # Predefined rules
     "on_default_branch",
     "on_tag",

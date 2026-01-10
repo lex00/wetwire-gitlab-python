@@ -156,41 +156,47 @@ Core architecture and implementation:
 - **Phase 2**: Template builder, runner, parser, linter, validation, discovery (#37-#42)
 - **Phase 1**: Foundation - schema fetching, CLI framework, serialization, core types (#31-#34)
 
+### Phase 11: Quality Improvements (Complete)
+
+All Phase 11 issues (#94-#99) completed:
+- **Phase 11A**: CLI modular refactoring (#94)
+- **Phase 11B**: Planning documents (#95)
+- **Phase 11C**: Documentation expansion (#96)
+- **Phase 11D**: Lint auto-fix expansion (#97)
+- **Phase 11E**: GitLab template reference testing (#98)
+- **Phase 11F**: Wetwire spec links (#99)
+
 ---
 
-## Next Priorities
+## Current Phase
 
-### Phase 11 Issues (Planned)
+**Phase 12: Feature Expansion** (In Progress)
 
-**Phase 11A: CLI Refactoring** (#94)
-- Split cli/main.py into modular command files
-- Improve code organization and maintainability
-- Reduce single-file complexity
+Focus on adding new capabilities and improving developer experience.
 
-**Phase 11B: Planning Documents** (#95) - **Current**
-- Add PLAN.md (this document)
-- Add ROADMAP.md with feature matrix
-- Document development timeline and priorities
+### Phase 12 Completed
 
-**Phase 11C: Documentation Expansion** (#96)
-- Expand QUICK_START.md
-- Add more beginner-friendly examples
-- Improve onboarding experience
+**Phase 12A: Development Scripts** (#100)
+- scripts/dev-setup.sh, ci.sh, check-types.sh
+- Developer automation for setup and CI
 
-**Phase 11D: Lint Auto-Fix Expansion** (#97)
-- Add auto-fix support for more rules
-- WGL001, WGL002, WGL003 candidates
-- Improve developer experience
+**Phase 12B: Auto-Fix Expansion** (#101)
+- WGL003, WGL009 auto-fix support
+- Now 5 rules support auto-fix
 
-**Phase 11E: Template Reference Testing** (#98)
-- Test against GitLab official templates
-- Ensure compatibility with Jobs/*.gitlab-ci.yml
-- Validate Security/*.gitlab-ci.yml wrappers
+**Phase 12C: Semantic Equivalence Testing** (#102)
+- compare_yaml_semantic() function
+- Round-trip validation per WETWIRE_SPEC.md
 
-**Phase 11F: Wetwire Spec Links** (#99)
-- Add links to wetwire specification
-- Cross-reference related projects
-- Improve ecosystem documentation
+**Phase 12D: Diff Command** (#106)
+- New `wetwire-gitlab diff` command
+- Compare generated YAML with existing
+
+### Phase 12 In Progress
+
+**Phase 12E: Watch Mode** (#107)
+- Auto-rebuild on file changes
+- --watch flag for build command
 
 ---
 
@@ -198,7 +204,7 @@ Core architecture and implementation:
 
 ### Coverage Gaps
 
-While overall coverage is 77%, some modules have lower coverage:
+While overall coverage is 78%, some modules have lower coverage:
 - Certain edge cases in serialization
 - Complex graph scenarios
 - Error handling paths

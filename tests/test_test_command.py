@@ -4,7 +4,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 class TestTestCommandIntegration:
@@ -41,7 +42,7 @@ class TestTestCommandUnit:
 
     def test_personas_importable(self):
         """Personas are importable from wetwire-core."""
-        from wetwire_core.agent.personas import PERSONAS, load_persona
+        from wetwire_core.agent.personas import PERSONAS
 
         assert "beginner" in PERSONAS
         assert "intermediate" in PERSONAS
@@ -85,8 +86,6 @@ class TestPersonaLoading:
 
     def test_load_invalid_persona_raises(self):
         """Loading invalid persona raises ValueError."""
-        import pytest
-
         from wetwire_core.agent.personas import load_persona
 
         with pytest.raises(ValueError):
@@ -145,7 +144,7 @@ class TestResultsWriter:
     def test_results_format(self):
         """ResultsWriter formats results as markdown."""
         from wetwire_core.agent.results import ResultsWriter, SessionResults
-        from wetwire_core.agent.scoring import Score, Rating
+        from wetwire_core.agent.scoring import Rating, Score
 
         results = SessionResults(
             prompt="Create a CI pipeline",

@@ -59,6 +59,32 @@ deploy = Job(
 )
 ```
 
+### Job Dependencies
+
+Use direct Job references instead of strings for type-safe dependencies:
+
+```python
+from wetwire_gitlab.pipeline import Job
+
+build = Job(name="build", stage="build", script=["make build"])
+
+# Direct Job reference (preferred - type-safe)
+test = Job(
+    name="test",
+    stage="test",
+    script=["make test"],
+    needs=[build],  # Direct reference to Job instance
+)
+
+# String reference (still supported for backwards compatibility)
+deploy = Job(
+    name="deploy",
+    stage="deploy",
+    script=["make deploy"],
+    needs=["test"],  # String reference
+)
+```
+
 ## Package Structure
 
 ```
@@ -101,6 +127,7 @@ wetwire_gitlab/
 2. **Intrinsics package** — Use CI.*, GitLab.*, MR.* for variables
 3. **Pre-defined rules** — Use Rules.ON_DEFAULT_BRANCH etc.
 4. **Flat declarations** — Extract complex configs to named variables
+5. **Direct references** — Use Job references in needs/dependencies for type safety
 
 ## Build
 

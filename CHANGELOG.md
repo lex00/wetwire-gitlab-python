@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### Kiro Module Refactoring
+
+- **Kiro Module** (`kiro/`) - Refactored to use wetwire-core's centralized Kiro integration (#143)
+  - Removed `agent_config.json` (unused - config was embedded in Python)
+  - Removed `installer.py` (624 lines) that duplicated wetwire-core functionality
+  - Added `config.py` with `GITLAB_KIRO_CONFIG` using `KiroConfig` from wetwire-core
+  - Updated `__init__.py` to re-export core functions (`KiroConfig`, `launch_kiro`, etc.)
+  - Maintained backwards compatibility with `install_kiro_configs()` wrapper
+  - Net code reduction: ~400 lines
+
 ### Added
 
 #### README Badges

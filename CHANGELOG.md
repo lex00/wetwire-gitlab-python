@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-01-10
+
+### Fixed
+
+- Remove direct git dependencies for PyPI compatibility
+
 ## [1.0.0] - 2026-01-10
 
 ### Changed
@@ -386,5 +392,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `jinja2>=3.0` for template-based code generation
 - Added `pyyaml>=6.0` for YAML parsing and serialization
 
-[Unreleased]: https://github.com/lex00/wetwire-gitlab-python/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/lex00/wetwire-gitlab-python/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/lex00/wetwire-gitlab-python/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/lex00/wetwire-gitlab-python/releases/tag/v1.0.0

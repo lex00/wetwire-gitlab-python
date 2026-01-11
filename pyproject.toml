@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wetwire-gitlab"
-version = "1.0.0"
+version = "1.0.1"
 description = "GitLab integration for wetwire"
 readme = "README.md"
 license = "MIT"
@@ -31,7 +31,7 @@ dependencies = [
 
 [project.optional-dependencies]
 agent = [
-    "wetwire-core @ git+https://github.com/lex00/wetwire-core-python.git@main",
+    "wetwire-core",
 ]
 dev = [
     "ty>=0.0.1a0",
@@ -51,7 +51,7 @@ mcp = [
 ]
 kiro = [
     "mcp>=1.0.0",
-    "wetwire-core @ git+https://github.com/lex00/wetwire-core-python.git@main",
+    "wetwire-core",
 ]
 watch = [
     "watchdog>=3.0",

@@ -31,7 +31,7 @@ dependencies = [
 
 [project.optional-dependencies]
 agent = [
-    "wetwire-core",
+    "wetwire-core @ git+https://github.com/lex00/wetwire-core-python.git@main",
 ]
 dev = [
     "ty>=0.0.1a0",
@@ -51,6 +51,7 @@ mcp = [
 ]
 kiro = [
     "mcp>=1.0.0",
+    "wetwire-core @ git+https://github.com/lex00/wetwire-core-python.git@main",
 ]
 watch = [
     "watchdog>=3.0",
@@ -77,6 +78,9 @@ Homepage = "https://github.com/lex00/wetwire-gitlab-python"
 Documentation = "https://github.com/lex00/wetwire-gitlab-python#readme"
 Repository = "https://github.com/lex00/wetwire-gitlab-python"
 Issues = "https://github.com/lex00/wetwire-gitlab-python/issues"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wetwire_gitlab"]

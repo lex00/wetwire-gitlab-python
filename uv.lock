@@ -1367,13 +1367,9 @@ wheels = [
 [[package]]
 name = "wetwire-core"
 version = "1.0.1"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/lex00/wetwire-core-python.git?rev=main#7ca154ff4210e856b43d54081df3707787177d7b" }
 dependencies = [
     { name = "anthropic" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a6/5b/03842806bb6e44bc9382cd31e52a68e918519980ddb7f121a80aecfd1bc4/wetwire_core-1.0.1.tar.gz", hash = "sha256:e2c4f117df86cc90a380893b12c757f69a87dc257f5362675d247953c3be4d1f", size = 24524 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/87/7c7bde153481b4bbabb12d5ab01fe8b7eeff8ab9d64e8097167837dbc416/wetwire_core-1.0.1-py3-none-any.whl", hash = "sha256:cf3c11a13b88c3cdc80b81f24fe8f7d2dc5bbeb5f4dba7781d79304f7e8348ef", size = 17760 },
 ]
 
 [[package]]
@@ -1405,6 +1401,7 @@ graph = [
 ]
 kiro = [
     { name = "mcp" },
+    { name = "wetwire-core" },
 ]
 mcp = [
     { name = "mcp" },
@@ -1442,7 +1439,8 @@ requires-dist = [
     { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.1a0" },
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "watchdog", marker = "extra == 'watch'", specifier = ">=3.0" },
-    { name = "wetwire-core", marker = "extra == 'agent'" },
+    { name = "wetwire-core", marker = "extra == 'agent'", git = "https://github.com/lex00/wetwire-core-python.git?rev=main" },
+    { name = "wetwire-core", marker = "extra == 'kiro'", git = "https://github.com/lex00/wetwire-core-python.git?rev=main" },
 ]
 provides-extras = ["agent", "dev", "graph", "mcp", "kiro", "watch"]
 

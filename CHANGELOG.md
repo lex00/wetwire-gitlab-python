@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-01-10
+
 ### Changed
 
 #### Kiro Module Refactoring
@@ -384,15 +386,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `jinja2>=3.0` for template-based code generation
 - Added `pyyaml>=6.0` for YAML parsing and serialization
 
-## [0.1.0] - Unreleased
-
-Initial development release.
-
-### Added
-
-- Project structure with `src/wetwire_gitlab` package
-- Development tooling: ruff, pytest, ty
-- GitHub Actions CI for Python 3.11, 3.12, 3.13
-
-[Unreleased]: https://github.com/lex00/wetwire-gitlab-python/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/lex00/wetwire-gitlab-python/releases/tag/v0.1.0
+[Unreleased]: https://github.com/lex00/wetwire-gitlab-python/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/lex00/wetwire-gitlab-python/releases/tag/v1.0.0

@@ -30,6 +30,24 @@ class TestTestCommandIntegration:
         )
         assert "--persona" in result.stdout
 
+    def test_test_all_personas_flag(self):
+        """Test command accepts --all-personas flag."""
+        result = subprocess.run(
+            [sys.executable, "-m", "wetwire_gitlab.cli", "test", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        assert "--all-personas" in result.stdout
+
+    def test_test_scenario_flag(self):
+        """Test command accepts --scenario flag."""
+        result = subprocess.run(
+            [sys.executable, "-m", "wetwire_gitlab.cli", "test", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        assert "--scenario" in result.stdout
+
 
 class TestTestCommandUnit:
     """Unit tests for test command logic."""

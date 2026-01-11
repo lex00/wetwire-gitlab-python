@@ -30,6 +30,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `graph.py` - Uses `validate_path_exists`, `resolve_source_dir`
   - `validate.py` - Uses `validate_path_exists`
 
+#### Personas and Scoring Migration (#154)
+
+- **Test Command** (`cli/commands/test.py`) - Migrated to wetwire-core personas and scoring
+  - Import personas from `wetwire_core.personas` instead of local definitions
+  - Use `get_persona()` for `--persona` flag handling
+  - Implemented `--all-personas` flag to run tests with all available personas
+  - Implemented `--scenario` flag with predefined test scenarios
+  - Uses 0-15 scale scoring with 5 dimensions (completeness, lint_quality, code_quality, output_validity, question_efficiency)
+
 ## [1.0.1] - 2026-01-10
 
 ### Fixed

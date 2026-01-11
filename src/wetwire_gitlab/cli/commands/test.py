@@ -72,10 +72,10 @@ def run_test(args: argparse.Namespace) -> int:
 
     # Use Anthropic API via wetwire-core (default)
     try:
-        from wetwire_core.agent.personas import PERSONAS, load_persona
         from wetwire_core.agent.results import ResultsWriter, SessionResults
         from wetwire_core.agent.scoring import Rating, Score
         from wetwire_core.agents import AIConversationHandler, DeveloperAgent
+        from wetwire_core.personas import get_persona, persona_names
         from wetwire_core.runner import Message
     except ImportError:
         print(
@@ -87,15 +87,24 @@ def run_test(args: argparse.Namespace) -> int:
 
     from wetwire_gitlab.agent import GitLabRunnerAgent
 
+    # Handle --all-personas flag
+    if getattr(args, "all_personas", False):
+        return _run_all_personas_test(args, output_dir)
+
+    # Handle --scenario flag
+    scenario = getattr(args, "scenario", None)
+    if scenario:
+        return _run_scenario_test(args, scenario, output_dir)
+
     # Get persona
     persona_name = args.persona
     if not persona_name:
-        print("Available personas: " + ", ".join(PERSONAS.keys()))
+        print("Available personas: " + ", ".join(persona_names()))
         print("Select persona (default: intermediate): ", end="")
         persona_name = input().strip() or "intermediate"
 
     try:
-        persona = load_persona(persona_name)
+        persona = get_persona(persona_name)
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
@@ -291,3 +300,110 @@ def run_test(args: argparse.Namespace) -> int:
         print(f"Results written to: {results_path}")
 
         return 0 if score.passed else 1
+
+
+def _run_all_personas_test(args: argparse.Namespace, output_dir: Path) -> int:
+    """Run test with all available personas.
+
+    Args:
+        args: Parsed command-line arguments.
+        output_dir: Directory for output files.
+
+    Returns:
+        Exit code (0=all passed, 1=any failed).
+    """
+    from wetwire_core.personas import all_personas
+
+    print("\033[1mRunning tests with all personas\033[0m\n")
+
+    # Get test prompt once
+    print("\033[1mTest prompt:\033[0m ", end="")
+    test_prompt = input()
+
+    if not test_prompt.strip():
+        print("No prompt provided.", file=sys.stderr)
+        return 1
+
+    results = []
+    for persona in all_personas():
+        print(f"\n{'='*60}")
+        print(f"\033[1mTesting with persona: {persona.name}\033[0m")
+        print(f"\033[90m{persona.description}\033[0m")
+        print("=" * 60)
+
+        # Create modified args with this persona
+        test_args = argparse.Namespace(**vars(args))
+        test_args.persona = persona.name
+        test_args.all_personas = False  # Prevent recursion
+
+        # Store prompt for non-interactive use
+        import io
+        import sys as _sys
+
+        old_stdin = _sys.stdin
+        _sys.stdin = io.StringIO(test_prompt + "\n")
+
+        try:
+            exit_code = run_test(test_args)
+            results.append((persona.name, exit_code == 0))
+        finally:
+            _sys.stdin = old_stdin
+
+    # Summary
+    print("\n" + "=" * 60)
+    print("\033[1mAll Personas Summary\033[0m")
+    print("=" * 60)
+    passed = sum(1 for _, success in results if success)
+    for name, success in results:
+        status = "\033[32mPASS\033[0m" if success else "\033[31mFAIL\033[0m"
+        print(f"  {name}: {status}")
+    print(f"\nTotal: {passed}/{len(results)} passed")
+
+    return 0 if passed == len(results) else 1
+
+
+def _run_scenario_test(
+    args: argparse.Namespace, scenario: str, output_dir: Path
+) -> int:
+    """Run a predefined test scenario.
+
+    Args:
+        args: Parsed command-line arguments.
+        scenario: Scenario name (e.g., 'basic-pipeline', 'multi-stage').
+        output_dir: Directory for output files.
+
+    Returns:
+        Exit code (0=success, 1=error).
+    """
+    # Predefined scenarios with prompts
+    scenarios = {
+        "basic-pipeline": "Create a basic CI/CD pipeline with build and test stages",
+        "multi-stage": "Create a pipeline with build, test, and deploy stages using Docker",
+        "python-app": "Create a Python application pipeline with linting, testing, and deployment",
+        "docker-build": "Create a pipeline that builds and pushes Docker images to a registry",
+    }
+
+    if scenario not in scenarios:
+        print(f"Unknown scenario: {scenario}", file=sys.stderr)
+        print(f"Available scenarios: {', '.join(scenarios.keys())}", file=sys.stderr)
+        return 1
+
+    prompt = scenarios[scenario]
+    print(f"\033[1mRunning scenario: {scenario}\033[0m")
+    print(f"\033[90mPrompt: {prompt}\033[0m\n")
+
+    # Create modified args with the scenario prompt
+    test_args = argparse.Namespace(**vars(args))
+    test_args.scenario = None  # Prevent recursion
+
+    # Inject prompt via stdin
+    import io
+    import sys as _sys
+
+    old_stdin = _sys.stdin
+    _sys.stdin = io.StringIO(prompt + "\n")
+
+    try:
+        return run_test(test_args)
+    finally:
+        _sys.stdin = old_stdin

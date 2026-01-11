@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### README Badges
+
+- **README.md** - Add standard README badges per spec 12.4 (#146)
+  - CI status badge linking to GitHub Actions workflow
+  - PyPI version badge linking to package
+  - Python 3.11+ version badge
+  - MIT license badge
+  - Codecov coverage badge
+
 #### Coverage Reporting in CI
 
 - **CI workflow** (`.github/workflows/ci.yml`) - Add coverage reporting per spec 11.7 (#136)

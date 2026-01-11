@@ -1,5 +1,11 @@
 # wetwire-gitlab
 
+[![CI](https://github.com/lex00/wetwire-gitlab-python/actions/workflows/ci.yml/badge.svg)](https://github.com/lex00/wetwire-gitlab-python/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/wetwire-gitlab)](https://pypi.org/project/wetwire-gitlab/)
+[![Python](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![codecov](https://codecov.io/gh/lex00/wetwire-gitlab-python/branch/main/graph/badge.svg)](https://codecov.io/gh/lex00/wetwire-gitlab-python)
+
 A Python library for generating GitLab CI/CD configuration from typed Python declarations.
 
 ## Wetwire Pattern

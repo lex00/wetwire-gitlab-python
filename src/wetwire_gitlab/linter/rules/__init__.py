@@ -20,6 +20,7 @@ from .job_rules import (
     WGL022AvoidDuplicateNeeds,
     WGL023MissingImageForScriptJobs,
     WGL024CircularDependency,
+    WGL025SecretPatternDetection,
 )
 from .pattern_rules import WGL009UsePredefinedRules, WGL010UseTypedWhenConstants
 from .type_rules import (
@@ -61,6 +62,7 @@ ALL_RULES: list[type] = [
     WGL022AvoidDuplicateNeeds,
     WGL023MissingImageForScriptJobs,
     WGL024CircularDependency,
+    WGL025SecretPatternDetection,
 ]
 
 # Rule code to class mapping
@@ -89,6 +91,7 @@ RULE_REGISTRY: dict[str, type] = {
     "WGL022": WGL022AvoidDuplicateNeeds,
     "WGL023": WGL023MissingImageForScriptJobs,
     "WGL024": WGL024CircularDependency,
+    "WGL025": WGL025SecretPatternDetection,
 }
 
 __all__ = [
@@ -122,6 +125,7 @@ __all__ = [
     "WGL022AvoidDuplicateNeeds",
     "WGL023MissingImageForScriptJobs",
     "WGL024CircularDependency",
+    "WGL025SecretPatternDetection",
     # Registries
     "ALL_RULES",
     "RULE_REGISTRY",

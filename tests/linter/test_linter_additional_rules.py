@@ -645,3 +645,196 @@ job_b = Job(name="b", stage="build", script=["echo b"], needs=["a"])
         issues = lint_code(code, rules=["WGL024"])
         assert len(issues) >= 1
         assert issues[0].line_number > 0
+
+
+class TestWGL025SecretPatternDetection:
+    """Tests for WGL025: Detect hardcoded secrets in job definitions."""
+
+    def test_rule_in_registry(self):
+        """WGL025 is registered in RULE_REGISTRY."""
+        from wetwire_gitlab.linter import RULE_REGISTRY
+
+        assert "WGL025" in RULE_REGISTRY
+
+    def test_detects_aws_access_key(self):
+        """WGL025 detects AWS access key ID patterns."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["aws s3 sync . s3://bucket"],
+    variables={"AWS_ACCESS_KEY_ID": "AKIAIOSFODNN7EXAMPLE"},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+        assert "secret" in issues[0].message.lower() or "aws" in issues[0].message.lower()
+
+    def test_detects_aws_secret_key(self):
+        """WGL025 detects AWS secret access key patterns."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["aws s3 sync . s3://bucket"],
+    variables={"AWS_SECRET_ACCESS_KEY": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_private_key_header(self):
+        """WGL025 detects private key headers in scripts."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = '''from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["echo '-----BEGIN RSA PRIVATE KEY-----' > key.pem"],
+)
+'''
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_gitlab_token(self):
+        """WGL025 detects GitLab personal access tokens."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["curl -H 'PRIVATE-TOKEN: glpat-xxxxxxxxxxxxxxxxxxxx' https://gitlab.com/api"],
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_github_token(self):
+        """WGL025 detects GitHub personal access tokens."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["curl -H 'Authorization: token ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' https://api.github.com"],
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_generic_api_key_variable(self):
+        """WGL025 detects generic API key patterns in variable names."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["echo $API_KEY"],
+    variables={"API_KEY": "sk_live_1234567890abcdefghij"},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_password_in_script(self):
+        """WGL025 detects password patterns in scripts."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["mysql -u root -pMySecretP@ssw0rd123 database"],
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_no_issue_for_ci_variable_reference(self):
+        """WGL025 allows CI variable references (not hardcoded)."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+from wetwire_gitlab.intrinsics import CI
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["aws s3 sync . s3://bucket"],
+    variables={"AWS_ACCESS_KEY_ID": CI.AWS_ACCESS_KEY_ID},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) == 0
+
+    def test_no_issue_for_safe_variables(self):
+        """WGL025 allows safe variable values."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="build",
+    stage="build",
+    script=["make build"],
+    variables={"NODE_ENV": "production", "LOG_LEVEL": "debug"},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) == 0
+
+    def test_detects_slack_webhook(self):
+        """WGL025 detects Slack webhook URLs."""
+        from wetwire_gitlab.linter import lint_code
+
+        # Use a URL with TEST prefix to avoid GitHub secret scanning
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="notify",
+    stage="notify",
+    script=["curl -X POST https://hooks.slack.com/services/TESTTOKEN/BTESTTEST/testwebhooktoken"],
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"
+
+    def test_detects_gcp_service_account_key(self):
+        """WGL025 detects GCP service account key patterns."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job = Job(
+    name="deploy",
+    stage="deploy",
+    script=["gcloud auth activate-service-account"],
+    variables={"GOOGLE_APPLICATION_CREDENTIALS_JSON": '{"type":"service_account","private_key":"-----BEGIN PRIVATE KEY-----"}'},
+)
+"""
+        issues = lint_code(code, rules=["WGL025"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL025"

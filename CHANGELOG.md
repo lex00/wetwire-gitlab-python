@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Secret Pattern Detection (WGL025)
+
+- **WGL025** (`linter/rules/job_rules.py`) - Detect hardcoded secrets in job definitions (#132)
+  - Scans script commands and variable values for common secret patterns
+  - Detects AWS keys (AKIA...), private key headers, GitLab/GitHub tokens
+  - Detects Stripe API keys, Slack webhooks, generic API keys and passwords
+  - 10+ pattern matchers for comprehensive coverage
+
 #### Circular Dependency Detection (WGL024)
 
 - **WGL024** (`linter/rules/job_rules.py`) - Detect circular dependencies in job needs (#131)

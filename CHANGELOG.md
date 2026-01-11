@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `--scenario` flag to specify predefined test scenarios
   - Verified alignment with `wetwire_core.agent.personas` API
 
+#### CLI and MCP Utilities Migration
+
+- **CLI Utilities** (`cli/`) - Removed dead code and migrated to wetwire-core (#145)
+  - Deleted `cli/cli_utils.py` (170 lines - never imported anywhere)
+  - Tests now use `wetwire_core.cli` utilities directly
+  - MCP server uses `MCP_AVAILABLE` from wetwire-core
+  - Net code reduction: ~300 lines
+
 ### Added
 
 #### README Badges

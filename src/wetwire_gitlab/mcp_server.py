@@ -39,10 +39,18 @@ if MCP_AVAILABLE:
     from mcp.server.stdio import stdio_server
     from mcp.types import TextContent, Tool
 else:
-    Server = None  # type: ignore[misc, assignment]
-    stdio_server = None  # type: ignore[misc, assignment]
-    TextContent = None  # type: ignore[misc, assignment]
-    Tool = None  # type: ignore[misc, assignment]
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        # Provide type hints for static analysis when MCP is not installed
+        from mcp.server import Server
+        from mcp.server.stdio import stdio_server
+        from mcp.types import TextContent, Tool
+    else:
+        Server = None  # type: ignore[misc, assignment]
+        stdio_server = None  # type: ignore[misc, assignment]
+        TextContent = None  # type: ignore[misc, assignment]
+        Tool = None  # type: ignore[misc, assignment]
 
 
 def _create_package(path: str, module_name: str) -> dict[str, Any]:

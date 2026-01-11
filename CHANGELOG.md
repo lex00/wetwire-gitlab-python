@@ -36,6 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### CONTRIBUTING.md
+
+- **CONTRIBUTING.md** - Added contributor documentation per DOCUMENTATION_GUIDE (#148)
+  - Development setup instructions with virtual environment
+  - Code style guidelines (PEP 8, type hints, ruff, pyright)
+  - Pull request process and commit message conventions
+  - Project structure overview and testing commands
+
 #### README Badges
 
 - **README.md** - Add standard README badges per spec 12.4 (#146)

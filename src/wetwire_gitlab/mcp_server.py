@@ -32,11 +32,13 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-try:
+from wetwire_core.mcp import MCP_AVAILABLE
+
+if MCP_AVAILABLE:
     from mcp.server import Server
     from mcp.server.stdio import stdio_server
     from mcp.types import TextContent, Tool
-except ImportError:
+else:
     Server = None  # type: ignore[misc, assignment]
     stdio_server = None  # type: ignore[misc, assignment]
     TextContent = None  # type: ignore[misc, assignment]
@@ -295,7 +297,7 @@ def _import_yaml(path: str) -> dict[str, Any]:
 
 def create_server() -> Server:
     """Create and configure the MCP server."""
-    if Server is None:
+    if not MCP_AVAILABLE or Server is None:
         raise ImportError(
             "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
         )
@@ -417,7 +419,7 @@ def create_server() -> Server:
 
 async def run_server() -> None:
     """Run the MCP server with stdio transport."""
-    if stdio_server is None:
+    if not MCP_AVAILABLE or stdio_server is None:
         raise ImportError(
             "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
         )

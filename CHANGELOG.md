@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### CODEGEN.md Documentation
+
+- **CODEGEN.md** (`docs/CODEGEN.md`) - Document code generation pipeline (#135)
+  - Explains all six pipeline stages (Discover, Validate, Extract, Order, Serialize, Emit)
+  - Details AST-based discovery process
+  - Documents serialization rules and field mappings
+  - Includes error handling and performance considerations
+
 #### Imported GitLab CI Examples
 
 - **examples/imported/** (`examples/imported/`) - Import official GitLab CI templates (#134)

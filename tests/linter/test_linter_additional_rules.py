@@ -537,3 +537,111 @@ job = Job(name="test", stage="test", script=["pytest"], image="python:3.11")
 """
         issues = lint_code(code, rules=["WGL023"])
         assert len(issues) == 0
+
+
+class TestWGL024CircularDependency:
+    """Tests for WGL024: Detect circular dependencies in job needs."""
+
+    def test_rule_in_registry(self):
+        """WGL024 is registered in RULE_REGISTRY."""
+        from wetwire_gitlab.linter import RULE_REGISTRY
+
+        assert "WGL024" in RULE_REGISTRY
+
+    def test_detects_simple_circular_dependency(self):
+        """WGL024 detects A -> B -> A cycle."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"], needs=["b"])
+job_b = Job(name="b", stage="build", script=["echo b"], needs=["a"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL024"
+        assert "circular" in issues[0].message.lower()
+
+    def test_detects_self_reference(self):
+        """WGL024 detects A -> A self-reference."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"], needs=["a"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL024"
+        assert "circular" in issues[0].message.lower()
+
+    def test_detects_longer_cycle(self):
+        """WGL024 detects A -> B -> C -> A cycle."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"], needs=["c"])
+job_b = Job(name="b", stage="build", script=["echo b"], needs=["a"])
+job_c = Job(name="c", stage="build", script=["echo c"], needs=["b"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL024"
+        # Should mention all jobs in the cycle
+        cycle_jobs = ["a", "b", "c"]
+        for job in cycle_jobs:
+            assert job in issues[0].message.lower()
+
+    def test_no_issue_for_valid_dag(self):
+        """WGL024 allows valid DAG with no cycles."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+build = Job(name="build", stage="build", script=["make build"])
+test = Job(name="test", stage="test", script=["make test"], needs=["build"])
+deploy = Job(name="deploy", stage="deploy", script=["make deploy"], needs=["test"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) == 0
+
+    def test_no_issue_for_diamond_dependency(self):
+        """WGL024 allows diamond-shaped DAG (A -> B, A -> C, B -> D, C -> D)."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"])
+job_b = Job(name="b", stage="test", script=["echo b"], needs=["a"])
+job_c = Job(name="c", stage="test", script=["echo c"], needs=["a"])
+job_d = Job(name="d", stage="deploy", script=["echo d"], needs=["b", "c"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) == 0
+
+    def test_detects_cycle_with_job_reference(self):
+        """WGL024 detects cycle using Job variable references."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"], needs=[job_b])
+job_b = Job(name="b", stage="build", script=["echo b"], needs=[job_a])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) >= 1
+        assert issues[0].code == "WGL024"
+
+    def test_reports_cycle_with_file_location(self):
+        """WGL024 reports cycles with line numbers."""
+        from wetwire_gitlab.linter import lint_code
+
+        code = """from wetwire_gitlab.pipeline import Job
+
+job_a = Job(name="a", stage="build", script=["echo a"], needs=["b"])
+job_b = Job(name="b", stage="build", script=["echo b"], needs=["a"])
+"""
+        issues = lint_code(code, rules=["WGL024"])
+        assert len(issues) >= 1
+        assert issues[0].line_number > 0

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Circular Dependency Detection (WGL024)
+
+- **WGL024** (`linter/rules/job_rules.py`) - Detect circular dependencies in job needs (#131)
+  - Uses DFS with recursion stack for cycle detection
+  - Supports both string and Job variable references in needs
+  - Reports normalized cycles with job names and file locations
+  - Handles self-references (A -> A) and multi-job cycles (A -> B -> C -> A)
+
 #### Build Manifest Tracking
 
 - **Build Manifest** (`cli/commands/build.py`) - Track build pipeline stages per WETWIRE_SPEC.md section 8.4 (#129)

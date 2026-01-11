@@ -26,7 +26,7 @@ def run_design(args: argparse.Namespace) -> int:
     if provider == "kiro":
         # Use Kiro CLI provider
         try:
-            from wetwire_gitlab.kiro import launch_kiro
+            from wetwire_gitlab.kiro import GITLAB_KIRO_CONFIG, launch_kiro
         except ImportError:
             print(
                 "Error: Kiro integration requires mcp package.\n"
@@ -35,7 +35,12 @@ def run_design(args: argparse.Namespace) -> int:
             )
             return 1
 
-        return launch_kiro(prompt=None, project_dir=output_dir)
+        result = launch_kiro(
+            GITLAB_KIRO_CONFIG,
+            prompt="Hello! I'm ready to design GitLab CI/CD pipelines.",
+            project_dir=output_dir,
+        )
+        return result.returncode
 
     # Use Anthropic API via wetwire-core (default)
     try:

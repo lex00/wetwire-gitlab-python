@@ -295,3 +295,80 @@ class TestKiroAgentConfig:
         # Should mention lint and build tools
         assert "lint" in prompt.lower() or "wetwire_lint" in prompt
         assert "build" in prompt.lower() or "wetwire_build" in prompt
+
+
+@pytest.mark.slow
+class TestAgentConfigJson:
+    """Tests for the standalone agent_config.json file."""
+
+    def test_agent_config_json_exists(self):
+        """agent_config.json file exists in kiro package."""
+        from pathlib import Path
+
+        # Get the path to the kiro package
+        from wetwire_gitlab import kiro
+
+        kiro_dir = Path(kiro.__file__).parent
+        config_path = kiro_dir / "agent_config.json"
+        assert config_path.exists(), f"agent_config.json not found at {config_path}"
+
+    def test_agent_config_json_valid_json(self):
+        """agent_config.json is valid JSON."""
+        import json
+        from pathlib import Path
+
+        from wetwire_gitlab import kiro
+
+        kiro_dir = Path(kiro.__file__).parent
+        config_path = kiro_dir / "agent_config.json"
+        config = json.loads(config_path.read_text())
+        assert isinstance(config, dict)
+
+    def test_agent_config_json_has_required_fields(self):
+        """agent_config.json has required fields."""
+        import json
+        from pathlib import Path
+
+        from wetwire_gitlab import kiro
+
+        kiro_dir = Path(kiro.__file__).parent
+        config_path = kiro_dir / "agent_config.json"
+        config = json.loads(config_path.read_text())
+
+        assert "name" in config
+        assert "description" in config
+        assert "allowedTools" in config
+        assert "context" in config
+
+    def test_agent_config_json_has_context_sections(self):
+        """agent_config.json context has patterns and workflow."""
+        import json
+        from pathlib import Path
+
+        from wetwire_gitlab import kiro
+
+        kiro_dir = Path(kiro.__file__).parent
+        config_path = kiro_dir / "agent_config.json"
+        config = json.loads(config_path.read_text())
+
+        context = config["context"]
+        assert "patterns" in context
+        assert "workflow" in context
+        assert "lintRules" in context
+
+    def test_agent_config_json_references_gitlab(self):
+        """agent_config.json contains GitLab-specific content."""
+        import json
+        from pathlib import Path
+
+        from wetwire_gitlab import kiro
+
+        kiro_dir = Path(kiro.__file__).parent
+        config_path = kiro_dir / "agent_config.json"
+        config = json.loads(config_path.read_text())
+
+        # Should mention GitLab or CI
+        config_str = json.dumps(config)
+        assert "GitLab" in config_str or "gitlab" in config_str.lower()
+        assert "Job" in config_str
+        assert "Pipeline" in config_str

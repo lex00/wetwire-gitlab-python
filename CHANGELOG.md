@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Kiro Agent Configuration
+
+- **agent_config.json** (`kiro/agent_config.json`) - Add standalone agent config for Kiro CLI (#133)
+  - Includes GitLab CI syntax patterns and examples
+  - Documents lint rules WGL001-WGL025
+  - Defines design workflow for AI-assisted pipeline creation
+  - Compatible with Kiro CLI agent discovery
+
 #### Secret Pattern Detection (WGL025)
 
 - **WGL025** (`linter/rules/job_rules.py`) - Detect hardcoded secrets in job definitions (#132)

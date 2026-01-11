@@ -39,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented `--scenario` flag with predefined test scenarios
   - Uses 0-15 scale scoring with 5 dimensions (completeness, lint_quality, code_quality, output_validity, question_efficiency)
 
+#### MCP Server Migration (#155)
+
+- **MCP Server** (`mcp_server.py`) - Migrated to use wetwire-core MCP utilities
+  - Use `create_server` from `wetwire_core.mcp` for server instantiation
+  - Use `run_server` from `wetwire_core.mcp` for stdio transport
+  - Reduced boilerplate while keeping domain-specific tool handlers
+
 ## [1.0.1] - 2026-01-10
 
 ### Fixed

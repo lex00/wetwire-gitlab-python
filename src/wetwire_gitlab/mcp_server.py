@@ -33,22 +33,17 @@ from pathlib import Path
 from typing import Any
 
 from wetwire_core.mcp import MCP_AVAILABLE
+from wetwire_core.mcp import create_server as core_create_server
+from wetwire_core.mcp import run_server as core_run_server
 
 if MCP_AVAILABLE:
-    from mcp.server import Server
-    from mcp.server.stdio import stdio_server
     from mcp.types import TextContent, Tool
 else:
     from typing import TYPE_CHECKING
 
     if TYPE_CHECKING:
-        # Provide type hints for static analysis when MCP is not installed
-        from mcp.server import Server
-        from mcp.server.stdio import stdio_server
         from mcp.types import TextContent, Tool
     else:
-        Server = None  # type: ignore[misc, assignment]
-        stdio_server = None  # type: ignore[misc, assignment]
         TextContent = None  # type: ignore[misc, assignment]
         Tool = None  # type: ignore[misc, assignment]
 
@@ -303,14 +298,20 @@ def _import_yaml(path: str) -> dict[str, Any]:
         return {"success": False, "error": f"Import failed: {e}"}
 
 
-def create_server() -> Server:
-    """Create and configure the MCP server."""
-    if not MCP_AVAILABLE or Server is None:
+def create_server() -> Any:
+    """Create and configure the MCP server.
+
+    Returns:
+        Configured MCP server instance.
+
+    Raises:
+        ImportError: If MCP package is not installed.
+    """
+    server = core_create_server("wetwire-gitlab-mcp")
+    if server is None:
         raise ImportError(
             "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
         )
-
-    server = Server("wetwire-gitlab-mcp")
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
@@ -427,17 +428,8 @@ def create_server() -> Server:
 
 async def run_server() -> None:
     """Run the MCP server with stdio transport."""
-    if not MCP_AVAILABLE or stdio_server is None:
-        raise ImportError(
-            "MCP package required. Install with: pip install wetwire-gitlab[mcp]"
-        )
-
     server = create_server()
-
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream, write_stream, server.create_initialization_options()
-        )
+    await core_run_server(server)
 
 
 def main() -> None:

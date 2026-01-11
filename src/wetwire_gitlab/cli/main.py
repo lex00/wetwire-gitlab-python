@@ -270,6 +270,15 @@ def create_parser() -> argparse.ArgumentParser:
         help="Persona name for testing",
     )
     test_parser.add_argument(
+        "--all-personas",
+        action="store_true",
+        help="Run test with all available personas",
+    )
+    test_parser.add_argument(
+        "--scenario",
+        help="Predefined test scenario name (e.g., 'basic-pipeline', 'multi-stage')",
+    )
+    test_parser.add_argument(
         "-p",
         "--provider",
         choices=["anthropic", "kiro"],

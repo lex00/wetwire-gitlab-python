@@ -4,6 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from wetwire_gitlab.cli.utils import validate_path_exists
+
 
 def run_validate(args: argparse.Namespace) -> int:
     """Execute the validate command.
@@ -22,8 +24,7 @@ def run_validate(args: argparse.Namespace) -> int:
 
     path = Path(args.path)
 
-    if not path.exists():
-        print(f"Error: File does not exist: {path}", file=sys.stderr)
+    if validate_path_exists(path, "File"):
         return 2
 
     if not is_glab_installed():

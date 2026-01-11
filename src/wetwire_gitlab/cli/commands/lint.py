@@ -2,8 +2,9 @@
 
 import argparse
 import json
-import sys
 from pathlib import Path
+
+from wetwire_gitlab.cli.utils import validate_path_exists
 
 
 def run_lint(args: argparse.Namespace) -> int:
@@ -19,8 +20,7 @@ def run_lint(args: argparse.Namespace) -> int:
 
     path = Path(args.path)
 
-    if not path.exists():
-        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+    if validate_path_exists(path):
         return 2
 
     # Apply fixes if --fix flag is set

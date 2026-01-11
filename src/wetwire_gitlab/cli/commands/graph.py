@@ -4,6 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from wetwire_gitlab.cli.utils import resolve_source_dir, validate_path_exists
+
 
 def run_graph(args: argparse.Namespace) -> int:
     """Execute the graph command.
@@ -18,19 +20,10 @@ def run_graph(args: argparse.Namespace) -> int:
 
     path = Path(args.path)
 
-    if not path.exists():
-        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+    if validate_path_exists(path):
         return 1
 
-    # Find source directory
-    if path.is_file():
-        scan_dir = path.parent
-    else:
-        src_dir = path / "src"
-        if src_dir.exists():
-            scan_dir = src_dir
-        else:
-            scan_dir = path
+    scan_dir = resolve_source_dir(path)
 
     # Discover jobs
     result = discover_in_directory(scan_dir)

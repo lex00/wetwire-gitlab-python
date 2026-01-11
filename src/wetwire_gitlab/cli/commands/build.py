@@ -9,6 +9,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from wetwire_gitlab.cli.utils import (
+    require_optional_dependency,
+    resolve_source_dir,
+    validate_path_exists,
+)
+
 if TYPE_CHECKING:
     from wetwire_gitlab.contracts import BuildManifest, DiscoveredJob
 
@@ -111,20 +117,10 @@ def _do_build(args: argparse.Namespace, silent: bool = False) -> int:
 
     path = Path(args.path)
 
-    if not path.exists():
-        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+    if validate_path_exists(path):
         return 1
 
-    # Find the source directory
-    if path.is_file():
-        scan_dir = path.parent
-    else:
-        # Look for src directory
-        src_dir = path / "src"
-        if src_dir.exists():
-            scan_dir = src_dir
-        else:
-            scan_dir = path
+    scan_dir = resolve_source_dir(path)
 
     # Extract jobs and pipelines
     jobs = extract_all_jobs(scan_dir)
@@ -253,32 +249,17 @@ def _run_watch_mode(args: argparse.Namespace) -> int:
     Returns:
         Exit code (0=success, 1=error).
     """
-    try:
-        from watchdog.events import FileSystemEventHandler
-        from watchdog.observers import Observer
-    except ImportError:
-        print(
-            "Error: watchdog package is required for watch mode.",
-            file=sys.stderr,
-        )
-        print("Install with: pip install 'wetwire-gitlab[watch]'", file=sys.stderr)
+    if require_optional_dependency("watchdog", "watchdog", "watch"):
         return 1
+
+    from watchdog.events import FileSystemEventHandler
+    from watchdog.observers import Observer
 
     path = Path(args.path)
-    if not path.exists():
-        print(f"Error: Path does not exist: {path}", file=sys.stderr)
+    if validate_path_exists(path):
         return 1
 
-    # Determine watch directory
-    if path.is_file():
-        watch_dir = path.parent
-    else:
-        # Look for src directory
-        src_dir = path / "src"
-        if src_dir.exists():
-            watch_dir = src_dir
-        else:
-            watch_dir = path
+    watch_dir = resolve_source_dir(path)
 
     print(f"Watching for changes in: {watch_dir}")
     print("Press Ctrl+C to stop")

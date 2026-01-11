@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### Code Quality Refactoring (#153)
+
+- **Linter Module** (`linter/`) - Fixed incomplete exports in top-level `__init__.py`
+  - Added missing exports for WGL020-WGL025 rules
+  - Added `LintRule` protocol export from `rules/base.py`
+  - Organized exports by category (protocol, registries, rules, functions)
+
+- **CLI Utilities** (`cli/utils.py`) - New helper module for common CLI patterns
+  - `error_exit()` - Print error message to stderr and return exit code
+  - `validate_path_exists()` - Path validation with standardized error messages
+  - `require_optional_dependency()` - ImportError handling for optional packages
+  - `resolve_source_dir()` - Source directory resolution (handles src/ subdirectory)
+  - `resolve_output_dir()` - Output directory resolution
+
+- **CLI Commands** - Refactored to use new utilities
+  - `build.py` - Uses `validate_path_exists`, `resolve_source_dir`, `require_optional_dependency`
+  - `lint.py` - Uses `validate_path_exists`
+  - `list_cmd.py` - Uses `validate_path_exists`, `resolve_source_dir`
+  - `graph.py` - Uses `validate_path_exists`, `resolve_source_dir`
+  - `validate.py` - Uses `validate_path_exists`
+
 ## [1.0.1] - 2026-01-10
 
 ### Fixed

@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Maintained backwards compatibility with `install_kiro_configs()` wrapper
   - Net code reduction: ~400 lines
 
+#### Test Command Flags
+
+- **Test Command** (`cli/commands/test.py`) - Added new CLI flags for personas testing (#144)
+  - `--all-personas` flag to run test with all available personas
+  - `--scenario` flag to specify predefined test scenarios
+  - Verified alignment with `wetwire_core.agent.personas` API
+
 ### Added
 
 #### README Badges

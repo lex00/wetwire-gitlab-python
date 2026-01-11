@@ -1366,14 +1366,14 @@ wheels = [
 
 [[package]]
 name = "wetwire-core"
-version = "1.0.1"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anthropic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a6/5b/03842806bb6e44bc9382cd31e52a68e918519980ddb7f121a80aecfd1bc4/wetwire_core-1.0.1.tar.gz", hash = "sha256:e2c4f117df86cc90a380893b12c757f69a87dc257f5362675d247953c3be4d1f", size = 24524 }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/48/f4e61b7cd91b54dca78a75434c591b7e669870e946123e0f92194ca9f5c6/wetwire_core-1.1.0.tar.gz", hash = "sha256:16c20f225afec459d6fb68e5fc88f681885717bf0e6ad77935285d859e037c4e", size = 36530 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/87/7c7bde153481b4bbabb12d5ab01fe8b7eeff8ab9d64e8097167837dbc416/wetwire_core-1.0.1-py3-none-any.whl", hash = "sha256:cf3c11a13b88c3cdc80b81f24fe8f7d2dc5bbeb5f4dba7781d79304f7e8348ef", size = 17760 },
+    { url = "https://files.pythonhosted.org/packages/02/9a/2e3e236eac61af4e381b00d86f6906548929384eb7a3edfd70ae0a17ff05/wetwire_core-1.1.0-py3-none-any.whl", hash = "sha256:582a720c754a8a96ae549120335a86ea87aae881e4ffd4ccc1caee72aadb05b5", size = 24412 },
 ]
 
 [[package]]

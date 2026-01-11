@@ -5,6 +5,7 @@ required fields or potentially problematic configurations.
 """
 
 import ast
+import re
 from pathlib import Path
 
 from ...contracts import LintIssue
@@ -471,3 +472,103 @@ class WGL024CircularDependency:
                         if var_name in var_to_job:
                             needs.append(var_to_job[var_name])
         return needs
+
+
+# Secret patterns to detect
+SECRET_PATTERNS = [
+    # AWS Access Key ID
+    (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS Access Key ID"),
+    # AWS Secret Access Key (40 char base64-like)
+    (re.compile(r"(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"), "AWS Secret Access Key"),
+    # Private key headers
+    (re.compile(r"-----BEGIN[A-Z ]*PRIVATE KEY-----"), "Private key"),
+    # GitLab Personal Access Token
+    (re.compile(r"glpat-[a-zA-Z0-9_-]{20,}"), "GitLab Personal Access Token"),
+    # GitHub Personal Access Token
+    (re.compile(r"ghp_[a-zA-Z0-9]{36,}"), "GitHub Personal Access Token"),
+    # GitHub OAuth Access Token
+    (re.compile(r"gho_[a-zA-Z0-9]{36,}"), "GitHub OAuth Token"),
+    # GitHub App Token
+    (re.compile(r"ghu_[a-zA-Z0-9]{36,}"), "GitHub User-to-Server Token"),
+    # Stripe API Key
+    (re.compile(r"sk_live_[a-zA-Z0-9]{20,}"), "Stripe Live API Key"),
+    # Slack Webhook URL
+    (re.compile(r"https://hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[a-zA-Z0-9]+"), "Slack Webhook URL"),
+    # Generic password in connection string
+    (re.compile(r"-p[A-Za-z0-9!@#$%^&*()_+=]{8,}"), "Possible hardcoded password"),
+    # Generic API key patterns (sensitive variable names with long values)
+    (re.compile(r"(?:api[_-]?key|api[_-]?secret|auth[_-]?token)['\"]?\s*[:=]\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?", re.IGNORECASE), "Possible API key"),
+]
+
+
+class WGL025SecretPatternDetection:
+    """WGL025: Detect hardcoded secrets in job definitions."""
+
+    code = "WGL025"
+    message = "Possible hardcoded secret detected"
+
+    def check(self, tree: ast.AST, file_path: Path) -> list[LintIssue]:
+        """Check for hardcoded secrets in Job definitions.
+
+        Scans script commands and variable values for common secret patterns
+        including AWS keys, private keys, tokens, and API keys.
+        """
+        issues: list[LintIssue] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == "Job":
+                    for kw in node.keywords:
+                        # Check script commands
+                        if kw.arg == "script" and isinstance(kw.value, ast.List):
+                            for elt in kw.value.elts:
+                                if isinstance(elt, ast.Constant) and isinstance(
+                                    elt.value, str
+                                ):
+                                    self._check_string_for_secrets(
+                                        elt.value,
+                                        file_path,
+                                        elt.lineno,
+                                        elt.col_offset,
+                                        issues,
+                                    )
+
+                        # Check variables dict
+                        if kw.arg == "variables" and isinstance(kw.value, ast.Dict):
+                            for key, value in zip(kw.value.keys, kw.value.values):
+                                # Only check string constant values
+                                if isinstance(value, ast.Constant) and isinstance(
+                                    value.value, str
+                                ):
+                                    self._check_string_for_secrets(
+                                        value.value,
+                                        file_path,
+                                        value.lineno,
+                                        value.col_offset,
+                                        issues,
+                                    )
+
+        return issues
+
+    def _check_string_for_secrets(
+        self,
+        text: str,
+        file_path: Path,
+        line_number: int,
+        column: int,
+        issues: list[LintIssue],
+    ) -> None:
+        """Check a string for secret patterns."""
+        for pattern, description in SECRET_PATTERNS:
+            if pattern.search(text):
+                issues.append(
+                    LintIssue(
+                        code=self.code,
+                        message=f"{self.message}: {description}",
+                        file_path=str(file_path),
+                        line_number=line_number,
+                        column=column,
+                    )
+                )
+                # Only report one secret per string to avoid duplicate reports
+                return

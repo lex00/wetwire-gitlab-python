@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Imported GitLab CI Examples
+
+- **examples/imported/** (`examples/imported/`) - Import official GitLab CI templates (#134)
+  - Python, Node.js, and Rust official GitLab CI templates
+  - Round-trip testing verifies import and build work correctly
+  - README with proper attribution to gitlab-org/gitlab
+
 #### Kiro Agent Configuration
 
 - **agent_config.json** (`kiro/agent_config.json`) - Add standalone agent config for Kiro CLI (#133)

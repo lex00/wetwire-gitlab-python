@@ -154,3 +154,75 @@ class TestMonorepoExample:
 
         assert ci.trigger_frontend.trigger is not None
         assert ci.trigger_frontend.needs == ["detect-changes"]
+
+
+def import_imported_example(example_name: str):
+    """Import the pipeline.jobs module from an imported example."""
+    example_path = str(EXAMPLES_DIR / "imported" / example_name / "src")
+
+    # Remove any existing pipeline module
+    if "pipeline" in sys.modules:
+        del sys.modules["pipeline"]
+    for key in list(sys.modules.keys()):
+        if key.startswith("pipeline."):
+            del sys.modules[key]
+
+    # Remove old example paths from sys.path
+    sys.path = [p for p in sys.path if "imported" not in p]
+
+    # Add new example path and import the jobs module
+    sys.path.insert(0, example_path)
+    return importlib.import_module("pipeline.jobs")
+
+
+@pytest.mark.slow
+class TestImportedPythonTemplate:
+    """Tests for imported gitlab-python-template."""
+
+    def test_imports(self):
+        """Imported Python template modules can be imported."""
+        pipeline = import_imported_example("gitlab-python-template")
+
+        assert hasattr(pipeline, "test")
+        assert hasattr(pipeline, "run")
+        assert hasattr(pipeline, "pages")
+        assert hasattr(pipeline, "deploy")
+
+    def test_job_names(self):
+        """Imported jobs have correct names."""
+        pipeline = import_imported_example("gitlab-python-template")
+
+        assert pipeline.test.name == "test"
+        assert pipeline.run.name == "run"
+        assert pipeline.pages.name == "pages"
+        assert pipeline.deploy.name == "deploy"
+
+    def test_deploy_environment(self):
+        """Deploy job has production environment."""
+        pipeline = import_imported_example("gitlab-python-template")
+
+        assert pipeline.deploy.environment == "production"
+
+
+@pytest.mark.slow
+class TestImportedNodejsTemplate:
+    """Tests for imported gitlab-nodejs-template."""
+
+    def test_imports(self):
+        """Imported Node.js template modules can be imported."""
+        pipeline = import_imported_example("gitlab-nodejs-template")
+
+        # Check that module loads without error
+        assert pipeline is not None
+
+
+@pytest.mark.slow
+class TestImportedRustTemplate:
+    """Tests for imported gitlab-rust-template."""
+
+    def test_imports(self):
+        """Imported Rust template modules can be imported."""
+        pipeline = import_imported_example("gitlab-rust-template")
+
+        # Check that module loads without error
+        assert pipeline is not None

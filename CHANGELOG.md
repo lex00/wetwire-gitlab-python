@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Coverage Reporting in CI
+
+- **CI workflow** (`.github/workflows/ci.yml`) - Add coverage reporting per spec 11.7 (#136)
+  - Run tests with coverage reporting (XML and terminal output)
+  - Upload coverage to Codecov for Python 3.12 builds
+  - Coverage metrics visible in CI output
+
 #### CODEGEN.md Documentation
 
 - **CODEGEN.md** (`docs/CODEGEN.md`) - Document code generation pipeline (#135)

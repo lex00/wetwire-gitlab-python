@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import anthropic
+from wetwire_core.providers import AnthropicProvider, Provider
 
 # GitLab-specific system prompt
 RUNNER_SYSTEM_PROMPT = """You are a Runner agent that creates GitLab CI/CD pipelines using wetwire-gitlab.
@@ -128,8 +128,7 @@ class GitLabRunnerAgent:
 
     output_dir: Path
     existing_package: str | None = None
-    client: anthropic.Anthropic = field(default_factory=anthropic.Anthropic)
-    model: str = "claude-sonnet-4-20250514"
+    provider: Provider = field(default_factory=AnthropicProvider)
     conversation: list[dict[str, Any]] = field(default_factory=list)
     package_name: str = ""
     _package_dir: Path | None = field(default=None, init=False)
@@ -410,26 +409,25 @@ from wetwire_gitlab.intrinsics import CI, GitLab, MR, Rules, When
         if developer_message:
             self.conversation.append({"role": "user", "content": developer_message})
 
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=4096,
+        response = self.provider.create_message(
+            messages=self.conversation,
             system=RUNNER_SYSTEM_PROMPT,
             tools=self.get_tools(),
-            messages=self.conversation,
+            max_tokens=4096,
         )
 
         tool_results: list[ToolResult] = []
         response_text = ""
 
-        for block in response.content:
-            if block.type == "text":
-                response_text += block.text
-            elif block.type == "tool_use":
-                result = self.execute_tool(block.name, block.input)
-                result.tool_use_id = block.id
+        for block in response["content"]:
+            if block["type"] == "text":
+                response_text += block.get("text", "") or ""
+            elif block["type"] == "tool_use":
+                result = self.execute_tool(block["name"], block["input"])
+                result.tool_use_id = block["id"]
                 tool_results.append(result)
 
-        self.conversation.append({"role": "assistant", "content": response.content})
+        self.conversation.append({"role": "assistant", "content": response["content"]})
 
         if tool_results:
             tool_result_content = [

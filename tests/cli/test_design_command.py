@@ -61,8 +61,7 @@ class TestDesignCommandUnit:
 
         assert GitLabRunnerAgent is not None
 
-    @patch("wetwire_gitlab.agent.anthropic")
-    def test_detect_existing_package(self, mock_anthropic):
+    def test_detect_existing_package(self):
         """detect_existing_package finds wetwire-gitlab packages."""
         from wetwire_gitlab.agent import detect_existing_package
 
@@ -93,19 +92,19 @@ class TestDesignCommandUnit:
 class TestDesignCommandWithMockedAPI:
     """Tests that mock the Anthropic API."""
 
-    @patch("wetwire_gitlab.agent.anthropic")
-    def test_design_with_mocked_api(self, mock_anthropic):
-        """Design command works with mocked API."""
+    def test_design_with_mocked_api(self):
+        """Design command works with mocked API via Provider abstraction."""
         from wetwire_gitlab.agent import GitLabRunnerAgent
 
-        # Setup mock client
-        mock_client = MagicMock()
-        mock_anthropic.Anthropic.return_value = mock_client
+        # Create a mock provider
+        mock_provider = MagicMock()
+        mock_provider.model = "claude-sonnet-4-20250514"
 
         with tempfile.TemporaryDirectory() as tmp:
-            agent = GitLabRunnerAgent(output_dir=Path(tmp))
-            # Just verify agent is created correctly
+            agent = GitLabRunnerAgent(output_dir=Path(tmp), provider=mock_provider)
+            # Verify agent is created correctly with custom provider
             assert agent.output_dir == Path(tmp)
+            assert agent.provider == mock_provider
 
 
 class TestDesignCommandOptionalDependency:
